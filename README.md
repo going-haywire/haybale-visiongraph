@@ -5,7 +5,7 @@ A haywire project.
 ## Subscribe
 
 <!-- marketstall:share-url:start -->
-*Subscribe URL not yet published — run `haywire share --save` after pushing this repo to a git remote.*
+`https://github.com/going-haywire/haybale-visiongraph/blob/master/marketstall.toml`
 <!-- marketstall:share-url:end -->
 
 ## Getting started

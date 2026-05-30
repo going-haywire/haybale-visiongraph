@@ -1,0 +1,16 @@
+# marketstall.toml — share this file's raw URL so others can subscribe to your library feed
+# Run: haywire share --save   to update this file
+
+[[haybales]]
+name = "haybale-visiongraph"
+label = "Visiongraph"
+min_version = "0.0.9"
+description = "Visiongraph library for Haywire node system demonstrating custom types, nodes, widgets, and renderers"
+author = "Haywire Team"
+source = "git"
+install_spec = "haybale-visiongraph @ git+https://github.com/going-haywire/haybale-visiongraph.git#subdirectory=barn/haybale-visiongraph"
+tags = [ "haywire", "node-editor", "visual-programming", "visiongraph",]
+dependencies = [ "haybale-core",]
+source_url = "https://github.com/going-haywire/haybale-visiongraph"
+docs_url = "https://raw.githubusercontent.com/going-haywire/haybale-visiongraph/main/barn/haybale-visiongraph/haybale_visiongraph/"
+
