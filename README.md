@@ -5,7 +5,9 @@ A haywire project.
 ## Subscribe
 
 <!-- marketstall:share-url:start -->
-`https://github.com/going-haywire/haybale-visiongraph/blob/master/marketstall.toml`
+```sh
+https://github.com/going-haywire/haybale-visiongraph/blob/master/marketstall.toml
+```
 <!-- marketstall:share-url:end -->
 
 ## Getting started
