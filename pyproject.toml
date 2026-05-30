@@ -1,0 +1,31 @@
+[project]
+name = "haybale-visiongraph"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [ "haywire-studio~=0.0.8", "haybale-marketplace~=0.0.8", "haybale-visiongraph", "haybale-core", "haybale-studio",]
+
+[tool.uv.workspace]
+members = [ "barn/*",]
+
+[tool.uv.sources.haybale-visiongraph]
+workspace = true
+
+[tool.uv.sources.haywire-studio]
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/packages/haywire-studio"
+editable = true
+
+[tool.uv.sources.haywire-core]
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/packages/haywire-core"
+editable = true
+
+[tool.uv.sources.haybale-core]
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-core"
+editable = true
+
+[tool.uv.sources.haybale-studio]
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-studio"
+editable = true
+
+[tool.uv.sources.haybale-marketplace]
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-marketplace"
+editable = true

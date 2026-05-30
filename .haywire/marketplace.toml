@@ -1,0 +1,54 @@
+[[heaps]]
+name = "haybale-visiongraph"
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haybale-visiongraph/barn/haybale-visiongraph"
+label = "Haybale Visiongraph"
+description = "Local library for the haybale-visiongraph project"
+
+[[heaps]]
+name = "haybale-TEST_A"
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-TEST_A"
+label = "Test A"
+description = "Test library for Haywire node system"
+
+[[heaps]]
+name = "haybale-core"
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-core"
+label = "Core"
+description = "Haywire's core library with types, nodes, widgets, and renderers"
+
+[[heaps]]
+name = "haybale-example"
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-example"
+label = "Example"
+description = "Example library for Haywire node system demonstrating custom types, nodes, widgets, and renderers"
+
+[[heaps]]
+name = "haybale-graph-editor"
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-graph-editor"
+label = "Graph Editor"
+description = "Graph editor library for Haywire — host-agnostic visual graph editing"
+
+[[heaps]]
+name = "haybale-haystack"
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-haystack"
+label = "Haystack"
+description = "Haystack — file-centric multi-graph manager for Haywire"
+
+[[heaps]]
+name = "haybale-marketplace"
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-marketplace"
+label = "Marketplace"
+description = "Library installer + browser editors for Haywire"
+
+[[heaps]]
+name = "haybale-studio"
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-studio"
+label = "Studio"
+description = "haywire studio library for basic functionality"
+
+[[heaps]]
+name = "haybale-testing"
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-testing"
+label = "Testing"
+description = "Testing library for Haywire node system"
+
