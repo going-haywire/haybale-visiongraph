@@ -1,6 +1,6 @@
 [project]
 name = "haybale-visiongraph"
-version = "0.0.11"
+version = "0.0.12"
 description = "Visiongraph library for Haywire node system demonstrating custom types, nodes, widgets, and renderers"
 readme = "README.md"
 requires-python = ">=3.9"
