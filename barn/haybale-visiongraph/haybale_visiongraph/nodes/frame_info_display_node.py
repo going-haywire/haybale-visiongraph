@@ -7,6 +7,7 @@ import numpy as np
 
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
+from haywire.core.types.enums import ShowWidgetStrategy
 
 from haybale_visiongraph.types.frame_type import FRAME
 
@@ -50,6 +51,7 @@ class WebcamFrameInfoDisplayNode(BaseNode):
             FRAME.as_inlet(
                 "frame",
                 label="Frame",
+                show_widget=ShowWidgetStrategy.WHEN_LINKED,
                 widget=OpencvViewerWidget.config(
                     properties={
                         "quality": 85,
