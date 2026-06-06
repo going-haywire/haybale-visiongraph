@@ -6,6 +6,7 @@ from importlib.metadata import version as _pkg_version
 from pathlib import Path
 
 from haywire.core.library.base import BaseLibrary
+from haywire.core.library.compatibility import CompatibilityWarning
 from haywire.core.library.decorator import library
 from haywire.core.adapter.registry import AdapterRegistry
 from haywire.core.node.registry import NodeRegistry
@@ -56,6 +57,23 @@ class Library(BaseLibrary):
     def validate(self) -> bool:
         """Validate that the test library is properly structured"""
         return True
+
+    def compatibility_warnings(self) -> list[CompatibilityWarning]:
+        """Append-only history of compatibility notices. See ADR 0005."""
+        from .nodes import WebcamFrameInfoDisplayNode
+
+        return [
+            CompatibilityWarning(
+                version="0.0.13",
+                component=WebcamFrameInfoDisplayNode,
+                message=(
+                    "The 'frame' inlet's widget visibility (show_widget) is now "
+                    "author-declared (WHEN_LINKED). Graphs saved before 0.0.13 may "
+                    "not show the live preview widget even when the inlet is linked. "
+                    "Reset the node to re-derive it from current code."
+                ),
+            ),
+        ]
 
 
 # Export for entry point discovery
