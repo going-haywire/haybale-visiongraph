@@ -12,7 +12,7 @@ from haywire.core.node import node, BaseNode, NodeType
 @node(
     label="Webcam Frame Event",
     description="Triggered when a webcam frame is ready",
-    menu="event/vision",
+    menu="vision/event",
     search_tags=["webcam", "frame", "camera", "event", "video"],
     node_type=NodeType.EVENT,
 )
