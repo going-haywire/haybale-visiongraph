@@ -1,6 +1,8 @@
 # Haybale Visiongraph
 
-A haywire project.
+A haywire wrapper for [Visiongraph](https://github.com/cansik/visiongraph)
+
+Visiongraph is a computer-vision pipeline library designed to simplify the prototyping of image-based algorithms with ready-to-use modules and composable graph nodes. Built on top of OpenCV, it also integrates popular frameworks such as [Intel OpenVINO](https://github.com/openvinotoolkit/openvino), [Google MediaPipe](https://github.com/google-ai-edge/mediapipe), and [DepthAI](https://pypi.org/project/depthai/). The library is designed with a focus on real-time applications and edge deployment.
 
 ## Subscribe
 
@@ -19,16 +21,14 @@ uv sync
 uv run haywire
 ```
 
-
-
-## Share your library
-
-this will bump all the files to the specified version, commit, and sets the git-tag
-
-then it generates and saves the marketstall.toml file and updates the above
-
-subscribe link with the url to get this library.
+## Share the library
 
 ```shell
-uv run haywire share --bump x.y.z --save
+uv run haywire share --bump patch|minor|major --save
 ```
+
+## Credits
+
+Florian Bruggisser. Creator of [visiongraph](https://github.com/cansik/visiongraph)
+
+Martin Froehlich. Implementation for [haywire](https://github.com/going-haywire/haywire)
