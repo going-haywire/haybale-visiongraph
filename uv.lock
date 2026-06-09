@@ -518,7 +518,7 @@ requires-dist = [
 
 [[package]]
 name = "haybale-visiongraph"
-version = "0.0.13"
+version = "0.0.16"
 source = { editable = "barn/haybale-visiongraph" }
 dependencies = [
     { name = "fastapi" },
@@ -543,7 +543,7 @@ requires-dist = [
 
 [[package]]
 name = "haybale-visiongraph-dev"
-version = "0.0.13"
+version = "0.0.16"
 source = { virtual = "." }
 dependencies = [
     { name = "haybale-core" },
