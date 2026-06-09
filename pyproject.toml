@@ -1,6 +1,6 @@
 [project]
 name = "haybale-visiongraph-dev"
-version = "0.0.14"
+version = "0.0.15"
 requires-python = ">=3.11"
 dependencies = [ "haywire-studio~=0.0.8", "haybale-marketplace~=0.0.8", "haybale-visiongraph", "haybale-core", "haybale-studio",]
 
