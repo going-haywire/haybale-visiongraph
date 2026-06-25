@@ -67,7 +67,7 @@ class OakDEmitNode(BaseNode):
 
         # Pooled subscriptions: each connected event node contributes its
         # MULTIFRAME_CALLBACK (name + stream requirements).
-        self.add(PooledType[MULTIFRAME_CALLBACK].as_inlet("callbacks", label="Subscribers"))
+        self.add(PooledType[MULTIFRAME_CALLBACK].as_inlet("callbacks", label="Subscribers", description="Connect to a Frame Event node"))
 
         # Status display
         self.add(

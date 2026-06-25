@@ -40,9 +40,10 @@ class StartWebcamStreamNode(BaseNode):
     """
 
     def init(self):
-        from haybale_core.types import EXEC, STRING, INT, CALLBACK
+        from haybale_core.types import EXEC, STRING, INT
         from haybale_core.types import PooledType
         from haybale_core.widgets.basic_widgets import NumberWidget, SimpleLabelWidget
+        from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
 
         # Control inputs
         self.add(EXEC.as_inlet("start", label="Start"))
@@ -94,7 +95,16 @@ class StartWebcamStreamNode(BaseNode):
             )
         )
 
-        self.add(PooledType[CALLBACK].as_inlet("callback_names", label="Trigger"))
+        # Subscriptions from 3D Frame Event nodes. The webcam is the RGB-only
+        # member of the camera family: it honors only the `rgb` requirement and
+        # ignores depth/ir (see notes.md "webcam joins the 3D-camera family").
+        self.add(
+            PooledType[MULTIFRAME_CALLBACK].as_inlet(
+                "callbacks", 
+                label="Subscribers",
+                description="Connect to a Frame Event node. Beware: this camera type can only deliver rgb frames"
+            )
+        )
 
         # Status display
         self.add(
@@ -141,6 +151,12 @@ class StartWebcamStreamNode(BaseNode):
         if self.hb_is_running:
             self.hb_update_status("Already running")
             return "started"
+
+        # Requirement union: the webcam only provides rgb, so it captures only
+        # if some subscriber wants it. depth/ir requirements are silently ignored.
+        if not self.hb_any_rgb_requested():
+            self.hb_update_status("No RGB subscriber")
+            return None
 
         # Get configuration
         camera_index = self.value("camera_index")
@@ -199,9 +215,13 @@ class StartWebcamStreamNode(BaseNode):
         self.hb_update_status("Stopped")
         return "stopped"
 
+    def hb_any_rgb_requested(self) -> bool:
+        """True if any subscribed 3D Frame Event node requests the rgb stream."""
+        subs: dict = self.value("callbacks") or {}
+        return any(getattr(sub, "rgb", False) for sub in subs.values())
+
     def hb_capture_loop(self, context: ExecutionContext):
         """Main capture loop running in separate thread"""
-        callback_names: dict = self.value("callback_names")
         frame_skip = max(1, self.value("frame_skip"))
 
         while self.hb_is_running and self.hb_capture is not None:
@@ -218,19 +238,22 @@ class StartWebcamStreamNode(BaseNode):
                 if (self.hb_frame_count - 1) % frame_skip != 0:
                     continue
 
-                # Emit callback with frame data
+                # Open-keyed payload, same shape as the OAK emit node: the webcam
+                # provides only `rgb`. Subscribers' depth/ir requirements yield no
+                # payload key, so those event-node outlets stay unfired.
                 timestamp = time.time() - self.hb_start_time
+                payload = {
+                    "rgb": frame,
+                    "frame_number": self.hb_frame_count,
+                    "timestamp": timestamp,
+                }
 
-                # Non-sequential: emit to all callbacks
-                for callback in callback_names.values():
-                    context.emit_callback(
-                        event_name=callback,
-                        payload={
-                            "frame": frame,
-                            "frame_number": self.hb_frame_count,
-                            "timestamp": timestamp,
-                        },
-                    )
+                # Dispatch to every subscriber that wants rgb, keyed by its name.
+                subs: dict = self.value("callbacks") or {}
+                for sub in subs.values():
+                    name = getattr(sub, "name", None)
+                    if name and getattr(sub, "rgb", False):
+                        context.emit_callback(event_name=name, payload=payload)
 
             except Exception as e:
                 self.hb_update_status(f"Capture error: {str(e)}")

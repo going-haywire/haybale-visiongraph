@@ -12,9 +12,15 @@ It serves two purposes on the single subscription edge:
 
 1. Carries the event ``name`` (for callback dispatch routing) **and** the
    downstream node's per-stream requirements (``rgb`` / ``depth`` / ``ir``).
-2. Type-gates the connection: only a 3D-camera emit node (whose pooled inlet is
-   ``PooledType[MULTIFRAME_CALLBACK]``) can be wired to a ``ThreeDFrameEventNode``
-   — a plain webcam ``CALLBACK`` event node cannot connect.
+2. Type-gates the connection: only a camera emit node whose pooled inlet is
+   ``PooledType[MULTIFRAME_CALLBACK]`` can be wired to a 3D event node — this is
+   what binds the camera family (OAK-D emit, webcam emit, …) to the shared
+   ``ThreeDFrameEventNode``.
+
+Note on the name: "multiframe" describes the type's *capability* (it can carry
+up to several stream requirements), not a mandate that all be present. A
+single-stream device legitimately uses it with one flag set — e.g. the webcam
+emit node sets only ``rgb=True`` and ignores ``depth`` / ``ir``.
 """
 
 from dataclasses import dataclass
@@ -24,7 +30,7 @@ from haywire.core.types import type, FlowType, BaseType
 
 @type(
     label="Multiframe Callback",
-    description="Subscription signal carrying an event name plus per-stream requirements",
+    description="Subscription for multi-frame streams",
     flow_type=FlowType.CALLBACK,
     default={"name": "", "rgb": False, "depth": False, "ir": False},
     color="#ff3c00",

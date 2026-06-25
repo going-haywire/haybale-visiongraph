@@ -1,10 +1,34 @@
 # haybale-visiongraph — design notes
 
 Working notes for the OAK-D / depth-camera expansion. Design decisions resolved
-in the inquisition interview; rationale kept here. Two terminology ambiguities
-(frame/Frame, depth map/buffer) are flagged in `docs/reference/glossary.md`
-("Flagged ambiguities"); per-datatype defs deferred to `datatype-canon.md` once
-the code exists.
+in the inquisition interview; rationale kept here. Three terminology ambiguities
+(frame/Frame, depth map/buffer, "multiframe") are flagged in
+`docs/reference/glossary.md` ("Flagged ambiguities"); per-datatype defs deferred
+to `datatype-canon.md` once the code exists.
+
+## Webcam joins the 3D-camera family (second inquisition)
+
+Goal: a webcam should be usable as the **RGB-only member** of the camera family,
+feeding the *same* shared `ThreeDFrameEventNode`. One shared event node, per-device
+emit nodes (OAK-D, webcam, later Azure/RealSense).
+
+- **Reuse `MULTIFRAME_CALLBACK`** (not a new `RGBFRAME_CALLBACK`): goal requires
+  one subscription type flowing out of the single shared event node, so a second
+  callback type would split it. The webcam emit node's pooled inlet is
+  `PooledType[MULTIFRAME_CALLBACK]`, same as OAK.
+- **Webcam honours only `rgb`**, silently ignores depth/ir requirements (mirrors
+  an OAK with a stream off → unfired outlet). Reads the requirement union; if no
+  subscriber wants rgb, it does not capture (`hb_any_rgb_requested` guard).
+- **Payload key changed** `"frame"` → `"rgb"` to match the OAK open-keyed payload.
+- **`WebcamFrameEventNode`: deprecated, not deleted.** Marked with
+  `deprecation_warning=` on `@node` (steers users to `ThreeDFrameEventNode`), but
+  **migrated to the new contract** — subscribes via `MULTIFRAME_CALLBACK`
+  (`rgb=True`) and reads `payload["rgb"]` — so it stays *functional* against the
+  updated webcam emit node, not just a dead badge.
+- **"multiframe" = capability, not mandate** — documented on the type docstring +
+  glossary; a single-stream webcam using one flag is a valid degenerate case.
+- **Future:** when camera #3 lands, extract a shared emit-node base class
+  (union/dispatch/thread lifecycle once; per-device `_open`/`_read` overrides).
 
 ## v1 build checklist
 

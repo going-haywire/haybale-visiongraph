@@ -24,8 +24,8 @@ from haywire.core.node import node, BaseNode, NodeType
 
 
 @node(
-    label="3D Frame Event",
-    description="Triggered when a 3D-camera frame is ready; exposes colour/depth/infrared streams",
+    label="Frame Event",
+    description="Triggered when a camera frame is ready; exposes colour/depth/infrared streams",
     menu="vision/event",
     search_tags=["3d", "depth", "camera", "oak", "kinect", "realsense", "frame", "event", "rgb", "ir"],
     node_type=NodeType.EVENT,
@@ -54,6 +54,7 @@ class ThreeDFrameEventNode(BaseNode):
             MULTIFRAME_CALLBACK.as_outlet(
                 "subscription",
                 label="Subscribe",
+                description="Subscribe for camera frames",
                 default={"name": self.node_id, "rgb": True, "depth": False, "ir": False},
             )
         )
