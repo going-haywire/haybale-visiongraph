@@ -4,7 +4,7 @@
 [[haybales]]
 name = "haybale-visiongraph"
 label = "Visiongraph"
-min_version = "0.0.9"
+min_version = "0.0.16"
 description = "Visiongraph library for Haywire node system demonstrating custom types, nodes, widgets, and renderers"
 author = "Haywire Team"
 source = "git"

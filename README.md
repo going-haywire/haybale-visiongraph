@@ -7,11 +7,9 @@ Visiongraph is a computer-vision pipeline library designed to simplify the proto
 ## Subscribe
 
 <!-- marketstall:share-url:start -->
-
 ```sh
 https://github.com/going-haywire/haybale-visiongraph/blob/master/marketstall.toml
 ```
-
 <!-- marketstall:share-url:end -->
 
 ## Getting started
