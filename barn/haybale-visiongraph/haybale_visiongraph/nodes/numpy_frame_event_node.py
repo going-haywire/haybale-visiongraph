@@ -27,10 +27,10 @@ from haywire.core.node import node, BaseNode, NodeType
     label="Frame Event",
     description="Triggered when a camera frame is ready; exposes colour/depth/infrared streams",
     menu="vision/event",
-    search_tags=["3d", "depth", "camera", "oak", "kinect", "realsense", "frame", "event", "rgb", "ir"],
+    search_tags=["3d", "depth", "camera", "oak", "kinect", "realsense", "frame", "event", "rgb", "ir", "image"],
     node_type=NodeType.EVENT,
 )
-class ThreeDFrameEventNode(BaseNode):
+class NumpyFrameEventNode(BaseNode):
     """
     Event node that receives 3D-camera frame callbacks.
 

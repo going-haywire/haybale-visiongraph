@@ -1,6 +1,6 @@
 <!-- source: haybale_visiongraph/widgets/opencv_viewer_widget.py | sha256: f0d85f18f39b -->
 
-# OpencvViewerWidget (`OpencvViewerWidget`)
+# NumpyViewerWidget (`NumpyViewerWidget`)
 
 Library: visiongraph | Compatible types: visiongraph:type:frame
 
@@ -20,7 +20,7 @@ Config options:
 | block_on_full | bool | False | Block the producer when the queue is full |
 
 ```python
-OpencvViewerWidget.config(properties={
+NumpyViewerWidget.config(properties={
     'quality': 80,
     'width': '100%',
     'height': '300px'

@@ -7,8 +7,8 @@
 
 ## Nodes
 
-### StartWebcamStreamNode
-- registry_key: visiongraph:node:StartWebcamStreamNode
+### WebCameraNode
+- registry_key: visiongraph:node:WebCameraNode
 - module: haybale_visiongraph.nodes.start_web_cam_stream_node
 - label: Start Webcam Stream
 - menu: vision/input
@@ -43,8 +43,8 @@
   - outlet width: INT
   - outlet height: INT
 
-### WebcamFrameInfoDisplayNode
-- registry_key: visiongraph:node:WebcamFrameInfoDisplayNode
+### FrameDisplayNode
+- registry_key: visiongraph:node:FrameDisplayNode
 - module: haybale_visiongraph.nodes.frame_info_display_node
 - label: Webcam Frame Info Display
 - menu: vision/info
@@ -72,8 +72,8 @@
 
 ## Widgets
 
-### OpencvViewerWidget
-- registry_key: visiongraph:widget:OpencvViewerWidget
+### NumpyViewerWidget
+- registry_key: visiongraph:widget:NumpyViewerWidget
 - module: haybale_visiongraph.widgets.opencv_viewer_widget
 - compatible_types: [visiongraph:type:frame]
 - description: Streaming video viewer for numpy arrays using custom StreamingViewer

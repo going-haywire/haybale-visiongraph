@@ -13,15 +13,15 @@ from haybale_visiongraph.types.frame_type import BaseFrame
 
 
 @node(
-    label="Webcam Frame Info Display",
-    description="Displays information about webcam frames with live preview",
+    label="Frame Info Display",
+    description="Displays information about frames with live preview",
     menu="vision/info",
-    search_tags=["webcam", "frame", "camera", "display", "preview", "video"],
+    search_tags=["rgb", "ir", "frame", "camera", "display", "preview", "video", "stream"],
     node_type=NodeType.CONTROL,
 )
-class WebcamFrameInfoDisplayNode(BaseNode):
+class FrameDisplayNode(BaseNode):
     """
-    Displays webcam frame information and live preview.
+    Displays frame information and live preview.
 
     Shows frame metadata and streams the video to an embedded viewer.
 
@@ -41,7 +41,7 @@ class WebcamFrameInfoDisplayNode(BaseNode):
         from haybale_core.types import EXEC, STRING, INT, FLOAT
         from haybale_core.widgets.basic_widgets import SimpleLabelWidget
         from haybale_visiongraph.types.frame_type import RGB_FRAME
-        from haybale_visiongraph.widgets.opencv_viewer_widget import OpencvViewerWidget
+        from haybale_visiongraph.widgets.numpy_viewer_widget import NumpyViewerWidget
 
         # Control input
         self.add(EXEC.as_inlet("execute", label="Analyze Frame"))
@@ -52,7 +52,7 @@ class WebcamFrameInfoDisplayNode(BaseNode):
                 "frame",
                 label="Frame",
                 show_widget=ShowWidgetStrategy.WHEN_LINKED,
-                widget=OpencvViewerWidget.config(
+                widget=NumpyViewerWidget.config(
                     properties={
                         "quality": 85,
                         "width": "100%",

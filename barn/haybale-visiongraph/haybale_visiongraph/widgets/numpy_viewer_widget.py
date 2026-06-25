@@ -17,14 +17,14 @@ from haybale_visiongraph.widgets.components.streaming_viewer import StreamingBac
     description="Streaming video viewer for numpy arrays using custom StreamingViewer",
     compatible_types=[RGB_FRAME],
 )
-class OpencvViewerWidget(BaseWidget):
+class NumpyViewerWidget(BaseWidget):
     """
     Widget for displaying numpy arrays as streaming video.
 
     Uses a custom StreamingViewer component for efficient MJPEG streaming.
     Automatically streams frame updates when the port value changes.
 
-    Config options (via ``OpencvViewerWidget.config(properties={...})``):
+    Config options (via ``NumpyViewerWidget.config(properties={...})``):
 
     - ``quality`` (int): JPEG compression quality (0-100, default: ``80``).
     - ``width`` (str): CSS width of the viewer (default: ``'100%'``).
@@ -61,12 +61,12 @@ class OpencvViewerWidget(BaseWidget):
                 self._backend.stream(frame_data)
             except Exception as e:
                 if self._backend and self._backend._is_running:
-                    print(f"[OpencvViewerWidget] Error streaming frame: {e}")
+                    print(f"[NumpyViewerWidget] Error streaming frame: {e}")
 
     def _on_cleanup(self) -> None:
         if self._backend:
             try:
                 self._backend.cleanup()
             except Exception as e:
-                print(f"[OpencvViewerWidget] Viewer cleanup warning: {e}")
+                print(f"[NumpyViewerWidget] Viewer cleanup warning: {e}")
             self._backend = None

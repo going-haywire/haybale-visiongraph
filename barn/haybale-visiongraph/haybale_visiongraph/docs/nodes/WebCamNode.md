@@ -1,6 +1,6 @@
 <!-- source: haybale_visiongraph/nodes/start_web_cam_stream_node.py | sha256: a33ea5e09397 -->
 
-# Start Webcam Stream (`StartWebcamStreamNode`)
+# Start Webcam Stream (`WebCameraNode`)
 
 Category: vision/input | Type: CONTROL | Library: visiongraph
 

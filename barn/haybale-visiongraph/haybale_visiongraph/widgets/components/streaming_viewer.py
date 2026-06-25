@@ -132,9 +132,9 @@ class StreamingBackend:
 
     def stream(self, frame: np.ndarray) -> None:
         """
-        Push an OpenCV BGR frame into the streaming pipeline.
+        Push an Numpy BGR frame into the streaming pipeline.
 
-        :param frame: OpenCV image (BGR numpy array) to encode and enqueue.
+        :param frame: Numpy image (BGR numpy array) to encode and enqueue.
         """
         # Lazily start the queue reader if needed
         if not self._is_running:
@@ -256,7 +256,7 @@ class StreamingBackend:
             pass
 
 
-class StreamingViewer(Element, component="opencv_viewer.js"):
+class StreamingViewer(Element, component="numpy_viewer.js"):
     """
     Lightweight NiceGUI element that renders an ``<img>`` tag pointing at a
     :class:`StreamingBackend` endpoint.

@@ -13,13 +13,13 @@ from haywire.core.node import node, BaseNode, NodeType
 
 
 @node(
-    label="Start Webcam Stream",
+    label="Web Camera",
     description="Starts a webcam stream and emits frame callbacks",
     menu="vision/input",
     search_tags=["webcam", "camera", "video", "capture", "stream"],
     node_type=NodeType.CONTROL,
 )
-class StartWebcamStreamNode(BaseNode):
+class WebCameraNode(BaseNode):
     """
     Starts a webcam video stream that runs in a separate thread.
     Emits callbacks on each frame for downstream event nodes to process.

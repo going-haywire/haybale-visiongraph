@@ -1,5 +1,5 @@
 /**
- * OpenCV Viewer JavaScript Component
+ * Numpy Viewer JavaScript Component
  *
  * MJPEG image display component for streaming video.
  *
@@ -17,13 +17,13 @@
 
 export default {
   template: `
-    <div class="opencv-viewer-container" :style="containerStyle">
+    <div class="numpy-viewer-container" :style="containerStyle">
       <img
         ref="img"
-        class="opencv-viewer-img"
+        class="numpy-viewer-img"
         :style="imageStyle"
       />
-      <div v-if="error" class="opencv-viewer-error">
+      <div v-if="error" class="numpy-viewer-error">
         {{ errorMessage }}
       </div>
     </div>
@@ -89,7 +89,7 @@ export default {
           }
           this.error = true
           this.loaded = false
-          console.error('OpenCV Viewer: stream error', e)
+          console.error('Numpy Viewer: stream error', e)
         }
         // Stream ended (or errored): pause briefly before reconnecting.
         if (this._stopped) return

@@ -1,6 +1,6 @@
 """
 MULTIFRAME_CALLBACK — the subscription carrier between a 3D-camera emit node and
-the shared ``ThreeDFrameEventNode``.
+the shared ``NumpyFrameEventNode``.
 
 A ``BaseType`` dataclass (NOT a subclass of core ``CALLBACK``) declared with
 ``flow_type=FlowType.CALLBACK``. A callback edge is identified by the framework
@@ -15,7 +15,7 @@ It serves two purposes on the single subscription edge:
 2. Type-gates the connection: only a camera emit node whose pooled inlet is
    ``PooledType[MULTIFRAME_CALLBACK]`` can be wired to a 3D event node — this is
    what binds the camera family (OAK-D emit, webcam emit, …) to the shared
-   ``ThreeDFrameEventNode``.
+   ``NumpyFrameEventNode``.
 
 Note on the name: "multiframe" describes the type's *capability* (it can carry
 up to several stream requirements), not a mandate that all be present. A

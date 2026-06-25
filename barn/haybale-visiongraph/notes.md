@@ -9,7 +9,7 @@ to `datatype-canon.md` once the code exists.
 ## Webcam joins the 3D-camera family (second inquisition)
 
 Goal: a webcam should be usable as the **RGB-only member** of the camera family,
-feeding the *same* shared `ThreeDFrameEventNode`. One shared event node, per-device
+feeding the *same* shared `NumpyFrameEventNode`. One shared event node, per-device
 emit nodes (OAK-D, webcam, later Azure/RealSense).
 
 - **Reuse `MULTIFRAME_CALLBACK`** (not a new `RGBFRAME_CALLBACK`): goal requires
@@ -21,7 +21,7 @@ emit nodes (OAK-D, webcam, later Azure/RealSense).
   subscriber wants rgb, it does not capture (`hb_any_rgb_requested` guard).
 - **Payload key changed** `"frame"` → `"rgb"` to match the OAK open-keyed payload.
 - **`WebcamFrameEventNode`: deprecated, not deleted.** Marked with
-  `deprecation_warning=` on `@node` (steers users to `ThreeDFrameEventNode`), but
+  `deprecation_warning=` on `@node` (steers users to `NumpyFrameEventNode`), but
   **migrated to the new contract** — subscribes via `MULTIFRAME_CALLBACK`
   (`rgb=True`) and reads `payload["rgb"]` — so it stays *functional* against the
   updated webcam emit node, not just a dead badge.
@@ -34,16 +34,16 @@ emit nodes (OAK-D, webcam, later Azure/RealSense).
 
 - [ ] Shared base frame type; `RGB_FRAME` / `DEPTH_FRAME` / `GRAY_FRAME` derive
       dims as properties (no cached fields, no `to_dict`/`from_dict`).
-- [ ] Rename `FRAME → RGB_FRAME` across the 3 existing nodes + `OpencvViewerWidget`
+- [ ] Rename `FRAME → RGB_FRAME` across the 3 existing nodes + `NumpyViewerWidget`
       `compatible_types` + `types/__init__.py` + docs; then `/check-rename`.
 - [ ] `GRAY_FRAME ↔ RGB_FRAME` adapters. No `DEPTH_FRAME` adapter.
 - [ ] `MULTIFRAME_CALLBACK` (`BaseType` dataclass, `flow_type=CALLBACK`,
       `name` + stream-requirement fields).
-- [ ] `OakDEmitNode` (device-specific; wraps `OakDInput`; EXEC start/stop;
+- [ ] `OakDCameraNode` (device-specific; wraps `OakDInput`; EXEC start/stop;
       `on_startup` reads union; capture thread; open-keyed payload).
-- [ ] `ThreeDFrameEventNode` (shared/agnostic; 3 bool flags → `rejig` + requirement).
+- [ ] `NumpyFrameEventNode` (shared/agnostic; 3 bool flags → `rejig` + requirement).
 - [ ] `depthai` explicit in `pyproject.toml`; then `/haywire-dep-check`.
-- [ ] `OpencvViewerWidget` → `compatible_types=[RGB_FRAME]`.
+- [ ] `NumpyViewerWidget` → `compatible_types=[RGB_FRAME]`.
 
 ## OAK-D camera support — resolved decisions
 
@@ -111,7 +111,7 @@ Driven by demand, but **user controls activation**:
 nodes, carried on the CALLBACK value, aggregated by the emit node's Pooled inlet.
 
 **Trigger source (Q-final):** `start`/`stop` are EXEC inlets pulsed by upstream
-control flow, exactly like `StartWebcamStreamNode`. `OakDEmitNode` is
+control flow, exactly like `WebCameraNode`. `OakDCameraNode` is
 `NodeType.CONTROL`, driven by a Start/Stop control chain — no auto-start, no
 button widget.
 
@@ -134,7 +134,7 @@ stream requirements, so the emit node configures the device from demand rather
 than from its own redundant config. (New CALLBACK-payload shape — TBD in build.)
 
 ### Rename FRAME → RGB_FRAME (Q13) — hard rename, no backward compat
-Update all call sites in lockstep: the 3 existing nodes, `OpencvViewerWidget`
+Update all call sites in lockstep: the 3 existing nodes, `NumpyViewerWidget`
 `compatible_types`, `types/__init__.py`, and docs. Run `/check-rename` for
 string refs the IDE misses (docstrings, QUICKREF.md, OVERVIEW.md).
 
@@ -183,10 +183,10 @@ visiongraph's `BaseDepthCamera` with the same `CameraStreamType.{Color,Depth,
 Infrared}` model, so the *streams* are a shared abstraction and only the *device
 setup* differs.
 
-- **`ThreeDFrameEventNode`** (shared, one class): subscribes via
+- **`NumpyFrameEventNode`** (shared, one class): subscribes via
   `MULTIFRAME_CALLBACK` to ANY 3D-camera emit node. Exposes `rgb`/`depth`/`ir`
   outlets. Reused across all current and future 3D cameras.
-- **Per-device emit nodes**: `OakDEmitNode` now; `AzureKinectEmitNode`,
+- **Per-device emit nodes**: `OakDCameraNode` now; `AzureKinectEmitNode`,
   `RealSenseEmitNode`, … later. Each wraps its own visiongraph input class.
 
 **Stream flags (Q19) — explicit config, user is source of truth.** Three bool
@@ -200,14 +200,14 @@ contract is exactly `rgb`/`depth`/`ir` (the `BaseDepthCamera` common
 denominator). If a device lacks a stream, its payload slot is `None`. The
 runtime payload dict (Q6) is **open-keyed by stream name**, so a future
 device-specific node can carry extra streams (e.g. RealSense second IR) by
-adding a key — WITHOUT changing `MULTIFRAME_CALLBACK` or `ThreeDFrameEventNode`.
+adding a key — WITHOUT changing `MULTIFRAME_CALLBACK` or `NumpyFrameEventNode`.
 The shared event node still only ever shows `rgb`/`depth`/`ir`.
 
 **MULTIFRAME_CALLBACK meaning widens:** the type-gate is now "any 3D-camera emit
 node ↔ the shared 3D event node" (not OAK-specific). The single type still
 expresses it — all 3D emit nodes use it; the one event node consumes it.
 
-### OpencvViewerWidget display path (Q17)
+### NumpyViewerWidget display path (Q17)
 
 `compatible_types=[RGB_FRAME]` only — NOT all three.
 

@@ -1,9 +1,9 @@
 """
 OAK-D Emit Node - Opens a Luxonis OAK-D depth camera and emits multi-stream
-frame callbacks (colour / depth / infrared) to subscribed ThreeDFrameEventNodes.
+frame callbacks (colour / depth / infrared) to subscribed NumpyFrameEventNodes.
 
 Device-specific node (wraps visiongraph ``OakDInput``). The shared, camera-
-agnostic subscriber is ``ThreeDFrameEventNode``.
+agnostic subscriber is ``NumpyFrameEventNode``.
 
 Lifecycle (see notes.md Q9-Q11):
 - ``on_startup``  : read the *requirement union* from the pooled
@@ -26,13 +26,13 @@ logger = logging.getLogger(__name__)
 
 
 @node(
-    label="OAK-D Emit",
+    label="OAK-D Camera",
     description="Opens an OAK-D depth camera and emits colour/depth/infrared frame callbacks",
     menu="vision/input",
     search_tags=["oak", "oak-d", "depthai", "luxonis", "depth", "camera", "3d", "stream"],
     node_type=NodeType.CONTROL,
 )
-class OakDEmitNode(BaseNode):
+class OakDCameraNode(BaseNode):
     """
     Starts an OAK-D capture stream in a separate thread and emits one callback
     per frame carrying every active stream.

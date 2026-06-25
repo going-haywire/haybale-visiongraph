@@ -1,8 +1,8 @@
-# OpenCV Viewer Widget - Usage Guide
+# Numpy Viewer Widget - Usage Guide
 
 ## Overview
 
-The `OpencvViewerWidget` provides efficient streaming video display for numpy arrays within Haywire nodes. It uses the duit library's `OpencvViewer` component for MJPEG streaming.
+The `NumpyViewerWidget` provides efficient streaming video display for numpy arrays within Haywire nodes. It is based on duit library's `OpencvViewer` component for MJPEG streaming.
 
 ## Features
 
@@ -19,14 +19,14 @@ The `OpencvViewerWidget` provides efficient streaming video display for numpy ar
 
 ```python
 from haybale_visiongraph.types.frame_type import FRAME
-from haybale_visiongraph.widgets.opencv_viewer_widget import OpencvViewerWidget
+from haybale_visiongraph.widgets.opencv_viewer_widget import NumpyViewerWidget
 
 def init(self):
     # Add a FRAME inlet with the viewer widget
     self.add(FRAME.as_inlet(
         'frame',
         label='Video Preview',
-        widget=OpencvViewerWidget.config(properties={
+        widget=NumpyViewerWidget.config(properties={
             'quality': 85,           # JPEG quality (0-100)
             'width': '100%',         # CSS width
             'height': '300px',       # CSS height
@@ -52,7 +52,7 @@ def init(self):
 self.add(FRAME.as_inlet(
     'preview',
     label='High Quality Preview',
-    widget=OpencvViewerWidget.config(properties={
+    widget=NumpyViewerWidget.config(properties={
         'quality': 95,
         'width': '1280px',
         'height': '720px',
@@ -66,7 +66,7 @@ self.add(FRAME.as_inlet(
 self.add(FRAME.as_inlet(
     'preview',
     label='Low Latency Preview',
-    widget=OpencvViewerWidget.config(properties={
+    widget=NumpyViewerWidget.config(properties={
         'quality': 70,
         'frame_queue_size': 1,
         'block_on_full': False,  # Drop frames to reduce latency
@@ -80,7 +80,7 @@ self.add(FRAME.as_inlet(
 self.add(FRAME.as_inlet(
     'preview',
     label='Responsive Preview',
-    widget=OpencvViewerWidget.config(properties={
+    widget=NumpyViewerWidget.config(properties={
         'quality': 80,
         'width': '100%',
         'height': '50vh',  # 50% of viewport height
@@ -94,7 +94,7 @@ self.add(FRAME.as_inlet(
 self.add(FRAME.as_inlet(
     'preview',
     label='Buffered Preview',
-    widget=OpencvViewerWidget.config(properties={
+    widget=NumpyViewerWidget.config(properties={
         'quality': 80,
         'frame_queue_size': 5,  # Buffer up to 5 frames
         'block_on_full': True,  # Wait if buffer is full
@@ -111,9 +111,9 @@ Node Worker
     ↓ (sets port value)
 DataPort._data.on_changed
     ↓ (triggers callback)
-OpencvViewerWidget._sync_frame_to_viewer()
+NumpyViewerWidget._sync_frame_to_viewer()
     ↓ (extracts numpy array)
-OpencvViewer.stream(frame)
+NumpyViewer.stream(frame)
     ↓ (encodes to JPEG)
 MJPEG HTTP endpoint
     ↓ (streams to browser)
@@ -132,7 +132,7 @@ Browser displays video
 ### Thread Safety
 
 - The widget's callback runs in the main NiceGUI event loop
-- The `OpencvViewer` component handles async streaming internally
+- The `NumpyViewer` component handles async streaming internally
 - Frame updates are automatically queued and processed
 
 ## Example Node: Frame Display
@@ -152,7 +152,7 @@ class FrameDisplayNode(BaseNode):
     def init(self):
         from haybale_core.types import EXEC
         from haybale_visiongraph.types.frame_type import FRAME
-        from haybale_visiongraph.widgets.opencv_viewer_widget import OpencvViewerWidget
+        from haybale_visiongraph.widgets.opencv_viewer_widget import NumpyViewerWidget
         
         # Control input
         self.add(EXEC.as_inlet('execute', label='Execute'))
@@ -161,7 +161,7 @@ class FrameDisplayNode(BaseNode):
         self.add(FRAME.as_inlet(
             'frame',
             label='Video Stream',
-            widget=OpencvViewerWidget.config(properties={
+            widget=NumpyViewerWidget.config(properties={
                 'quality': 85,
                 'width': '100%',
                 'height': '400px'
@@ -201,7 +201,7 @@ class FrameDisplayNode(BaseNode):
 - Callback Name: "webcam_frame"
 
 **Frame Display Node:**
-- Frame inlet: Uses `OpencvViewerWidget` (quality: 85, 400px height)
+- Frame inlet: Uses `NumpyViewerWidget` (quality: 85, 400px height)
 
 ## Performance Considerations
 
@@ -276,7 +276,7 @@ class FrameDisplayNode(BaseNode):
 ### Widget Lifecycle
 
 1. **Initialization**: `__init__(port)` - Store port reference
-2. **Render**: `render()` - Create OpencvViewer, setup bindings
+2. **Render**: `render()` - Create NumpyViewer, setup bindings
 3. **Updates**: Port changes → `_sync_frame_to_viewer()` → stream frame
 4. **Cleanup**: `cleanup()` - Unsubscribe from port events
 
@@ -323,14 +323,14 @@ def init(self):
     self.add(FRAME.as_inlet(
         'input',
         label='Input Stream',
-        widget=OpencvViewerWidget.config(properties={'height': '300px'})
+        widget=NumpyViewerWidget.config(properties={'height': '300px'})
     ))
     
     # Processed output
     self.add(FRAME.as_outlet(
         'output',
         label='Processed Output',
-        widget=OpencvViewerWidget.config(properties={'height': '300px'})
+        widget=NumpyViewerWidget.config(properties={'height': '300px'})
     ))
 ```
 

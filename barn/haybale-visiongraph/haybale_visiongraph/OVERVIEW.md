@@ -17,8 +17,8 @@ Visiongraph library for Haywire node system demonstrating custom types, nodes, w
 
 ### Vision
 
-- **Start Webcam Stream** (`StartWebcamStreamNode`) — starts a webcam video stream in a background thread and emits frame callbacks for connected event nodes
-- **Webcam Frame Info Display** (`WebcamFrameInfoDisplayNode`) — displays webcam frame metadata and streams a live preview using an embedded video viewer
+- **Start Webcam Stream** (`WebCameraNode`) — starts a webcam video stream in a background thread and emits frame callbacks for connected event nodes
+- **Webcam Frame Info Display** (`FrameDisplayNode`) — displays webcam frame metadata and streams a live preview using an embedded video viewer
 
 ---
 
@@ -30,4 +30,4 @@ Visiongraph library for Haywire node system demonstrating custom types, nodes, w
 
 ## Widgets
 
-- **OpencvViewerWidget** (`OpencvViewerWidget`) — streaming MJPEG video viewer for numpy arrays. Compatible: frame
+- **NumpyViewerWidget** (`NumpyViewerWidget`) — streaming MJPEG video viewer for numpy arrays. Compatible: frame

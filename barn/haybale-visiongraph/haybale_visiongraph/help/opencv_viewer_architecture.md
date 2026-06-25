@@ -7,11 +7,11 @@ The streaming video widget uses a **producer-consumer pattern** with **MJPEG HTT
 ## Component Hierarchy
 
 ```
-OpencvViewerWidget (IWidget)
+NumpyViewerWidget (IWidget)
     ↓ creates
 StreamingViewer (NiceGUI Element)
     ↓ renders to
-opencv_viewer.js (Vue Component)
+numpy_viewer.js (Vue Component)
     ↓ displays
 <img src="/stream/ENDPOINT_ID"> (Browser)
 ```
@@ -230,7 +230,7 @@ When a new frame arrives, `notify_all()` wakes up ALL waiting generators simulta
 
 ---
 
-## Part 2: The OpencvViewerWidget
+## Part 2: The NumpyViewerWidget
 
 ### Initialization
 
@@ -274,8 +274,8 @@ def render(self):
    - Registers HTTP route
 
 2. **Creates Vue component**:
-   The `StreamingViewer` extends `Element` with `component='opencv_viewer.js'`, which causes NiceGUI to:
-   - Load `opencv_viewer.js`
+   The `StreamingViewer` extends `Element` with `component='numpy_viewer.js'`, which causes NiceGUI to:
+   - Load `numpy_viewer.js`
    - Create a Vue component instance
    - Pass `endpoint` prop to it
 
@@ -364,11 +364,11 @@ Browser:
 ## Part 3: The JavaScript Component
 
 ```javascript
-// opencv_viewer.js
+// numpy_viewer.js
 export default {
   template: `
-    <div class="opencv-viewer-container">
-      <img :src="endpoint" class="opencv-viewer-img" />
+    <div class="numpy-viewer-container">
+      <img :src="endpoint" class="numpy-viewer-img" />
     </div>
   `,
   
@@ -425,10 +425,10 @@ import haybale_visiongraph.widgets.opencv_viewer_widget
 
 # 3. Widget class is re-registered
 @widget(...)
-class OpencvViewerWidget: ...
+class NumpyViewerWidget: ...
 
 # 4. Existing widget instance is recreated
-widget = OpencvViewerWidget(port)
+widget = NumpyViewerWidget(port)
 
 # 5. Widget creates new StreamingViewer
 self.streaming_viewer = StreamingViewer(...)

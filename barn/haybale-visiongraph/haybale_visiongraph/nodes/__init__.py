@@ -1,14 +1,12 @@
-from .frame_info_display_node import WebcamFrameInfoDisplayNode
-from .start_web_cam_stream_node import StartWebcamStreamNode
-from .webcam_frame_event_node import WebcamFrameEventNode
-from .oak_d_emit_node import OakDEmitNode
-from .three_d_frame_event_node import ThreeDFrameEventNode
+from .numpy_frame_display_node import FrameDisplayNode
+from .web_cam_node import WebCameraNode
+from .oak_d_camera_node import OakDCameraNode
+from .numpy_frame_event_node import NumpyFrameEventNode
 
 
 __all__ = [
-    "StartWebcamStreamNode",
-    "WebcamFrameEventNode",
-    "WebcamFrameInfoDisplayNode",
-    "OakDEmitNode",
-    "ThreeDFrameEventNode",
+    "WebCameraNode",
+    "FrameDisplayNode",
+    "OakDCameraNode",
+    "NumpyFrameEventNode",
 ]

@@ -1,6 +1,6 @@
 <!-- source: haybale_visiongraph/nodes/frame_info_display_node.py | sha256: 399c6177f003 -->
 
-# Webcam Frame Info Display (`WebcamFrameInfoDisplayNode`)
+# Webcam Frame Info Display (`FrameDisplayNode`)
 
 Category: vision/info | Type: CONTROL | Library: visiongraph
 
