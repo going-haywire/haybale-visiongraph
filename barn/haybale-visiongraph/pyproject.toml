@@ -14,6 +14,10 @@ dependencies = [
     "haywire-core~=0.0.8",
     "haybale-core~=0.0.8",
     "visiongraph[all]",
+    # visiongraph's DepthAI input stack is written against the depthai v2 API
+    # (RawCameraControl, XLinkOut, getOutputQueue). depthai v3 is an incompatible
+    # rewrite, so pin to match visiongraph's own `depthai~=2.30` constraint.
+    "depthai~=2.30",
     "numpy",
     "opencv-python",
     "fastapi",

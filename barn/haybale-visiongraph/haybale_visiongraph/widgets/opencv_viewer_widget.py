@@ -3,7 +3,7 @@ OpenCV Viewer Widget - Displays numpy arrays as streaming video in nodes
 """
 
 from typing import Any
-from haybale_visiongraph.types.frame_type import FRAME
+from haybale_visiongraph.types.frame_type import RGB_FRAME
 import numpy as np
 from nicegui import ui
 
@@ -15,7 +15,7 @@ from haybale_visiongraph.widgets.components.streaming_viewer import StreamingBac
 
 @widget(
     description="Streaming video viewer for numpy arrays using custom StreamingViewer",
-    compatible_types=[FRAME],
+    compatible_types=[RGB_FRAME],
 )
 class OpencvViewerWidget(BaseWidget):
     """

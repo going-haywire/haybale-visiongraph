@@ -60,9 +60,21 @@ class Library(BaseLibrary):
 
     def compatibility_warnings(self) -> list[CompatibilityWarning]:
         """Append-only history of compatibility notices. See ADR 0005."""
-        from .nodes import WebcamFrameInfoDisplayNode
+        from .nodes import WebcamFrameInfoDisplayNode, WebcamFrameEventNode
 
         return [
+            CompatibilityWarning(
+                version="0.0.17",
+                component=WebcamFrameEventNode,
+                message=(
+                    "The 'FRAME' datatype was renamed to 'RGB_FRAME' (and joined by "
+                    "'DEPTH_FRAME'/'GRAY_FRAME' for depth-camera support). The port "
+                    "type identity changed from 'visiongraph:FRAME' to "
+                    "'visiongraph:RGB_FRAME', with no backward-compatibility shim. "
+                    "Graphs saved before 0.0.17 that used a frame port will not "
+                    "resolve it; recreate the node to re-derive ports from current code."
+                ),
+            ),
             CompatibilityWarning(
                 version="0.0.13",
                 component=WebcamFrameInfoDisplayNode,

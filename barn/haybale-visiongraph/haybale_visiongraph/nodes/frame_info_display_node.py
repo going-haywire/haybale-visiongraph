@@ -9,7 +9,7 @@ from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
 from haywire.core.types.enums import ShowWidgetStrategy
 
-from haybale_visiongraph.types.frame_type import FRAME
+from haybale_visiongraph.types.frame_type import BaseFrame
 
 
 @node(
@@ -27,7 +27,7 @@ class WebcamFrameInfoDisplayNode(BaseNode):
 
     Inputs:
         execute: Control flow in
-        frame: Frame to display (FRAME type)
+        frame: Frame to display (RGB_FRAME type)
 
     Outputs:
         frame_ready: Control flow out
@@ -40,7 +40,7 @@ class WebcamFrameInfoDisplayNode(BaseNode):
     def init(self):
         from haybale_core.types import EXEC, STRING, INT, FLOAT
         from haybale_core.widgets.basic_widgets import SimpleLabelWidget
-        from haybale_visiongraph.types.frame_type import FRAME
+        from haybale_visiongraph.types.frame_type import RGB_FRAME
         from haybale_visiongraph.widgets.opencv_viewer_widget import OpencvViewerWidget
 
         # Control input
@@ -48,7 +48,7 @@ class WebcamFrameInfoDisplayNode(BaseNode):
 
         # Frame input with preview widget
         self.add(
-            FRAME.as_inlet(
+            RGB_FRAME.as_inlet(
                 "frame",
                 label="Frame",
                 show_widget=ShowWidgetStrategy.WHEN_LINKED,
@@ -75,7 +75,7 @@ class WebcamFrameInfoDisplayNode(BaseNode):
         self.add(EXEC.as_outlet("frame_ready", label="Frame Ready"))
 
         # Convenience data outputs
-        self.add(FRAME.as_outlet("frame_pass", label="Frame Pass"))
+        self.add(RGB_FRAME.as_outlet("frame_pass", label="Frame Pass"))
 
         # Convenience data outputs
         self.add(FLOAT.as_outlet("timestamp", label="Timestamp (s)"))
@@ -95,8 +95,8 @@ class WebcamFrameInfoDisplayNode(BaseNode):
             self.hb_update_display("No frame received")
             return None
 
-        # Handle both FRAME objects and raw numpy arrays
-        if isinstance(frame, FRAME):
+        # Handle both frame objects and raw numpy arrays
+        if isinstance(frame, BaseFrame):
             if not frame.is_valid():
                 self.hb_update_display("Invalid frame")
                 return None

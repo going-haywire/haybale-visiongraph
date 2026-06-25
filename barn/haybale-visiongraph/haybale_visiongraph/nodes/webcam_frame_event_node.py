@@ -26,7 +26,7 @@ class WebcamFrameEventNode(BaseNode):
 
     Outputs:
         frame_ready: Control flow when frame arrives
-        frame: Frame data with metadata (FRAME type)
+        frame: Frame data with metadata (RGB_FRAME type)
         raw_data: Raw numpy array (for convenience)
         frame_number: Sequential frame number
         timestamp: Time since stream start
@@ -36,7 +36,7 @@ class WebcamFrameEventNode(BaseNode):
 
     def init(self):
         from haybale_core.types import EXEC, INT, FLOAT, CALLBACK
-        from ..types.frame_type import FRAME
+        from ..types.frame_type import RGB_FRAME
 
         # Declare callback interest
         self.add(CALLBACK.as_outlet("callback_name", label="Listen", default=self.node_id))
@@ -45,7 +45,7 @@ class WebcamFrameEventNode(BaseNode):
         self.add(EXEC.as_outlet("frame_ready", label="Frame Ready"))
 
         # Frame data output
-        self.add(FRAME.as_outlet("frame", label="Frame"))
+        self.add(RGB_FRAME.as_outlet("frame", label="Frame"))
 
         # Convenience outputs for common data
         # Note: For raw_data, we'll use a generic outlet since we don't have
@@ -76,10 +76,10 @@ class WebcamFrameEventNode(BaseNode):
         if frame_data is None:
             return None
 
-        # Create FRAME object with metadata
-        from ..types.frame_type import FRAME
+        # Create frame object with metadata
+        from ..types.frame_type import RGB_FRAME
 
-        frame_obj = FRAME(data=frame_data, timestamp=timestamp, frame_number=frame_number)
+        frame_obj = RGB_FRAME(data=frame_data, timestamp=timestamp, frame_number=frame_number)
 
         # Output all data
         self.out("frame", frame_obj)
