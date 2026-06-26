@@ -6,6 +6,349 @@ in the inquisition interview; rationale kept here. Three terminology ambiguities
 `docs/reference/glossary.md` ("Flagged ambiguities"); per-datatype defs deferred
 to `datatype-canon.md` once the code exists.
 
+# Estimator expansion (third inquisition — IN PROGRESS)
+
+Adding vision **estimators** to the library: nodes that take an image and return
+a list of results (object detection, instance segmentation, human pose). Wraps
+visiongraph's `estimator.spatial.*` classes. Source ref:
+`/Volumes/Ddrive/03_personal/visiongraph/visiongraph/estimator/spatial/`.
+
+## Vocabulary (this expansion)
+
+- **Estimator** — a visiongraph object that does `create(Config.VARIANT)` →
+  `setup()` → `process(frame: np.ndarray) -> ResultList[...]` → `release()`.
+  Image in, result-list out. (Distinct from a haywire *node* — one family node
+  fronts many estimators.)
+- **Result** — a `visiongraph.result.BaseResult`; carries `.annotate(image)` and
+  (for spatial results) `.map_coordinates(...)`. `ResultList` is itself a
+  `BaseResult` (a `list` subclass), so it annotates the whole batch.
+- **Estimator family node** — one haywire node per result-subtype family
+  (Object Detector / Segmentation / Pose), fronting every curated backend in
+  that family via a model dropdown. NOT one node per concrete estimator.
+
+## Resolved decisions
+
+### Q1 — node granularity: one node per estimator *family* (not per class)
+
+A `model` enum config picks the concrete backend; the node maps the choice to a
+`(EstimatorClass, ConfigVariant)` internally. Mirrors visiongraph's own examples
+(swap one `.create()` line). ~3 nodes for v1, not ~40.
+
+### Q2 — result datatypes: a WIRED SUBTYPE HIERARCHY (not siblings, not one flat)
+
+Investigated the visiongraph result tree — it is **linear**, not parallel:
+`ClassificationResult → ObjectDetectionResult → LandmarkDetectionResult →
+PoseLandmarkResult` (and `InstanceSegmentationResult ⊂ ObjectDetectionResult`).
+So the haywire types mirror that lineage:
+
+```
+VISION_RESULT          (base; wraps ResultList[BaseResult]; carries .annotate)
+└── DETECTION_RESULT    (ResultList[ObjectDetectionResult]; bbox, score, class, tracking)
+    ├── SEGMENTATION_RESULT  (ResultList[InstanceSegmentationResult]; + mask)
+    └── LANDMARK_RESULT      (ResultList[LandmarkDetectionResult]; + landmarks)
+        └── POSE_RESULT          (ResultList[PoseLandmarkResult]; + named joints, connections)
+```
+
+**Why a wired hierarchy works (verified against the framework):** a derived
+`@type` is auto-compatible with any registered ancestor type via an
+`issubclass()` passthrough — NO adapter needed. Confirmed at
+`packages/haywire-core/src/haywire/core/adapter/factory.py:223`
+(`if issubclass(source_type, sink_type): return (ReturnAdapter(), None)`) and the
+`@type` decorator's parent-identity tracking at
+`packages/haywire-core/src/haywire/core/types/decorator.py:108-117`. The
+`issubclass` check is on the IType classes, so it works for `BaseType`
+dataclasses, not just primitives. Reverse (ancestor→descendant) is correctly
+rejected unless an explicit adapter is written.
+
+Payoff: ONE generic Annotate node and ONE Tracker node declare the base
+`VISION_RESULT` inlet and accept all three families for free (subtype→ancestor
+passthrough); a pose-specific consumer (e.g. "Get Joint by Name") declares
+`POSE_RESULT` and only pose lists can wire in. Gets B's universal connectivity
+AND A's type-gating, via the inheritance chain — mirroring visiongraph 1:1.
+
+### Q3 — result wrapper internals: store the visiongraph `ResultList` DIRECTLY
+
+The `@type` dataclass holds the visiongraph `ResultList` as its single field
+(e.g. `results: ResultList = field(default_factory=ResultList)`). The whole point
+of wrapping visiongraph is reusing `.annotate()`, the tracker, and
+`.map_coordinates()` — re-extracting fields into neutral Python throws that away.
+`store_strategy=NEVER` (these never serialize, exactly like frames), so there's
+no serialization coupling. Importing `ResultList`/`BaseResult` in the type module
+is free (library already depends on `visiongraph[all]`, like `frame_type.py`
+imports numpy).
+
+### Q4 — image inlet type: `RGB_FRAME`
+
+`process(np.ndarray)` wants a colour array. Inlet typed `RGB_FRAME`: the natural
+producer output, gets `GRAY_FRAME` for free via the existing
+`GRAY_FRAME→RGB_FRAME` adapter, and correctly refuses `DEPTH_FRAME` (depth is not
+a detection input). Node does `frame.data → process()`.
+
+### Q5 — model selection: one curated FLAT enum per family node
+
+`model` dropdown lists curated variants across backends in the family; an
+internal `{label: (EstimatorClass, ConfigVariant)}` dict maps the choice to a
+`.create(...)` call. Curation is a feature — only expose variants that work with
+plain `.create(config)` and no exotic constructor args. (Rejected a cascading
+backend→variant pair as needless friction for a once-made choice.)
+
+### Q6 — the three v1 families over ONE shared `BaseEstimatorNode`
+
+Inventory finding: across detection, segmentation, AND pose, every curated
+estimator shares the identical `create(Config) → setup() → process(frame) →
+ResultList → release()` lifecycle. Only two things differ per node: the dispatch
+map and the output `@type`. So the architecture is **one shared base node class**
+with thin subclasses:
+
+```
+BaseEstimatorNode(BaseNode)        # all lifecycle in ONE place
+  ├─ ObjectDetectorNode  → DETECTION_RESULT     (YOLOv5/8/8-OBB, DEIMv2, SSD, DETR, CenterNet, CrowdHuman)
+  ├─ SegmentationNode    → SEGMENTATION_RESULT  (MaskRCNN, MODNet, Yolact, YOLOv8-Seg)
+  └─ PoseEstimatorNode   → POSE_RESULT          (MediaPipe, MoveNet, LitePose, EfficientPose, Ultralytics, LiteHRNet, OpenPose, AE, KAPAO, MobileNetV2)
+```
+
+Base owns (once): `RGB_FRAME` inlet, `model` enum config + rejig, lazy `setup()`,
+`process(frame.data)`, wrapping the `ResultList` into the subclass `@type`,
+score-threshold config, `release()` on teardown/reload. Each subclass declares
+only `RESULT_TYPE` + `MODELS` dict.
+
+**Deferred to fast-follow** (bespoke `__init__`, distinct outputs — do NOT force
+into v1):
+- Hand / Face-mesh landmark nodes (bespoke construction; carry handedness / mesh)
+  → their own subtypes when built.
+- Emotion / HeadPose — these are `RoiEstimator`s: they take a *detection result +
+  frame*, not just a frame. Different inlet contract entirely.
+
+### Q7 — estimator lifecycle: LAZY `setup()` on first frame (not control inlets)
+
+An estimator is a *transform*, not a *device* — it has no resource to hold open
+between frames except the loaded weights, which a cache holds. So: `setup()`
+(model load/download — slow, network+disk) runs lazily on the **first**
+`worker()` call, result cached; changing the `model` config releases the old
+estimator and clears the cache so the next frame reloads. `release()` fires on
+`on_shutdown` / `on_teardown` / model-change for clean GPU/file handles. NO
+explicit load/unload EXEC inlets (that's device-idiom cargo-culted onto a
+transform) and NOT `on_startup` (would couple model choice to Flow restart). Graph
+stays minimal: just wire frame → estimator → consumer.
+
+### Q8 — threading: SYNCHRONOUS inference in `worker()` (not off-thread)
+
+The node is a per-frame CONTROL transform (`execute` EXEC inlet pulsed by upstream
+`frame_ready`, a `frame` data inlet) — same shape as `FrameDisplayNode`. `process()`
+(50–500ms) runs **synchronously** in `worker()`; returns `result_ready`. The
+camera's capture thread is what blocks, so the pipeline self-throttles to
+inference speed for free, and frame→result ordering is trivially correct. The
+viewer queue already provides backpressure (`frame_queue_size=1,
+block_on_full=False` → newest-frame-wins, drops under load). Off-threading
+(latest-frame queue + async result emission) re-implements the camera's threading
+inside a transform and injects async emission into control flow — deliberate
+fast-follow only if a specific slow model demands it, NOT v1.
+
+### Q9 — busy feedback: STATUS LABEL (node-busy highlight is a FRAMEWORK concern)
+
+Constraint: there is no built-in node "busy" spinner wired to the skin, and a
+synchronous `worker()` (Q8) has **no yield point** — you cannot animate a progress
+bar *during* `process()`. You *can* push a status value before/after via
+`port.set_value()` (re-renders the bound widget live — verified at
+`packages/haywire-core/src/haywire/core/types/port.py:272`; this is how the camera
+status label updates from its thread). So:
+
+- `SimpleLabelWidget` status, same idiom as the camera nodes.
+- `"Loading model…"` before first-frame `setup()` (the slow, separable step).
+- Rolling `"N results · Xms"` after each inference (last-frame timing). No
+  per-frame "Inferring…" mid-call — the synchronous design can't deliver it.
+
+A real "this node is executing" visual belongs in the **framework**, driven from
+the existing-but-unsurfaced `is_executing` flag
+(`packages/haywire-core/src/haywire/core/node/node_wrapper.py:46`), surfaced in the
+skin. **FOLLOW-UP (framework, possible ADR — cross-cutting UI capability, not a
+visiongraph concern):** wire a node-busy highlight from `is_executing`. Out of
+scope for these nodes. (Rejected: a display-only off-thread spinner toggling a
+flag around an already-blocking call — spends a thread to fake motion, and the
+toggle's render may stall because the main thread is busy.)
+
+### Q10 — Annotate node: `PooledType[VISION_RESULT]` result inlet + `RGB_FRAME` frame inlet
+
+Contract found: visiongraph results carry **normalized** coords (annotate does
+`x * w`), and `.annotate(image)` **mutates the image in place** (returns None).
+Canonical pipeline annotates onto the same frame fed to `process()`.
+
+The generic Annotate node (the `VISION_RESULT` consumer) takes:
+- **`result`: `PooledType[VISION_RESULT]`** — inlet-only, multi-connection.
+  Accepts any MIX of `DETECTION_RESULT` / `SEGMENTATION_RESULT` /
+  `LANDMARK_RESULT` / `POSE_RESULT` outlets *simultaneously*: each is a subtype of
+  `VISION_RESULT`, and a pooled inlet checks compatibility against its ELEMENT
+  type (verified: `PooledField.get_stored_type()` returns `element_type_cls`, and
+  the live `PooledType[MULTIFRAME_CALLBACK]` ← scalar callback outlets proves
+  scalar-source→pooled-sink works via the Q2 `issubclass` passthrough). So one
+  Annotate node overlays detections + pose + masks from several estimators onto
+  one frame — the user's key insight.
+- **`frame`: `RGB_FRAME`** — single inlet, the target image.
+
+Worker: **COPY** the frame first (in-place `.annotate()` would corrupt the shared
+`RGB_FRAME` value flowing to other consumers), iterate the pooled dict
+`{source_id: ResultList}`, call `result_list.annotate(frame_copy, **opts)` for
+each, outlet the composited `RGB_FRAME`.
+
+Rejected: (B) estimator forwards the frame alongside the result — bloats every
+estimator outlet for a feature only the annotate path uses; (C) result type
+carries its source frame — fuses pixels into the coordinate abstraction, drags a
+frame through count/get-joint consumers that only want coords.
+
+NOTE this also means: the `result` inlet being pooled is the general shape — even
+single-result annotate just has one pooled entry. No separate single-inlet
+variant needed.
+
+### Q11 — `min_score` is an estimator config; Tracker is its OWN node
+
+Source separation: `min_score` is a per-estimator attribute
+(`ScoreThresholdEstimator.min_score`, set on the object) — intrinsic to the
+estimator, so it's a config on the estimator node. **Tracking** is a wholly
+separate stateful object (`BaseObjectDetectionTracker.process(ResultList) ->
+ResultList`, assigns `tracking_id` across frames) → its own node, backend via the
+same curated-enum pattern (Centroid / Flate / Motpy). Mirrors visiongraph's
+pipeline staging: `network.process()` → `tracker.process()` → annotate.
+Composes: detector → tracker → (pooled) annotate.
+
+### Q12 — Tracker node: `result_type` config retypes inlet+outlet (chosen: B)
+
+The tracker preserves runtime subtype — it stores/returns `t.reference`, the
+ORIGINAL result object (verified `FlateTracker.process`), so a pose passed in
+comes back as the same pose object with joints intact, even though visiongraph
+types the return `ResultList[ObjectDetectionResult]`. But haywire ports are
+statically typed, so the node needs a declared type per port.
+
+Decision: a **`result_type` enum config** (default `DETECTION_RESULT`; also
+`POSE_RESULT`, `SEGMENTATION_RESULT`) drives a `rejig` that retypes BOTH the
+inlet and the outlet to the chosen subtype. One tracker node serves all families.
+
+Why this is elegant, not convoluted (verified against the framework):
+- `rejig` retype = re-add same port id with a different type; edges on a refreshed
+  port are preserved IFF still compatible, else detached
+  (`data.py:_pop` lines 387-398; `rejig` lines 408-452).
+- On switch `DETECTION_RESULT → POSE_RESULT`: the narrower inlet can no longer be
+  fed by a plain detector outlet (ancestor→descendant rejected) → that edge breaks
+  CORRECTLY; the outlet wired to a pooled `VISION_RESULT` annotate inlet survives
+  (pose ⊂ vision); a `DETECTION_RESULT`-specific downstream breaks CORRECTLY. Edges
+  break exactly when the subtype relationship genuinely fails — the config cannot
+  produce an inconsistent graph. That's the signature of an elegant feature.
+- The one dependency — visiongraph preserving subtype at runtime — is a VERIFIED
+  contract (returns the original object), not a hope.
+
+Default stays `DETECTION_RESULT` (the common case, type-safe); the enum widens it
+deliberately. (Rejected A: single fixed `DETECTION_RESULT` — loses pose-after-
+tracking for no real saving now that rejig-retype is shown safe.)
+
+### Q13 — import discipline: light result imports top-level, heavy backends lazy
+
+Measured (real imports):
+- `visiongraph.result.{ResultList,BaseResult}` → **0.45s**. Light, and needed as
+  dataclass field types → import at the type module's TOP. No lazy gymnastics for
+  a sub-second cost.
+- `visiongraph.estimator.spatial.YOLOv8Detector` → **2.6s** (pulls the ML stack).
+  Heavy → **lazy-import inside the `setup()` path** (the worker's first-frame
+  load), exactly the OAK node precedent (`oak_d_camera_node.py` imports
+  `OakDInput` inside `hb_handle_start`, not at module top). Top-level backend
+  imports would add ~2.6s × N backends to every library load AND hot-reload cycle.
+
+No pyproject change: `visiongraph[all]` already ships `estimator.spatial.*`;
+`depthai~=2.30` stays for the camera side. `@library(dependencies=["haybale_core"])`
+unchanged — visiongraph is not a haywire library. Run `/haywire-dep-check` after
+implementing per CLAUDE.md.
+
+### Q14 — config vs. NodeSettings split: by FREQUENCY OF USE (governing principle)
+
+The axis is NOT "operational vs. styling" — it's **how often a user reaches for
+it**. Frequently-touched knobs → first-class **config ports** (visible on the node
+face, immediately reachable, AND optionally wire-able from an upstream value).
+Set-once long-tail → **NodeSettings** inner class (panel-rendered, stored only when
+overridden, no port clutter). This matches the existing nodes (camera puts
+`camera_index`/`width`/`fps` as config; viewer tuning lives in the widget).
+
+Annotate node, applying the test:
+- **config ports:** `min_score` (FLOAT, default 0 — reached for constantly to hide
+  low-confidence overlays; bonus: wire-able from a slider) + `show_info` (BOOL,
+  default True — label decluttering, toggled often).
+- **`NodeSettings` (`class style(NodeSettings)`):** `show_bounding_box`,
+  `marker_size`, `stroke_width`, colors, connection toggles — set once to taste.
+
+Worker merges config + settings into the `**kwargs` dict passed to every pooled
+`ResultList.annotate(frame_copy, **kwargs)`. Safe because every visiongraph
+annotate signature ends in `**kwargs` — a subtype that ignores a knob absorbs it
+harmlessly. Subtype-specific knobs not surfaced keep visiongraph defaults.
+
+This frequency principle is the RULE for all nodes in this expansion (estimator
+`model`/`min_score` are config; deep tuning would be settings).
+
+### Registration — folder-drop only, NO `__init__.py` changes (confirmed by inspection)
+
+The Library already scans `types/`, `adapters/`, `nodes/` (+ widgets/skins) via
+`add_folder_to_registry` (`haybale_visiongraph/__init__.py:43-55`). New result
+types → `types/`; estimator/tracker/annotate nodes → `nodes/`; any new adapters →
+`adapters/`. `@library(dependencies=["haybale_core"])` unchanged. Nothing to wire
+in registration. (NodeSettings need no registration — scanned off the `@node`
+class.)
+
+### Q15 — names / labels / menus / colors (pinned for a clean first build)
+
+Result types (`registry_id` = class name = persisted key; `_RESULT` suffix mirrors
+the `_FRAME` convention):
+
+| Class (registry_id)   | label                 | color     |
+|-----------------------|-----------------------|-----------|
+| `VISION_RESULT`       | "Vision Result"       | `#455a64` |
+| `DETECTION_RESULT`    | "Detection Result"    | `#f57c00` |
+| `SEGMENTATION_RESULT` | "Segmentation Result" | `#7b1fa2` |
+| `LANDMARK_RESULT`     | "Landmark Result"     | `#00897b` |
+| `POSE_RESULT`         | "Pose Result"         | `#0288d1` |
+
+Nodes (`menu="vision/<area>"`, extending existing `input`/`event`/`info`):
+
+| Class                | label              | menu              |
+|----------------------|--------------------|-------------------|
+| `ObjectDetectorNode` | "Object Detector"  | `vision/estimate` |
+| `SegmentationNode`   | "Segmentation"     | `vision/estimate` |
+| `PoseEstimatorNode`  | "Pose Estimator"   | `vision/estimate` |
+| `TrackerNode`        | "Tracker"          | `vision/process`  |
+| `AnnotateNode`       | "Annotate Results" | `vision/draw`     |
+
+Three small menu groups read as a left-to-right pipeline: estimate → process → draw.
+
+---
+
+## BUILD CHECKLIST (all design decisions resolved — ready to implement)
+
+- [ ] `types/result_type.py`: `VISION_RESULT` base + `DETECTION_RESULT` →
+      `{SEGMENTATION_RESULT, LANDMARK_RESULT → POSE_RESULT}` wired subtype chain;
+      each `@type(store_strategy=NEVER, flow_type=DATA)`, single field holding the
+      visiongraph `ResultList` (import `ResultList`/`BaseResult` at module top —
+      0.45s, Q13). Mirror `BaseFrame` style.
+- [ ] `nodes/base_estimator_node.py`: shared `BaseEstimatorNode` — `RGB_FRAME`
+      inlet, `model` enum config (+ rejig/cache-invalidate on change), `min_score`
+      config, lazy `setup()` on first frame (Q7), synchronous `process()` (Q8),
+      wrap `ResultList` into subclass `RESULT_TYPE`, status label (Q9),
+      `release()` on shutdown/teardown/model-change. Subclasses declare only
+      `RESULT_TYPE` + `MODELS` dict. Lazy-import backends inside setup (Q13).
+- [ ] `nodes/object_detector_node.py`, `segmentation_node.py`,
+      `pose_estimator_node.py` — thin subclasses (Q6 model lists).
+- [ ] `nodes/tracker_node.py`: `result_type` enum config rejigs inlet+outlet
+      (Q12); curated backend enum (Centroid/Flate/Motpy); `DETECTION_RESULT`
+      default.
+- [ ] `nodes/annotate_node.py`: `PooledType[VISION_RESULT]` result inlet +
+      `RGB_FRAME` frame inlet; COPY frame, iterate pooled dict, `.annotate(**kwargs)`
+      each, outlet `RGB_FRAME` (Q10). `min_score`+`show_info` config; `class
+      style(NodeSettings)` for the styling long-tail (Q14).
+- [ ] No `pyproject.toml` / `__init__.py` changes (Q13 + registration finding).
+- [ ] After build: `/haywire-dep-check`, then `uv run pytest` +
+      ruff/mypy baseline per CLAUDE.md.
+
+## OPEN QUESTIONS — none (design complete)
+
+- FOLLOW-UP (framework, separate from this work): node-busy highlight from
+  `is_executing` (see Q9) — possible ADR, cross-cutting UI capability.
+
+---
+
 ## Webcam joins the 3D-camera family (second inquisition)
 
 Goal: a webcam should be usable as the **RGB-only member** of the camera family,

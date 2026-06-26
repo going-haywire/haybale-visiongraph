@@ -100,9 +100,11 @@ class WebCameraNode(BaseNode):
         # ignores depth/ir (see notes.md "webcam joins the 3D-camera family").
         self.add(
             PooledType[MULTIFRAME_CALLBACK].as_inlet(
-                "callbacks", 
+                "callbacks",
                 label="Subscribers",
-                description="Connect to a Frame Event node. Beware: this camera type can only deliver rgb frames"
+                description=(
+                    "Connect to a Frame Event node. Beware: this camera type can only deliver rgb frames"
+                ),
             )
         )
 

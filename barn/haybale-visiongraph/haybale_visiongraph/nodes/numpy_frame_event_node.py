@@ -20,6 +20,7 @@ from typing import Optional
 
 from haywire.core.execution.event_source import CallbackEvent
 from haywire.core.execution.execution_context import ExecutionContext
+from haywire.core.execution.scheduler import QueueMode
 from haywire.core.node import node, BaseNode, NodeType
 
 
@@ -27,7 +28,19 @@ from haywire.core.node import node, BaseNode, NodeType
     label="Frame Event",
     description="Triggered when a camera frame is ready; exposes colour/depth/infrared streams",
     menu="vision/event",
-    search_tags=["3d", "depth", "camera", "oak", "kinect", "realsense", "frame", "event", "rgb", "ir", "image"],
+    search_tags=[
+        "3d",
+        "depth",
+        "camera",
+        "oak",
+        "kinect",
+        "realsense",
+        "frame",
+        "event",
+        "rgb",
+        "ir",
+        "image",
+    ],
     node_type=NodeType.EVENT,
 )
 class NumpyFrameEventNode(BaseNode):
@@ -118,7 +131,14 @@ class NumpyFrameEventNode(BaseNode):
 
     def post_init(self):
         """Register the callback subscription and publish requirements."""
-        self.event_subscription = CallbackEvent(event_name=self.node_id)
+        # Realtime by default: drop stale frames and keep only the newest, so a
+        # live camera that outruns inference never lags behind. DROP needs a
+        # depth-1 queue to actually guarantee newest. See ADR 0010.
+        self.event_subscription = CallbackEvent(
+            event_name=self.node_id,
+            queue_mode=QueueMode.DROP,
+            max_queue_size=1,
+        )
         self.hb_publish_subscription()
 
     def hb_publish_subscription(self):
