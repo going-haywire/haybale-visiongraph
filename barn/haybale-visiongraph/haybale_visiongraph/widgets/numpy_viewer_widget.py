@@ -15,7 +15,6 @@ from haybale_visiongraph.widgets.components.streaming_viewer import StreamingBac
 
 @widget(
     description="Streaming video viewer for numpy arrays using custom StreamingViewer",
-    compatible_types=[RGB_FRAME],
 )
 class NumpyViewerWidget(BaseWidget):
     """

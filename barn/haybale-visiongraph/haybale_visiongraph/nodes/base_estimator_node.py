@@ -107,8 +107,9 @@ class BaseEstimatorNode(BaseNode):
         raise NotImplementedError
 
     def init(self):
-        from haybale_core.types import EXEC, STRING, INT, FLOAT
-        from haybale_core.widgets.basic_widgets import (
+        from haywire.barn.builtin.types import STRING, INT, FLOAT
+        from haybale_core.types import EXEC
+        from haywire.barn.builtin.widgets import (
             SelectWidget,
             NumberWidget,
             SimpleLabelWidget,

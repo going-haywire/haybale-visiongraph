@@ -69,8 +69,9 @@ class TrackerNode(BaseNode):
     """
 
     def init(self):
-        from haybale_core.types import EXEC, STRING
-        from haybale_core.widgets.basic_widgets import SelectWidget, SimpleLabelWidget
+        from haywire.barn.builtin.types import STRING
+        from haybale_core.types import EXEC
+        from haywire.barn.builtin.widgets import SelectWidget, SimpleLabelWidget
 
         # Control in.
         self.add(EXEC.as_inlet("execute", label="Run"))

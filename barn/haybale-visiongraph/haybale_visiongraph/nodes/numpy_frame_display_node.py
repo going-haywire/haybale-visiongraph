@@ -38,8 +38,9 @@ class FrameDisplayNode(BaseNode):
     """
 
     def init(self):
-        from haybale_core.types import EXEC, STRING, INT, FLOAT
-        from haybale_core.widgets.basic_widgets import SimpleLabelWidget
+        from haywire.barn.builtin.types import STRING, INT, FLOAT
+        from haybale_core.types import EXEC
+        from haywire.barn.builtin.widgets import SimpleLabelWidget
         from haybale_visiongraph.types.frame_type import RGB_FRAME
         from haybale_visiongraph.widgets.numpy_viewer_widget import NumpyViewerWidget
 

@@ -49,9 +49,10 @@ class OakDCameraNode(BaseNode):
     """
 
     def init(self):
-        from haybale_core.types import EXEC, STRING
+        from haywire.barn.builtin.types import STRING
+        from haybale_core.types import EXEC
         from haybale_core.types import PooledType
-        from haybale_core.widgets.basic_widgets import SimpleLabelWidget, TextWidget
+        from haywire.barn.builtin.widgets import SimpleLabelWidget, TextWidget
         from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
 
         # Control inputs

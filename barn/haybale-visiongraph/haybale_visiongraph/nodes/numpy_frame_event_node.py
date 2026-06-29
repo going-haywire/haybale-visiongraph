@@ -58,8 +58,9 @@ class NumpyFrameEventNode(BaseNode):
     """
 
     def init(self):
-        from haybale_core.types import EXEC, INT, FLOAT, BOOL
-        from haybale_core.widgets.basic_widgets import SwitchWidget
+        from haywire.barn.builtin.types import INT, FLOAT, BOOL
+        from haybale_core.types import EXEC
+        from haywire.barn.builtin.widgets import SwitchWidget
         from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
 
         # Subscription outlet: carries this node's name + stream requirements.

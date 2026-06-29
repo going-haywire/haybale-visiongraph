@@ -40,9 +40,10 @@ class WebCameraNode(BaseNode):
     """
 
     def init(self):
-        from haybale_core.types import EXEC, STRING, INT
+        from haywire.barn.builtin.types import STRING, INT
+        from haybale_core.types import EXEC
         from haybale_core.types import PooledType
-        from haybale_core.widgets.basic_widgets import NumberWidget, SimpleLabelWidget
+        from haywire.barn.builtin.widgets import NumberWidget, SimpleLabelWidget
         from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
 
         # Control inputs

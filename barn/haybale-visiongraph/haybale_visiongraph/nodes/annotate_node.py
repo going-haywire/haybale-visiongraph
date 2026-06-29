@@ -21,6 +21,7 @@ from typing import Optional
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
 from haywire.core.settings import NodeSettings, setting
+from haywire.barn.builtin.types import BOOL, INT
 
 
 @node(
@@ -49,19 +50,19 @@ class AnnotateNode(BaseNode):
     class style(NodeSettings):
         """Set-once styling knobs for the overlay (notes.md Q14)."""
 
-        show_bounding_box = setting[bool](
+        show_bounding_box = setting[BOOL](
             False,
             label="Show Bounding Box",
             description="Draw the bounding box for landmark/pose results",
         )
-        marker_size = setting[int](
+        marker_size = setting[INT](
             3,
             min=1,
             max=20,
             label="Marker Size",
             description="Landmark marker radius in pixels",
         )
-        stroke_width = setting[int](
+        stroke_width = setting[INT](
             2,
             min=1,
             max=10,
@@ -70,10 +71,11 @@ class AnnotateNode(BaseNode):
         )
 
     def init(self):
-        from haybale_core.types import EXEC, FLOAT, BOOL, PooledType
+        from haywire.barn.builtin.types import FLOAT, BOOL
+        from haybale_core.types import EXEC, PooledType
         from haybale_visiongraph.types.frame_type import RGB_FRAME
         from haybale_visiongraph.types.result_type import VISION_RESULT
-        from haybale_core.widgets.basic_widgets import NumberWidget, SwitchWidget
+        from haywire.barn.builtin.widgets import NumberWidget, SwitchWidget
 
         # Control in.
         self.add(EXEC.as_inlet("execute", label="Run"))
@@ -107,7 +109,6 @@ class AnnotateNode(BaseNode):
         # Annotated frame out. (Distinct id from the "frame" inlet — port ids are
         # unique per node; cf. FrameDisplayNode's "frame_pass".)
         self.add(RGB_FRAME.as_outlet("annotated", label="Annotated"))
-
 
     def worker(self, context: ExecutionContext, result=None, frame=None) -> Optional[str]:
         """Copy the frame, draw every pooled result onto it, output the copy."""
