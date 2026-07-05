@@ -175,8 +175,8 @@ class OakDCameraNode(BaseNode):
             0.0,
             min=0.0,
             max=1.0,
-            label="Laser Dot Projector Intensity",
-            description="Set intensity of laser dot projector",
+            label="Projector Intensity",
+            description="Sets intensity of laser dot projector",
             category="Infrared",
         )
         flood_intensity = setting[FLOAT](
@@ -184,43 +184,144 @@ class OakDCameraNode(BaseNode):
             min=0.0,
             max=1.0,
             label="Flood Light Intensity",
+            description="Sets intensity of the IR flood light",
             category="Infrared",
         )
 
     class color(NodeSettings):
-        enable_auto_exposure = setting[BOOL](True, label="Auto Exposure", category="Exposure")
-        exposure = setting[INT](20000, min=1, max=33000, label="Exposure (µs)", category="Exposure")
-        iso = setting[INT](800, min=100, max=1600, label="ISO", category="Exposure")
-        auto_exposure_compensation = setting[INT](
-            0, min=-9, max=9, label="Auto Exposure Compensation", category="Exposure"
+        enable_auto_exposure = setting[BOOL](
+            True,
+            label="Auto Exposure",
+            description="Enables or disables auto exposure. Inert if Color is off.",
+            category="Exposure",
         )
-        enable_auto_white_balance = setting[BOOL](True, label="Auto White Balance", category="White Balance")
+        exposure = setting[INT](
+            20000,
+            min=1,
+            max=33000,
+            label="Exposure (µs)",
+            description=(
+                "Manual exposure time. Only applied while Auto Exposure is off. Inert if Color is off."
+            ),
+            category="Exposure",
+        )
+        iso = setting[INT](
+            800,
+            min=100,
+            max=1600,
+            label="ISO",
+            description="Sensor ISO sensitivity. Inert if Color is off.",
+            category="Exposure",
+        )
+        auto_exposure_compensation = setting[INT](
+            0,
+            min=-9,
+            max=9,
+            label="Auto Exposure Compensation",
+            description="Bias applied to auto exposure, in the range [-9, 9]. Inert if Color is off.",
+            category="Exposure",
+        )
+        enable_auto_white_balance = setting[BOOL](
+            True,
+            label="Auto White Balance",
+            description="Enables or disables auto white balance. Inert if Color is off.",
+            category="White Balance",
+        )
         white_balance = setting[INT](
-            4000, min=1000, max=12000, label="White Balance (K)", category="White Balance"
+            4000,
+            min=1000,
+            max=12000,
+            label="White Balance (K)",
+            description=(
+                "Manual white balance in Kelvin. Only applied while Auto White Balance is off. "
+                "Inert if Color is off."
+            ),
+            category="White Balance",
         )
         auto_white_balance_mode = setting[CHOICES](
             "AUTO",
             label="Auto White Balance Mode",
+            description=(
+                "Auto white balance scene preset (e.g. Daylight, Fluorescent). Inert if Color is off."
+            ),
             category="White Balance",
             widget_config={"options": list(_AWB_MODES.keys())},
         )
-        auto_focus = setting[BOOL](True, label="Auto Focus", category="Focus")
-        focus_distance = setting[INT](0, min=0, max=255, label="Focus Distance", category="Focus")
-        brightness = setting[INT](0, min=-10, max=10, label="Brightness", category="Image Tuning")
-        contrast = setting[INT](0, min=-10, max=10, label="Contrast", category="Image Tuning")
-        saturation = setting[INT](0, min=-10, max=10, label="Saturation", category="Image Tuning")
-        sharpness = setting[INT](0, min=0, max=4, label="Sharpness", category="Image Tuning")
-        luma_denoise = setting[INT](0, min=0, max=4, label="Luma Denoise", category="Image Tuning")
-        chroma_denoise = setting[INT](0, min=0, max=4, label="Chroma Denoise", category="Image Tuning")
+        auto_focus = setting[BOOL](
+            True,
+            label="Auto Focus",
+            description="Enables or disables auto focus. Inert if Color is off.",
+            category="Focus",
+        )
+        focus_distance = setting[INT](
+            0,
+            min=0,
+            max=255,
+            label="Focus Distance",
+            description=(
+                "Manual focus position. Only applied while Auto Focus is off. Inert if Color is off."
+            ),
+            category="Focus",
+        )
+        brightness = setting[INT](
+            0,
+            min=-10,
+            max=10,
+            label="Brightness",
+            description="Image brightness, in the range [-10, 10]. Inert if Color is off.",
+            category="Image Tuning",
+        )
+        contrast = setting[INT](
+            0,
+            min=-10,
+            max=10,
+            label="Contrast",
+            description="Image contrast, in the range [-10, 10]. Inert if Color is off.",
+            category="Image Tuning",
+        )
+        saturation = setting[INT](
+            0,
+            min=-10,
+            max=10,
+            label="Saturation",
+            description="Image saturation, in the range [-10, 10]. Inert if Color is off.",
+            category="Image Tuning",
+        )
+        sharpness = setting[INT](
+            0,
+            min=0,
+            max=4,
+            label="Sharpness",
+            description="Image sharpness, in the range [0, 4]. Inert if Color is off.",
+            category="Image Tuning",
+        )
+        luma_denoise = setting[INT](
+            0,
+            min=0,
+            max=4,
+            label="Luma Denoise",
+            description="Luminance noise reduction, in the range [0, 4]. Inert if Color is off.",
+            category="Image Tuning",
+        )
+        chroma_denoise = setting[INT](
+            0,
+            min=0,
+            max=4,
+            label="Chroma Denoise",
+            description="Chrominance (color) noise reduction, in the range [0, 4]. Inert if Color is off.",
+            category="Image Tuning",
+        )
         anti_banding_mode = setting[CHOICES](
             "AUTO",
             label="Anti-Banding Mode",
+            description="Reduces flicker banding from artificial lighting. Inert if Color is off.",
             category="Image Tuning",
             widget_config={"options": list(_ANTI_BANDING_MODES.keys())},
         )
         effect_mode = setting[CHOICES](
             "OFF",
             label="Effect Mode",
+            description="Built-in color effect (e.g. Mono, Sepia, Negative). Inert if Color is off.",
             category="Image Tuning",
             widget_config={"options": list(_EFFECT_MODES.keys())},
         )
@@ -507,6 +608,12 @@ class OakDCameraNode(BaseNode):
 
     def hb_stop_capture(self):
         """Stop the thread and release the device."""
+        # post_init() may never have run (e.g. init() failed during a reset/
+        # reload), in which case none of the hb_* attributes exist yet —
+        # nothing was ever opened, so there's nothing to stop.
+        if not hasattr(self, "hb_lock"):
+            return
+
         with self.hb_lock:
             self.hb_is_running = False
 
