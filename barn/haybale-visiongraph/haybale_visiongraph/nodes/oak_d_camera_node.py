@@ -12,6 +12,15 @@ Lifecycle (see notes.md Q9-Q11):
 - ``start`` pulse : open the OAK device + capture thread using that union.
 - ``stop`` pulse  : close the device.
 - ``on_shutdown`` : close the device as a fallback if ``stop`` was never pulsed.
+
+Tuning surface (see notes.md "Depth-quality / IR / color live-control knobs"):
+- ``depth`` (NodeSettings): pipeline-construction params, read once at
+  ``pre_start_setup()``/``setup()``. Immutable while running — panel-only,
+  never promotable to a port (promoting would imply live control that the
+  hardware can't actually deliver without a device rebuild).
+- ``ir`` / ``color`` (NodeSettings): live camera-control params. OakDInput's
+  own setters guard on ``self.device is not None`` and push straight to the
+  running device, so these ARE safe to promote to an inlet.
 """
 
 import logging
@@ -19,10 +28,73 @@ import threading
 import time
 from typing import Optional
 
+import depthai as dai
+
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
+from haywire.core.settings import NodeSettings, setting
+from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT
 
 logger = logging.getLogger(__name__)
+
+# --- dai enum <-> CHOICES string lookup tables -----------------------------
+# setting[CHOICES] stores plain strings; these map back to the dai.* (or
+# visiongraph) enum members OakDInput's attributes actually expect. Keys must
+# match the `widget_config={"options": [...]}` lists on the corresponding
+# setting() fields below.
+
+_DEPTH_PRESET_MODES = {
+    "HIGH_DENSITY": dai.node.StereoDepth.PresetMode.HIGH_DENSITY,
+    "HIGH_ACCURACY": dai.node.StereoDepth.PresetMode.HIGH_ACCURACY,
+    "DEFAULT": dai.node.StereoDepth.PresetMode.DEFAULT,
+    "FACE": dai.node.StereoDepth.PresetMode.FACE,
+    "HIGH_DETAIL": dai.node.StereoDepth.PresetMode.HIGH_DETAIL,
+    "ROBOTICS": dai.node.StereoDepth.PresetMode.ROBOTICS,
+}
+
+_DEPTH_MEDIAN_FILTERS = {
+    "MEDIAN_OFF": dai.MedianFilter.MEDIAN_OFF,
+    "KERNEL_3x3": dai.MedianFilter.KERNEL_3x3,
+    "KERNEL_5x5": dai.MedianFilter.KERNEL_5x5,
+    "KERNEL_7x7": dai.MedianFilter.KERNEL_7x7,
+}
+
+_AWB_MODES = {
+    "AUTO": dai.CameraControl.AutoWhiteBalanceMode.AUTO,
+    "OFF": dai.CameraControl.AutoWhiteBalanceMode.OFF,
+    "INCANDESCENT": dai.CameraControl.AutoWhiteBalanceMode.INCANDESCENT,
+    "FLUORESCENT": dai.CameraControl.AutoWhiteBalanceMode.FLUORESCENT,
+    "WARM_FLUORESCENT": dai.CameraControl.AutoWhiteBalanceMode.WARM_FLUORESCENT,
+    "DAYLIGHT": dai.CameraControl.AutoWhiteBalanceMode.DAYLIGHT,
+    "CLOUDY_DAYLIGHT": dai.CameraControl.AutoWhiteBalanceMode.CLOUDY_DAYLIGHT,
+    "TWILIGHT": dai.CameraControl.AutoWhiteBalanceMode.TWILIGHT,
+    "SHADE": dai.CameraControl.AutoWhiteBalanceMode.SHADE,
+}
+
+_ANTI_BANDING_MODES = {
+    "AUTO": dai.CameraControl.AntiBandingMode.AUTO,
+    "OFF": dai.CameraControl.AntiBandingMode.OFF,
+    "MAINS_50_HZ": dai.CameraControl.AntiBandingMode.MAINS_50_HZ,
+    "MAINS_60_HZ": dai.CameraControl.AntiBandingMode.MAINS_60_HZ,
+}
+
+_EFFECT_MODES = {
+    "OFF": dai.CameraControl.EffectMode.OFF,
+    "MONO": dai.CameraControl.EffectMode.MONO,
+    "NEGATIVE": dai.CameraControl.EffectMode.NEGATIVE,
+    "SOLARIZE": dai.CameraControl.EffectMode.SOLARIZE,
+    "SEPIA": dai.CameraControl.EffectMode.SEPIA,
+    "POSTERIZE": dai.CameraControl.EffectMode.POSTERIZE,
+    "WHITEBOARD": dai.CameraControl.EffectMode.WHITEBOARD,
+    "BLACKBOARD": dai.CameraControl.EffectMode.BLACKBOARD,
+    "AQUA": dai.CameraControl.EffectMode.AQUA,
+}
+
+# OakDFrameAlignment is a plain visiongraph Enum (light, no depthai import) —
+# CHOICES stores the member's .name, resolved back via OakDFrameAlignment[name]
+# lazily inside hb_handle_start (importing OakDInput at module top costs ~7s,
+# see notes.md Q13 lazy-import discipline).
+_FRAME_ALIGNMENT_OPTIONS = ["Disabled", "Color", "Infrared"]
 
 
 @node(
@@ -46,23 +118,134 @@ class OakDCameraNode(BaseNode):
     Outputs:
         started: Triggered when the device opens successfully.
         stopped: Triggered when capture stops.
+
+    Settings:
+        depth: Pipeline-construction params (read once at setup(), immutable
+            while running). Panel-only — not promotable to a port.
+        ir: Live IR laser/flood intensity. Promotable to an inlet — pushed
+            straight to the running device.
+        color: Live color-sensor controls (exposure/WB/focus/tuning).
+            Promotable to an inlet. Inert while enable_color is False (no
+            color control queue exists on the device in that case).
     """
+
+    class depth(NodeSettings):
+        preset_mode = setting[CHOICES](
+            "HIGH_DENSITY",
+            label="Preset Mode",
+            category="Depth",
+            description="Stereo depth quality/speed preset. Requires a device restart to apply.",
+            widget_config={"options": list(_DEPTH_PRESET_MODES.keys())},
+        )
+        median_filter = setting[CHOICES](
+            "KERNEL_7x7",
+            label="Median Filter",
+            category="Depth",
+            description="Disparity smoothing kernel. Requires a device restart to apply.",
+            widget_config={"options": list(_DEPTH_MEDIAN_FILTERS.keys())},
+        )
+        left_right_check = setting[BOOL](
+            True,
+            label="Left/Right Check",
+            category="Depth",
+            description="Better handling of occlusions. Requires a device restart to apply.",
+        )
+        subpixel = setting[BOOL](
+            False,
+            label="Subpixel",
+            category="Depth",
+            description="Fractional disparity for longer-range accuracy. Restart required.",
+        )
+        extended_disparity = setting[BOOL](
+            False,
+            label="Extended Disparity",
+            category="Depth",
+            description="Closer-in minimum depth, doubled disparity range. Restart required.",
+        )
+        frame_alignment = setting[CHOICES](
+            "Color",
+            label="Frame Alignment",
+            category="Depth",
+            description="Align the depth map to Color, Infrared, or leave Disabled. Restart required.",
+            widget_config={"options": _FRAME_ALIGNMENT_OPTIONS},
+        )
+
+    class ir(NodeSettings):
+        laser_intensity = setting[FLOAT](
+            0.0,
+            min=0.0,
+            max=1.0,
+            label="Laser Dot Projector Intensity",
+            description="Set intensity of laser dot projector",
+            category="Infrared",
+        )
+        flood_intensity = setting[FLOAT](
+            0.0,
+            min=0.0,
+            max=1.0,
+            label="Flood Light Intensity",
+            category="Infrared",
+        )
+
+    class color(NodeSettings):
+        enable_auto_exposure = setting[BOOL](True, label="Auto Exposure", category="Exposure")
+        exposure = setting[INT](20000, min=1, max=33000, label="Exposure (µs)", category="Exposure")
+        iso = setting[INT](800, min=100, max=1600, label="ISO", category="Exposure")
+        auto_exposure_compensation = setting[INT](
+            0, min=-9, max=9, label="Auto Exposure Compensation", category="Exposure"
+        )
+        enable_auto_white_balance = setting[BOOL](True, label="Auto White Balance", category="White Balance")
+        white_balance = setting[INT](
+            4000, min=1000, max=12000, label="White Balance (K)", category="White Balance"
+        )
+        auto_white_balance_mode = setting[CHOICES](
+            "AUTO",
+            label="Auto White Balance Mode",
+            category="White Balance",
+            widget_config={"options": list(_AWB_MODES.keys())},
+        )
+        auto_focus = setting[BOOL](True, label="Auto Focus", category="Focus")
+        focus_distance = setting[INT](0, min=0, max=255, label="Focus Distance", category="Focus")
+        brightness = setting[INT](0, min=-10, max=10, label="Brightness", category="Image Tuning")
+        contrast = setting[INT](0, min=-10, max=10, label="Contrast", category="Image Tuning")
+        saturation = setting[INT](0, min=-10, max=10, label="Saturation", category="Image Tuning")
+        sharpness = setting[INT](0, min=0, max=4, label="Sharpness", category="Image Tuning")
+        luma_denoise = setting[INT](0, min=0, max=4, label="Luma Denoise", category="Image Tuning")
+        chroma_denoise = setting[INT](0, min=0, max=4, label="Chroma Denoise", category="Image Tuning")
+        anti_banding_mode = setting[CHOICES](
+            "AUTO",
+            label="Anti-Banding Mode",
+            category="Image Tuning",
+            widget_config={"options": list(_ANTI_BANDING_MODES.keys())},
+        )
+        effect_mode = setting[CHOICES](
+            "OFF",
+            label="Effect Mode",
+            category="Image Tuning",
+            widget_config={"options": list(_EFFECT_MODES.keys())},
+        )
 
     def init(self):
         from haywire.barn.builtin.types import STRING
         from haybale_core.types import EXEC
         from haybale_core.types import PooledType
-        from haywire.barn.builtin.widgets import SimpleLabelWidget, TextWidget
+        from haywire.barn.builtin.widgets import SelectWidget, SimpleLabelWidget
         from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
 
         # Control inputs
         self.add(EXEC.as_inlet("start", label="Start"))
         self.add(EXEC.as_inlet("stop", label="Stop"))
 
-        # Device selection (empty = first available device)
+        # Device selection (empty = first available device). Options are
+        # resolved fresh on every dropdown open via dai.Device.getAllAvailableDevices()
+        # (a static enumeration call — no device needs to be opened first).
         self.add(
             STRING.as_config(
-                "mxid", default="", label="Device MXID (empty=auto)", widget=TextWidget.config()
+                "mxid",
+                default="",
+                label="Device MXID",
+                description="Leave empty to auto-select the first available OAK device.",
+                widget=SelectWidget.config(properties={"options": self.hb_list_available_mxids}),
             )
         )
 
@@ -95,6 +278,88 @@ class OakDCameraNode(BaseNode):
         self.hb_want_rgb = False
         self.hb_want_depth = False
         self.hb_want_ir = False
+
+        # Live-control settings: one subscription per bag, dispatched by field
+        # name to the running device. No-op (guarded) while hb_input is None.
+        self.ir.subscribe(self.hb_on_ir_changed)
+        self.color.subscribe(self.hb_on_color_changed)
+
+    def hb_list_available_mxids(self) -> dict:
+        """Enumerate connected OAK devices for the mxid dropdown (static query, no device opened)."""
+        options = {"": "(auto — first available)"}
+        try:
+            for info in dai.Device.getAllAvailableDevices():
+                options[info.mxid] = f"{info.mxid} ({info.name})" if info.name else info.mxid
+        except Exception:
+            logger.exception("Failed to enumerate OAK-D devices")
+        return options
+
+    # ir setting field name -> OakDInput attribute name.
+    _IR_ATTR_MAP = {
+        "laser_intensity": "ir_laser_dot_projector_intensity",
+        "flood_intensity": "ir_flood_light_intensity",
+    }
+
+    def hb_on_ir_changed(self, name: str, value, old):
+        """Push an IR setting change straight to the running device."""
+        if self.hb_input is None:
+            return
+        try:
+            setattr(self.hb_input, self._IR_ATTR_MAP[name], value)
+        except Exception as e:
+            logger.exception("Failed to apply IR setting %r", name)
+            self.hb_update_status(f"Setting error ({name}): {e}")
+
+    def hb_on_color_changed(self, name: str, value, old):
+        """Push a color setting change straight to the running device."""
+        if self.hb_input is None:
+            return
+        try:
+            resolved = self.hb_resolve_color_value(name, value)
+            setattr(self.hb_input, name, resolved)
+        except Exception as e:
+            logger.exception("Failed to apply color setting %r", name)
+            self.hb_update_status(f"Setting error ({name}): {e}")
+
+    @staticmethod
+    def hb_resolve_color_value(name: str, value):
+        """Translate a CHOICES string back to its dai enum member, where applicable."""
+        if name == "auto_white_balance_mode":
+            return _AWB_MODES[value]
+        if name == "anti_banding_mode":
+            return _ANTI_BANDING_MODES[value]
+        if name == "effect_mode":
+            return _EFFECT_MODES[value]
+        return value
+
+    def hb_apply_live_settings(self):
+        """Push current ir/color settings onto a freshly-opened device (apply-on-open)."""
+        cam = self.hb_input
+        if cam is None:
+            return
+        for ir_name, attr in self._IR_ATTR_MAP.items():
+            setattr(cam, attr, getattr(self.ir, ir_name))
+        for name in (
+            "enable_auto_exposure",
+            "exposure",
+            "iso",
+            "auto_exposure_compensation",
+            "enable_auto_white_balance",
+            "white_balance",
+            "auto_white_balance_mode",
+            "auto_focus",
+            "focus_distance",
+            "brightness",
+            "contrast",
+            "saturation",
+            "sharpness",
+            "luma_denoise",
+            "chroma_denoise",
+            "anti_banding_mode",
+            "effect_mode",
+        ):
+            value = getattr(self.color, name)
+            setattr(cam, name, self.hb_resolve_color_value(name, value))
 
     def on_startup(self, context: ExecutionContext):
         """Gather the stream requirement union from subscribers (config only)."""
@@ -145,7 +410,7 @@ class OakDCameraNode(BaseNode):
 
         self.hb_update_status("Opening OAK-D...")
         try:
-            from visiongraph.input.OakDInput import OakDInput
+            from visiongraph.input.OakDInput import OakDInput, OakDFrameAlignment
 
             mxid = self.value("mxid") or None
             cam = OakDInput(mxid_or_name=mxid)
@@ -158,8 +423,22 @@ class OakDCameraNode(BaseNode):
             # internally consistent (we never call capture_color_still()).
             if self.hb_want_rgb:
                 cam.enable_color_still = True
+
+            # Depth-quality settings: pipeline-construction params, must be
+            # set before setup()/pre_start_setup() build the device pipeline.
+            cam.depth_preset_mode = _DEPTH_PRESET_MODES[str(self.depth.preset_mode)]
+            cam.depth_median_filter = _DEPTH_MEDIAN_FILTERS[str(self.depth.median_filter)]
+            cam.depth_left_right_check = self.depth.left_right_check
+            cam.depth_subpixel = self.depth.subpixel
+            cam.depth_extended_disparity = self.depth.extended_disparity
+            cam.frame_alignment = OakDFrameAlignment[str(self.depth.frame_alignment)]
+
             cam.setup()
             self.hb_input = cam
+
+            # Apply-on-open: push current ir/color live-control settings so
+            # the device reflects the panel from the very first frame.
+            self.hb_apply_live_settings()
 
             self.hb_is_running = True
             self.hb_frame_count = 0

@@ -620,3 +620,125 @@ macOS). Our pyproject pins `depthai~=2.30` to match.
   any future depth→image conversion. NOT an adapter. Deferred.
 - **Migrating existing `FRAME` semantics** (the "properties + serialized
   fallback" model) — out of scope; we just rename + derive.
+
+## Depth-quality / IR / color live-control knobs (fourth inquisition — BUILT)
+
+Closes the "Depth-quality knobs" v1 non-goal, now that promoted settings
+(ADR 0014/0016/0017) exist as a third option beyond the old config-port vs.
+settings-bag binary. Scope: depth-quality knobs + IR intensity + the **full**
+color live-control block (~18 params) — NOT just the "operational" subset;
+the cosmetic tail (brightness/contrast/saturation/sharpness/denoise/
+anti-banding/effect) shipped alongside exposure/WB/focus since they're
+mechanically identical (same live-setter pattern) and splitting them added no
+value.
+
+### Mechanism split (three `NodeSettings` inner classes, by hardware category)
+
+- **`class depth(NodeSettings)`** — pipeline-construction params (preset mode,
+  median filter, left/right check, subpixel, extended disparity, frame
+  alignment). Read once at `pre_start_setup()`/`setup()`, immutable while
+  running. **Panel-only, never promoted** — promoting would misleadingly
+  imply live control the hardware can't deliver without a device rebuild.
+  Applied in `hb_handle_start` before `cam.setup()`.
+- **`class ir(NodeSettings)`** — `laser_intensity` / `flood_intensity`.
+  **Promotable to inlet** — `OakDInput`'s own setters guard on
+  `self.device is not None` and push straight to the running device, no
+  restart needed. Works even with color off (device-level, not
+  color-sensor-gated).
+- **`class color(NodeSettings)`** — the full live camera-control surface
+  (exposure/ISO/AEC, white balance, focus, brightness/contrast/saturation/
+  sharpness/denoise/anti-banding/effect). **Promotable to inlet**. Entirely
+  inert while `enable_color` is False (the control queue doesn't exist) —
+  deliberately NOT enforced/greyed-out in the panel; documented behavior,
+  no new reactive-disable machinery built for this (see "Parked follow-ups"
+  below).
+
+### Enum bridging
+
+Six fields are `dai.*` (or visiongraph) enum types, which a `setting()` field
+can't hold directly: `depth_preset_mode`, `depth_median_filter`,
+`frame_alignment`, `auto_white_balance_mode`, `anti_banding_mode`,
+`effect_mode`. Each is a `setting[CHOICES]` storing the plain member-name
+string; module-level `{str: dai.EnumMember}` lookup dicts in
+`oak_d_camera_node.py` (next to the settings classes) translate back at
+write time. `frame_alignment` skips the dict — `OakDFrameAlignment` is a
+plain visiongraph `Enum`, resolved via `OakDFrameAlignment[name]` directly.
+
+**Import-cost trap hit while building this:** `OakDFrameAlignment` lives in
+`visiongraph.input.OakDInput`, and importing that module costs **~7s**
+(pulls `depthai` + `cv2` + the full `DepthAIBaseInput`/`BaseDepthCamera`
+chain) — far more than the 0.45s `ResultList` case that justified a
+top-level import in the estimator work (Q13). Kept the existing
+`hb_handle_start`-local lazy import for both `OakDInput` and
+`OakDFrameAlignment` together. `depthai` itself (bare `import depthai as dai`
+for the enum lookup tables) is cheap (~0.05s measured) and was already a
+direct pyproject dependency (Q18) — safe to import at module top.
+
+### Wiring: one `subscribe()` per bag, not per-field
+
+`self.ir.subscribe(self.hb_on_ir_changed)` and
+`self.color.subscribe(self.hb_on_color_changed)` in `post_init` — each
+`Settings.subscribe()` call gives ONE callback `(name, value, old)` firing on
+any field change in that bag, vs. `subscribe_field` needing one closure per
+field (20 fields × per-field boilerplate). Handlers dict-dispatch by `name`,
+guard on `self.hb_input is not None` (device may not be open), resolve enum
+strings back via `hb_resolve_color_value`, and `setattr` onto the live
+device. Errors caught, logged, and surfaced via the existing status label —
+same idiom as `hb_handle_start`'s except block.
+
+### Apply-on-open
+
+Panel-configured values (including graph-loaded overrides) must reach a
+freshly-opened `OakDInput` immediately, not just from the next post-start
+tweak — `subscribe()` callbacks only fire on future changes. Added
+`hb_apply_live_settings()`, called in `hb_handle_start` right after
+`cam.setup()` succeeds and before the capture thread starts: pushes every
+current `ir`/`color` field onto the new device once, so device state matches
+panel state from frame one.
+
+### `mxid` — stayed a config port, gained a live dropdown
+
+`mxid` keeps its `as_config` shape (constructor-arg-like, read once at
+Start — config ports are the right tool, migrating it into `NodeSettings`
+for uniformity would have been unjustified scope creep). But the old
+free-text field left users guessing what to type. `dai.Device.getAllAvailableDevices()`
+is a cheap static enumeration call (no device opened, confirmed
+~instant with zero hardware attached) returning `dai.DeviceInfo` objects
+with `.mxid`/`.name`. Swapped the widget from `TextWidget` to
+`SelectWidget.config(properties={"options": self.hb_list_available_mxids})` —
+`as_config` accepts arbitrary widget contracts same as settings (it's just
+an inlet with `flow_type=NONE`), so no architecture change was needed. The
+callable resolves fresh on every dropdown open (same mechanism as dynamic
+theme lists elsewhere in the framework) and includes a synthetic
+`"" -> "(auto — first available)"` entry.
+
+### Parked follow-ups (explicitly NOT built here — separate `/design` topics)
+
+- **A `promotable=NONE|INLET|OUTLET|ALL` flag on `setting()`.** Doesn't exist
+  today — `promote_setting()` eligibility is exactly two checks
+  (`read_only` ⇒ outlet-only; everything else ⇒ either direction). The right
+  -click "Promote Setting" menu will still technically offer promotion on
+  the `depth` fields even though nothing here calls `promote_setting()` on
+  them — nobody is forced to click it. A real enforced flag is a
+  framework-level change (touches `descriptor.py`, `promotion.py`, the
+  context menu) affecting every settings-declaring node in the codebase, not
+  just this one — deserves its own design session.
+- **Reactive/dynamic panel disabling** of one setting based on another's
+  value (e.g. greying out the `color` category when `enable_color` is
+  False). Also a framework-level capability question, likely useful beyond
+  this node (any enable-flag-gates-a-block pattern) — parked alongside the
+  `promotable=` flag rather than built as a one-off hack here.
+- Everything already deferred above (`distance(x,y)` query, sensor-resolution
+  micromanagement, "Colorize Depth" node) remains deferred — untouched by
+  this round.
+
+### Verification
+
+`uv run ruff check` / `ruff format --check` / `mypy` clean on
+`oak_d_camera_node.py`. Full main-repo suite: `uv run pytest -m "not
+integration"` → 1924 passed (includes `test_library_system_initialized`,
+which loads this library/node for real). Two `DeprecationWarning`s surfaced
+from `dai.node.StereoDepth.PresetMode.{HIGH_DENSITY,HIGH_ACCURACY}` — a
+depthai 2.30 API deprecation (not a removal; still fully functional),
+unrelated to this change and not worth chasing now since `HIGH_DENSITY` is
+the same default v1 already committed to.

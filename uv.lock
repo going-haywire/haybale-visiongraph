@@ -496,7 +496,7 @@ wheels = [
 
 [[package]]
 name = "haybale-core"
-version = "0.0.24"
+version = "0.0.25"
 source = { editable = "../haywire-repo/barn/haybale-core" }
 dependencies = [
     { name = "haywire-core" },
@@ -513,7 +513,7 @@ requires-dist = [
 
 [[package]]
 name = "haybale-marketplace"
-version = "0.0.24"
+version = "0.0.25"
 source = { editable = "../haywire-repo/barn/haybale-marketplace" }
 dependencies = [
     { name = "haybale-studio" },
@@ -536,7 +536,7 @@ requires-dist = [
 
 [[package]]
 name = "haybale-studio"
-version = "0.0.24"
+version = "0.0.25"
 source = { editable = "../haywire-repo/barn/haybale-studio" }
 dependencies = [
     { name = "haywire-core" },
@@ -599,7 +599,7 @@ requires-dist = [
 
 [[package]]
 name = "haywire-core"
-version = "0.0.24"
+version = "0.0.25"
 source = { editable = "../haywire-repo/packages/haywire-core" }
 dependencies = [
     { name = "attrs" },
@@ -632,7 +632,7 @@ requires-dist = [
 
 [[package]]
 name = "haywire-studio"
-version = "0.0.24"
+version = "0.0.25"
 source = { editable = "../haywire-repo/packages/haywire-studio" }
 dependencies = [
     { name = "fastapi" },
