@@ -32,7 +32,7 @@ import depthai as dai
 
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
-from haywire.core.settings import NodeSettings, setting
+from haywire.core.settings import NodeSettings, Promotable, setting
 from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT
 
 logger = logging.getLogger(__name__)
@@ -145,6 +145,7 @@ class OakDCameraNode(BaseNode):
             category="Depth",
             description="Stereo depth quality/speed preset. Requires a device restart to apply.",
             widget_config={"options": list(_DEPTH_PRESET_MODES.keys())},
+            promotable=Promotable.NONE,
         )
         median_filter = setting[CHOICES](
             "KERNEL_7x7",
@@ -152,24 +153,28 @@ class OakDCameraNode(BaseNode):
             category="Depth",
             description="Disparity smoothing kernel. Requires a device restart to apply.",
             widget_config={"options": list(_DEPTH_MEDIAN_FILTERS.keys())},
+            promotable=Promotable.NONE,
         )
         left_right_check = setting[BOOL](
             True,
             label="Left/Right Check",
             category="Depth",
             description="Better handling of occlusions. Requires a device restart to apply.",
+            promotable=Promotable.NONE,
         )
         subpixel = setting[BOOL](
             False,
             label="Subpixel",
             category="Depth",
             description="Fractional disparity for longer-range accuracy. Restart required.",
+            promotable=Promotable.NONE,
         )
         extended_disparity = setting[BOOL](
             False,
             label="Extended Disparity",
             category="Depth",
             description="Closer-in minimum depth, doubled disparity range. Restart required.",
+            promotable=Promotable.NONE,
         )
         frame_alignment = setting[CHOICES](
             "Color",
@@ -177,6 +182,7 @@ class OakDCameraNode(BaseNode):
             category="Depth",
             description="Align the depth map to Color, Infrared, or leave Disabled. Restart required.",
             widget_config={"options": _FRAME_ALIGNMENT_OPTIONS},
+            promotable=Promotable.NONE,
         )
 
     class ir(NodeSettings):

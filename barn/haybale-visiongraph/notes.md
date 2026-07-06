@@ -799,3 +799,11 @@ reopen the running device. Live *device* reconfiguration (e.g. actually
 starting to emit a newly-requested stream without a stop/start cycle) is a
 separate, larger piece of work inside `hb_handle_start`'s pipeline-rebuild
 logic and remains out of scope here.
+
+## Depth settings are promotable=NONE (BUILT)
+
+The `depth` bag is restart-required pipeline configuration; a promoted port
+would imply live control the hardware can't deliver. The framework's
+`promotable=` flag (see setting-canon.md) now enforces what the module
+docstring only promised: all six depth fields are `Promotable.NONE` — hidden
+from the promote menu, rejected by `promote_setting()`.
