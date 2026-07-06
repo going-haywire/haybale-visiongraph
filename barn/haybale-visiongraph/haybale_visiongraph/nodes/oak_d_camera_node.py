@@ -101,7 +101,16 @@ _FRAME_ALIGNMENT_OPTIONS = ["Disabled", "Color", "Infrared"]
     label="OAK-D Camera",
     description="Opens an OAK-D depth camera and emits colour/depth/infrared frame callbacks",
     menu="vision/input",
-    search_tags=["oak", "oak-d", "depthai", "luxonis", "depth", "camera", "3d", "stream"],
+    search_tags=[
+        "oak",
+        "oak-d",
+        "depthai",
+        "luxonis",
+        "depth",
+        "camera",
+        "3d",
+        "stream",
+    ],
     node_type=NodeType.CONTROL,
 )
 class OakDCameraNode(BaseNode):
@@ -346,7 +355,9 @@ class OakDCameraNode(BaseNode):
                 default="",
                 label="Device MXID",
                 description="Leave empty to auto-select the first available OAK device.",
-                widget=SelectWidget.config(properties={"options": self.hb_list_available_mxids}),
+                widget=SelectWidget.config(
+                    properties={"options": self.hb_list_available_mxids}
+                ),
             )
         )
 
@@ -354,13 +365,20 @@ class OakDCameraNode(BaseNode):
         # MULTIFRAME_CALLBACK (name + stream requirements).
         self.add(
             PooledType[MULTIFRAME_CALLBACK].as_inlet(
-                "callbacks", label="Subscribers", description="Connect to a Frame Event node"
+                "callbacks",
+                label="Subscribers",
+                description="Connect to a Frame Event node",
             )
         )
 
         # Status display
         self.add(
-            STRING.as_config("status", default="Idle", label="Status", widget=SimpleLabelWidget.config())
+            STRING.as_config(
+                "status",
+                default="Idle",
+                label="Status",
+                widget=SimpleLabelWidget.config(),
+            )
         )
 
         # Control outputs
@@ -390,7 +408,9 @@ class OakDCameraNode(BaseNode):
         options = {"": "(auto — first available)"}
         try:
             for info in dai.Device.getAllAvailableDevices():
-                options[info.mxid] = f"{info.mxid} ({info.name})" if info.name else info.mxid
+                options[info.mxid] = (
+                    f"{info.mxid} ({info.name})" if info.name else info.mxid
+                )
         except Exception:
             logger.exception("Failed to enumerate OAK-D devices")
         return options
@@ -487,6 +507,28 @@ class OakDCameraNode(BaseNode):
         self.hb_want_rgb = want_rgb
         self.hb_want_depth = want_depth
         self.hb_want_ir = want_ir
+        self.hb_refresh_stream_status_indication()
+
+    def hb_refresh_stream_status_indication(self):
+        """Disable each stream's settings in the panel when nobody currently
+        wants that stream (per the union gathered in hb_gather_requirements).
+
+        Purely visual, and genuinely side-effect-free: the ui-disabled API
+        rides the dedicated UI-state channel and never fires cell events, so
+        the bag subscriptions that push live settings to the device
+        (hb_on_ir_changed/hb_on_color_changed) never hear these calls, and
+        transition-only firing makes steady-state re-gathers silent. The
+        bulk form iterates each bag's own declared fields — no field-name
+        list to maintain here. This is the cross-bag/external case
+        set_ui_disabled exists for: the gating condition lives on THIS node
+        (hb_want_rgb/depth/ir, derived from a different node's callback
+        edge), not on a sibling setting within the same bag — so it cannot
+        be expressed via the enabled_when metadata convention (same-bag
+        only).
+        """
+        self.depth.set_ui_disabled_all(not self.hb_want_depth)
+        self.ir.set_ui_disabled_all(not self.hb_want_ir)
+        self.color.set_ui_disabled_all(not self.hb_want_rgb)
 
     def worker(self, context: ExecutionContext) -> Optional[str]:
         """Handle start/stop control signals."""
@@ -528,7 +570,9 @@ class OakDCameraNode(BaseNode):
             # Depth-quality settings: pipeline-construction params, must be
             # set before setup()/pre_start_setup() build the device pipeline.
             cam.depth_preset_mode = _DEPTH_PRESET_MODES[str(self.depth.preset_mode)]
-            cam.depth_median_filter = _DEPTH_MEDIAN_FILTERS[str(self.depth.median_filter)]
+            cam.depth_median_filter = _DEPTH_MEDIAN_FILTERS[
+                str(self.depth.median_filter)
+            ]
             cam.depth_left_right_check = self.depth.left_right_check
             cam.depth_subpixel = self.depth.subpixel
             cam.depth_extended_disparity = self.depth.extended_disparity
@@ -545,7 +589,9 @@ class OakDCameraNode(BaseNode):
             self.hb_frame_count = 0
             self.hb_start_time = time.time()
 
-            self.hb_thread = threading.Thread(target=self.hb_capture_loop, args=(context,), daemon=True)
+            self.hb_thread = threading.Thread(
+                target=self.hb_capture_loop, args=(context,), daemon=True
+            )
             self.hb_thread.start()
 
             streams = ", ".join(
@@ -585,7 +631,10 @@ class OakDCameraNode(BaseNode):
                 timestamp = time.time() - self.hb_start_time
 
                 # Open-keyed payload (notes.md Q20): only active streams present.
-                payload: dict = {"frame_number": self.hb_frame_count, "timestamp": timestamp}
+                payload: dict = {
+                    "frame_number": self.hb_frame_count,
+                    "timestamp": timestamp,
+                }
                 if self.hb_want_rgb:
                     payload["rgb"] = cam.get_raw_image(CameraStreamType.Color)
                 if self.hb_want_depth:

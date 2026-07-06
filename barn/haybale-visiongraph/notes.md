@@ -614,7 +614,7 @@ macOS). Our pyproject pins `depthai~=2.30` to match.
   laser/flood intensity) — clean fast-follow; independent additions, change no
   settled architecture.
 - **`distance(x, y)` query node** — deferred.
-- **Frame-alignment control** (Color/IR/Disabled) — deferred; use default.
+- ~~**Frame-alignment control** (Color/IR/Disabled) — deferred; use default.~~ — shipped in the fourth round as `depth.frame_alignment`.
 - **Sensor-resolution micromanagement** beyond color resolution — deferred.
 - **"Colorize Depth" node** — needed to make `DEPTH_FRAME` viewable and to anchor
   any future depth→image conversion. NOT an adapter. Deferred.
@@ -742,3 +742,34 @@ from `dai.node.StereoDepth.PresetMode.{HIGH_DENSITY,HIGH_ACCURACY}` — a
 depthai 2.30 API deprecation (not a removal; still fully functional),
 unrelated to this change and not worth chasing now since `HIGH_DENSITY` is
 the same default v1 already committed to.
+
+## Stream-status indication via reactive panel disabling (fifth inquisition — BUILT)
+
+Problem: `depth`/`ir`/`color` settings are gated by a DIFFERENT node's wiring
+(the event node's callback-edge requirement union, gathered in
+`hb_gather_requirements`), but the panel gave no visual indication of which
+streams were actually active versus dormant.
+
+Solved by a new framework primitive (`Settings.set_ui_disabled`/
+`set_ui_disabled_all`/`is_ui_disabled` riding a dedicated UI-state channel,
+plus a same-bag declarative `enabled_when` metadata convention) rather than
+anything OAK-D-specific — see `docs/components/settings/setting-canon.md`
+for the general API. `hb_gather_requirements` now calls
+`hb_refresh_stream_status_indication()`, which bulk-disables each stream's
+whole settings bag (`depth`/`ir`/`color`) via `set_ui_disabled_all` when
+its corresponding `hb_want_*` flag is False — the bulk form iterates each
+bag's own declared fields, so this node maintains no field-name lists.
+
+This is the CROSS-BAG case the imperative `set_ui_disabled` primitive exists
+for — `enabled_when` (same-bag only) could not express it, since the gating
+condition (`hb_want_rgb` etc.) lives on the node itself, derived from a
+different node's edge, not from a sibling setting on `color`/`ir`/`depth`.
+
+Genuinely side-effect-free by construction: `set_ui_disabled` never fires
+cell events (the UI-state channel is separate from the value channel, per
+the framework's one-channel-per-concern rule), so this node's own
+live-control subscriptions (`hb_on_ir_changed`/`hb_on_color_changed`, which
+push straight to camera hardware) never hear these calls, and
+`hb_apply_live_settings` / the depth-quality assignments in
+`hb_handle_start` are unaffected. `self.depth`/`self.ir`/`self.color`
+remain fully writable regardless of disabled state.
