@@ -368,6 +368,7 @@ class OakDCameraNode(BaseNode):
                 "callbacks",
                 label="Subscribers",
                 description="Connect to a Frame Event node",
+                on_change="hb_on_callbacks_changed",
             )
         )
 
@@ -495,6 +496,17 @@ class OakDCameraNode(BaseNode):
     def on_teardown(self):
         """Final cleanup when the node is destroyed."""
         self.hb_stop_capture()
+
+    def hb_on_callbacks_changed(self, port=None, *args):
+        """A subscriber's requirements changed (or one connected/disconnected):
+        re-gather the union so the panel's disabled state stays live.
+
+        Does NOT reconfigure the running device — only hb_gather_requirements's
+        panel-facing half (hb_refresh_stream_status_indication). See its
+        docstring for why this is safe to fire on every pool change.
+        """
+        print("was here")
+        self.hb_gather_requirements()
 
     def hb_gather_requirements(self):
         """Union the per-stream requirements across all pooled subscribers."""

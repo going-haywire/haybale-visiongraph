@@ -773,3 +773,29 @@ push straight to camera hardware) never hear these calls, and
 `hb_apply_live_settings` / the depth-quality assignments in
 `hb_handle_start` are unaffected. `self.depth`/`self.ir`/`self.color`
 remain fully writable regardless of disabled state.
+
+### Follow-up: live re-gather on pool change (closes the "next start" gap)
+
+The fifth-inquisition write-up above accepted a known limitation: the
+disabled indication only refreshed at `on_startup`/`start`, so rewiring a
+subscriber's `enable_depth`/`enable_rgb`/`enable_ir` flag mid-session left
+the panel stale until the next start pulse.
+
+Closed by wiring `on_change="hb_on_callbacks_changed"` onto the `callbacks`
+pooled inlet, calling `hb_gather_requirements()`. This required no new
+propagation mechanism — the pooled inlet already fires its deferred
+`on_change` whenever any one connected `NumpyFrameEventNode` republishes its
+`MULTIFRAME_CALLBACK` subscription (e.g. via `hb_reconfigure` on an
+`enable_*` flag toggle), because `PooledField.set_value` treats every
+per-source write as a pool-dict change and `resolve_dirty_data()` fires the
+handler once per VM tick with the whole current pool — exactly the same
+edge-driven-deferred model as any other `DataPort`. The gap was only that
+nothing on the `OakDCameraNode` side was listening.
+
+Panel-only reactivity, matching the fifth inquisition's scope exactly:
+`hb_gather_requirements()` still just recomputes `hb_want_rgb/depth/ir` and
+calls `hb_refresh_stream_status_indication()` — it does not reconfigure or
+reopen the running device. Live *device* reconfiguration (e.g. actually
+starting to emit a newly-requested stream without a stop/start cycle) is a
+separate, larger piece of work inside `hb_handle_start`'s pipeline-rebuild
+logic and remains out of scope here.
