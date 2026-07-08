@@ -32,8 +32,9 @@ import depthai as dai
 
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
-from haywire.core.settings import NodeSettings, Promotable, setting
-from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT
+from haywire.core.settings import NodeSettings, Promotable, UiState, setting
+from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT, STRING
+from haywire.barn.builtin.widgets import SelectWidget
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +98,23 @@ _EFFECT_MODES = {
 _FRAME_ALIGNMENT_OPTIONS = ["Disabled", "Color", "Infrared"]
 
 
+def _list_available_mxids() -> dict:
+    """Enumerate connected OAK devices for the mxid dropdown (static query, no device opened).
+
+    Module-level (not a method): a setting()'s widget_config callable is
+    invoked with zero args by SelectWidget.build(), and the descriptor is
+    shared across all node instances — it cannot close over a particular
+    node's `self`. This query never needed one.
+    """
+    options = {"": "(auto — first available)"}
+    try:
+        for info in dai.Device.getAllAvailableDevices():
+            options[info.mxid] = f"{info.mxid} ({info.name})" if info.name else info.mxid
+    except Exception:
+        logger.exception("Failed to enumerate OAK-D devices")
+    return options
+
+
 @node(
     label="OAK-D Camera",
     description="Opens an OAK-D depth camera and emits colour/depth/infrared frame callbacks",
@@ -121,7 +139,6 @@ class OakDCameraNode(BaseNode):
     Inputs:
         start: Open the device and begin capturing.
         stop: Stop capturing and close the device.
-        mxid: Optional device MXID / name (empty = first available).
         callbacks: Pooled MULTIFRAME_CALLBACK subscriptions from event nodes.
 
     Outputs:
@@ -129,6 +146,9 @@ class OakDCameraNode(BaseNode):
         stopped: Triggered when capture stops.
 
     Settings:
+        device: Device MXID / name (empty = first available). Panel-only —
+            its dropdown resolves options via a live callable, which is only
+            safe on a setting() field (see `device.mxid` for why).
         depth: Pipeline-construction params (read once at setup(), immutable
             while running). Panel-only — not promotable to a port.
         ir: Live IR laser/flood intensity. Promotable to an inlet — pushed
@@ -136,71 +156,55 @@ class OakDCameraNode(BaseNode):
         color: Live color-sensor controls (exposure/WB/focus/tuning).
             Promotable to an inlet. Inert while enable_color is False (no
             color control queue exists on the device in that case).
+        stream_flags: Read-only display of the requirement union gathered
+            from pooled subscribers (hb_gather_requirements). Not
+            user-editable, never promotable — set only via the callback edge.
     """
 
-    class depth(NodeSettings):
-        preset_mode = setting[CHOICES](
-            "HIGH_DENSITY",
-            label="Preset Mode",
-            category="Depth",
-            description="Stereo depth quality/speed preset. Requires a device restart to apply.",
-            widget_config={"options": list(_DEPTH_PRESET_MODES.keys())},
-            promotable=Promotable.NONE,
-        )
-        median_filter = setting[CHOICES](
-            "KERNEL_7x7",
-            label="Median Filter",
-            category="Depth",
-            description="Disparity smoothing kernel. Requires a device restart to apply.",
-            widget_config={"options": list(_DEPTH_MEDIAN_FILTERS.keys())},
-            promotable=Promotable.NONE,
-        )
-        left_right_check = setting[BOOL](
-            True,
-            label="Left/Right Check",
-            category="Depth",
-            description="Better handling of occlusions. Requires a device restart to apply.",
-            promotable=Promotable.NONE,
-        )
-        subpixel = setting[BOOL](
-            False,
-            label="Subpixel",
-            category="Depth",
-            description="Fractional disparity for longer-range accuracy. Restart required.",
-            promotable=Promotable.NONE,
-        )
-        extended_disparity = setting[BOOL](
-            False,
-            label="Extended Disparity",
-            category="Depth",
-            description="Closer-in minimum depth, doubled disparity range. Restart required.",
-            promotable=Promotable.NONE,
-        )
-        frame_alignment = setting[CHOICES](
-            "Color",
-            label="Frame Alignment",
-            category="Depth",
-            description="Align the depth map to Color, Infrared, or leave Disabled. Restart required.",
-            widget_config={"options": _FRAME_ALIGNMENT_OPTIONS},
-            promotable=Promotable.NONE,
+    class device(NodeSettings):
+        # A plain (non-promoted) port serializes its widget_config once at
+        # save/load and never re-applies the class-body descriptor, so a
+        # live callable there isn't JSON-serializable. A setting() field's
+        # descriptor is rebuilt fresh from the class body on every load, so
+        # a callable here is safe — see setting-canon.md's widget_config
+        # section and the promotion note in settings-arch.md.
+        mxid = setting[STRING](
+            "",
+            label="Device MXID",
+            category="Device",
+            description="Leave empty to auto-select the first available OAK device.",
+            widget=SelectWidget.config(properties={"options": _list_available_mxids}),
         )
 
-    class ir(NodeSettings):
-        laser_intensity = setting[FLOAT](
-            0.0,
-            min=0.0,
-            max=1.0,
-            label="Projector Intensity",
-            description="Sets intensity of laser dot projector",
-            category="Infrared",
+    class stream_flags(NodeSettings):
+        """Requirement union gathered from pooled subscribers (see
+        hb_gather_requirements). Display-only: not user-editable and never
+        promotable — the callback edge is the only writer.
+        """
+
+        want_rgb = setting[BOOL](
+            False,
+            label="RGB Requested",
+            category="Streams",
+            description="Set by connected subscribers. Not user-editable.",
+            promotable=Promotable.NONE,
+            ui_state=UiState.DISABLED,
         )
-        flood_intensity = setting[FLOAT](
-            0.0,
-            min=0.0,
-            max=1.0,
-            label="Flood Light Intensity",
-            description="Sets intensity of the IR flood light",
-            category="Infrared",
+        want_depth = setting[BOOL](
+            False,
+            label="Depth Requested",
+            category="Streams",
+            description="Set by connected subscribers. Not user-editable.",
+            promotable=Promotable.NONE,
+            ui_state=UiState.DISABLED,
+        )
+        want_ir = setting[BOOL](
+            False,
+            label="Infrared Requested",
+            category="Streams",
+            description="Set by connected subscribers. Not user-editable.",
+            promotable=Promotable.NONE,
+            ui_state=UiState.DISABLED,
         )
 
     class color(NodeSettings):
@@ -341,31 +345,82 @@ class OakDCameraNode(BaseNode):
             widget_config={"options": list(_EFFECT_MODES.keys())},
         )
 
+    class ir(NodeSettings):
+        laser_intensity = setting[FLOAT](
+            0.0,
+            min=0.0,
+            max=1.0,
+            label="Projector Intensity",
+            description="Sets intensity of laser dot projector",
+            category="Infrared",
+        )
+        flood_intensity = setting[FLOAT](
+            0.0,
+            min=0.0,
+            max=1.0,
+            label="Flood Light Intensity",
+            description="Sets intensity of the IR flood light",
+            category="Infrared",
+        )
+
+
+    class depth(NodeSettings):
+        preset_mode = setting[CHOICES](
+            "HIGH_DENSITY",
+            label="Preset Mode",
+            category="Depth",
+            description="Stereo depth quality/speed preset. Requires a device restart to apply.",
+            widget_config={"options": list(_DEPTH_PRESET_MODES.keys())},
+            promotable=Promotable.NONE,
+        )
+        median_filter = setting[CHOICES](
+            "KERNEL_7x7",
+            label="Median Filter",
+            category="Depth",
+            description="Disparity smoothing kernel. Requires a device restart to apply.",
+            widget_config={"options": list(_DEPTH_MEDIAN_FILTERS.keys())},
+            promotable=Promotable.NONE,
+        )
+        left_right_check = setting[BOOL](
+            True,
+            label="Left/Right Check",
+            category="Depth",
+            description="Better handling of occlusions. Requires a device restart to apply.",
+            promotable=Promotable.NONE,
+        )
+        subpixel = setting[BOOL](
+            False,
+            label="Subpixel",
+            category="Depth",
+            description="Fractional disparity for longer-range accuracy. Restart required.",
+            promotable=Promotable.NONE,
+        )
+        extended_disparity = setting[BOOL](
+            False,
+            label="Extended Disparity",
+            category="Depth",
+            description="Closer-in minimum depth, doubled disparity range. Restart required.",
+            promotable=Promotable.NONE,
+        )
+        frame_alignment = setting[CHOICES](
+            "Color",
+            label="Frame Alignment",
+            category="Depth",
+            description="Align the depth map to Color, Infrared, or leave Disabled. Restart required.",
+            widget_config={"options": _FRAME_ALIGNMENT_OPTIONS},
+            promotable=Promotable.NONE,
+        )
+
+
     def init(self):
-        from haywire.barn.builtin.types import STRING
         from haybale_core.types import EXEC
         from haybale_core.types import PooledType
-        from haywire.barn.builtin.widgets import SelectWidget, SimpleLabelWidget
+        from haywire.barn.builtin.widgets import SimpleLabelWidget
         from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
 
         # Control inputs
         self.add(EXEC.as_inlet("start", label="Start"))
         self.add(EXEC.as_inlet("stop", label="Stop"))
-
-        # Device selection (empty = first available device). Options are
-        # resolved fresh on every dropdown open via dai.Device.getAllAvailableDevices()
-        # (a static enumeration call — no device needs to be opened first).
-        self.add(
-            STRING.as_config(
-                "mxid",
-                default="",
-                label="Device MXID",
-                description="Leave empty to auto-select the first available OAK device.",
-                widget=SelectWidget.config(
-                    properties={"options": self.hb_list_available_mxids}
-                ),
-            )
-        )
 
         # Pooled subscriptions: each connected event node contributes its
         # MULTIFRAME_CALLBACK (name + stream requirements).
@@ -400,27 +455,11 @@ class OakDCameraNode(BaseNode):
         self.hb_frame_count = 0
         self.hb_start_time = 0.0
         self.hb_lock = threading.Lock()
-        # Requirement union, gathered in on_startup.
-        self.hb_want_rgb = False
-        self.hb_want_depth = False
-        self.hb_want_ir = False
 
         # Live-control settings: one subscription per bag, dispatched by field
         # name to the running device. No-op (guarded) while hb_input is None.
         self.ir.subscribe(self.hb_on_ir_changed)
         self.color.subscribe(self.hb_on_color_changed)
-
-    def hb_list_available_mxids(self) -> dict:
-        """Enumerate connected OAK devices for the mxid dropdown (static query, no device opened)."""
-        options = {"": "(auto — first available)"}
-        try:
-            for info in dai.Device.getAllAvailableDevices():
-                options[info.mxid] = (
-                    f"{info.mxid} ({info.name})" if info.name else info.mxid
-                )
-        except Exception:
-            logger.exception("Failed to enumerate OAK-D devices")
-        return options
 
     # ir setting field name -> OakDInput attribute name.
     _IR_ATTR_MAP = {
@@ -522,31 +561,21 @@ class OakDCameraNode(BaseNode):
             want_rgb = want_rgb or bool(getattr(sub, "rgb", False))
             want_depth = want_depth or bool(getattr(sub, "depth", False))
             want_ir = want_ir or bool(getattr(sub, "ir", False))
-        self.hb_want_rgb = want_rgb
-        self.hb_want_depth = want_depth
-        self.hb_want_ir = want_ir
+        self.stream_flags.want_rgb = want_rgb
+        self.stream_flags.want_depth = want_depth
+        self.stream_flags.want_ir = want_ir
         self.hb_refresh_stream_status_indication()
 
     def hb_refresh_stream_status_indication(self):
         """Disable each stream's settings in the panel when nobody currently
         wants that stream (per the union gathered in hb_gather_requirements).
-
-        Purely visual, and genuinely side-effect-free: the ui-disabled API
-        rides the dedicated UI-state channel and never fires cell events, so
-        the bag subscriptions that push live settings to the device
-        (hb_on_ir_changed/hb_on_color_changed) never hear these calls, and
-        transition-only firing makes steady-state re-gathers silent. The
-        bulk form iterates each bag's own declared fields — no field-name
-        list to maintain here. This is the cross-bag/external case
-        set_ui_disabled exists for: the gating condition lives on THIS node
-        (hb_want_rgb/depth/ir, derived from a different node's callback
-        edge), not on a sibling setting within the same bag — so it cannot
-        be expressed via the enabled_when metadata convention (same-bag
-        only).
         """
-        self.depth.set_ui_disabled_all(not self.hb_want_depth)
-        self.ir.set_ui_disabled_all(not self.hb_want_ir)
-        self.color.set_ui_disabled_all(not self.hb_want_rgb)
+        want_depth = self.stream_flags.want_depth
+        want_ir = self.stream_flags.want_ir
+        want_rgb = self.stream_flags.want_rgb
+        self.depth.set_ui_state_all(UiState.NORMAL if want_depth else UiState.HIDDEN)
+        self.ir.set_ui_state_all(UiState.NORMAL if want_ir else UiState.HIDDEN)
+        self.color.set_ui_state_all(UiState.NORMAL if want_rgb else UiState.HIDDEN)
 
     def worker(self, context: ExecutionContext) -> Optional[str]:
         """Handle start/stop control signals."""
@@ -565,7 +594,11 @@ class OakDCameraNode(BaseNode):
         # Re-read the union in case it was not gathered (defensive).
         self.hb_gather_requirements()
 
-        if not (self.hb_want_rgb or self.hb_want_depth or self.hb_want_ir):
+        want_rgb = self.stream_flags.want_rgb
+        want_depth = self.stream_flags.want_depth
+        want_ir = self.stream_flags.want_ir
+
+        if not (want_rgb or want_depth or want_ir):
             self.hb_update_status("No streams requested by subscribers")
             return None
 
@@ -573,24 +606,22 @@ class OakDCameraNode(BaseNode):
         try:
             from visiongraph.input.OakDInput import OakDInput, OakDFrameAlignment
 
-            mxid = self.value("mxid") or None
+            mxid = self.device.mxid or None
             cam = OakDInput(mxid_or_name=mxid)
-            cam.enable_color = self.hb_want_rgb
-            cam.enable_depth = self.hb_want_depth
-            cam.use_infrared = self.hb_want_ir
+            cam.enable_color = want_rgb
+            cam.enable_depth = want_depth
+            cam.use_infrared = want_ir
             # visiongraph's setup() unconditionally requests the 'rgb_still'
             # output queue when color is enabled, but only creates that output
             # node when enable_color_still is True. Enable it to keep setup
             # internally consistent (we never call capture_color_still()).
-            if self.hb_want_rgb:
+            if want_rgb:
                 cam.enable_color_still = True
 
             # Depth-quality settings: pipeline-construction params, must be
             # set before setup()/pre_start_setup() build the device pipeline.
             cam.depth_preset_mode = _DEPTH_PRESET_MODES[str(self.depth.preset_mode)]
-            cam.depth_median_filter = _DEPTH_MEDIAN_FILTERS[
-                str(self.depth.median_filter)
-            ]
+            cam.depth_median_filter = _DEPTH_MEDIAN_FILTERS[str(self.depth.median_filter)]
             cam.depth_left_right_check = self.depth.left_right_check
             cam.depth_subpixel = self.depth.subpixel
             cam.depth_extended_disparity = self.depth.extended_disparity
@@ -607,17 +638,15 @@ class OakDCameraNode(BaseNode):
             self.hb_frame_count = 0
             self.hb_start_time = time.time()
 
-            self.hb_thread = threading.Thread(
-                target=self.hb_capture_loop, args=(context,), daemon=True
-            )
+            self.hb_thread = threading.Thread(target=self.hb_capture_loop, args=(context,), daemon=True)
             self.hb_thread.start()
 
             streams = ", ".join(
                 s
                 for s, on in (
-                    ("rgb", self.hb_want_rgb),
-                    ("depth", self.hb_want_depth),
-                    ("ir", self.hb_want_ir),
+                    ("rgb", want_rgb),
+                    ("depth", want_depth),
+                    ("ir", want_ir),
                 )
                 if on
             )
@@ -653,11 +682,11 @@ class OakDCameraNode(BaseNode):
                     "frame_number": self.hb_frame_count,
                     "timestamp": timestamp,
                 }
-                if self.hb_want_rgb:
+                if self.stream_flags.want_rgb:
                     payload["rgb"] = cam.get_raw_image(CameraStreamType.Color)
-                if self.hb_want_depth:
+                if self.stream_flags.want_depth:
                     payload["depth"] = cam.depth_buffer
-                if self.hb_want_ir:
+                if self.stream_flags.want_ir:
                     payload["ir"] = cam.get_raw_image(CameraStreamType.Infrared)
 
                 subs = self.value("callbacks") or {}
