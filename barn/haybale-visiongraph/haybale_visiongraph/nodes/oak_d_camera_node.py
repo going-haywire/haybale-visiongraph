@@ -35,6 +35,7 @@ from haywire.core.node import node, BaseNode, NodeType
 from haywire.core.settings import NodeSettings, Promotable, UiState, setting
 from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT, STRING
 from haywire.barn.builtin.widgets import SelectWidget
+from haywire.core.types.enums import PortType
 
 logger = logging.getLogger(__name__)
 
@@ -460,6 +461,8 @@ class OakDCameraNode(BaseNode):
         # name to the running device. No-op (guarded) while hb_input is None.
         self.ir.subscribe(self.hb_on_ir_changed)
         self.color.subscribe(self.hb_on_color_changed)
+
+        self.device.promote("mxid", PortType.CONFIG)
 
     # ir setting field name -> OakDInput attribute name.
     _IR_ATTR_MAP = {
