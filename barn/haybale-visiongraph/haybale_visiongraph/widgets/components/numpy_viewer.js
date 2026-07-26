@@ -47,9 +47,27 @@ export default {
   computed: {
     containerStyle() {
       return {
+        // No 'height: 100%' here: this element is the outermost node of the
+        // component, so a percentage height has nothing to resolve against
+        // until the host node's ResizeObserver has measured once. That
+        // circular dependency is what made the node fight its own resize.
+        // min-height gives it intrinsic size instead; flex: 1 (set by the
+        // Python widget's .style() on the StreamingViewer root) lets it grow
+        // to fill a sized host without imposing a size of its own.
+        //
+        // Deliberately NO minWidth here (and the Python widget sets
+        // min-width: 0 on this same root — Vue's :style binding and NiceGUI's
+        // .style() both target this element; the two must not both claim
+        // min-width or one silently wins). Width does not need its own floor:
+        // as long as min-height holds a real value, the <img>'s
+        // object-fit: contain keeps its rendered width proportional to that
+        // constrained height, so the resize-gadget's width-floor measurement
+        // (canvas.vue onResizeGripDown onUp, which only clears min-width, never
+        // min-height, on a width-only drag) reads a sane proportional width
+        // instead of the image's unconstrained natural pixel width.
         position: 'relative',
         width: '100%',
-        height: '100%',
+        minHeight: '120px',
         backgroundColor: '#1a1a1a',
         display: 'flex',
         alignItems: 'center',
@@ -60,6 +78,29 @@ export default {
 
     imageStyle() {
       return {
+        // The <img> is a REPLACED element and a flex item of
+        // .numpy-viewer-container. Its default flex-basis is 'auto', which
+        // for a replaced element resolves to its INTRINSIC size (the source
+        // frame's native resolution, e.g. 1280px) — and flex-basis: auto
+        // takes priority over width/max-width when the browser computes the
+        // item's flex base size. So width/max-width/min-width alone (however
+        // correctly they compute) never override that base size; the
+        // <img> only actually shrank once `flex` itself was set directly on
+        // the element (confirmed live: width:1px !important DID shrink it in
+        // isolation, but during a real resize the computed width stayed
+        // pinned at 1280px — because the drag re-triggers flex-basis
+        // resolution, which width alone can't win against).
+        //
+        // flex: 1 1 auto — grow/shrink from the natural size as the flex
+        // base, WITH minWidth/minHeight: 0 (below) overriding the item's
+        // separate 'never shrink below content' floor. That combination is
+        // what actually lets object-fit: contain scale the real image down
+        // to fit a smaller container instead of forcing the container open.
+        flex: '1 1 auto',
+        width: '100%',
+        height: '100%',
+        minWidth: '0',
+        minHeight: '0',
         maxWidth: '100%',
         maxHeight: '100%',
         objectFit: 'contain',

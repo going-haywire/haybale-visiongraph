@@ -5,7 +5,6 @@ OpenCV Viewer Widget - Displays numpy arrays as streaming video in nodes
 from typing import Any
 from haybale_visiongraph.types.frame_type import RGB_FRAME
 import numpy as np
-from nicegui import ui
 
 from haywire.ui.widget.base import BaseWidget
 from haywire.ui.widget.decorator import widget
@@ -15,6 +14,13 @@ from haybale_visiongraph.widgets.components.streaming_viewer import StreamingBac
 
 @widget(
     description="Streaming video viewer for numpy arrays using custom StreamingViewer",
+    # Declared inline-axis size: the frame's natural pixel size (1280px for a
+    # 720p stream) no longer votes on the host node's size floor, so the resize
+    # gadget can shrink the node below the image instead of being stuck at it.
+    # Width only, deliberately — the block axis stays content-driven, so the
+    # image's aspect ratio keeps the viewer growing proportionally as the node
+    # widens. See haywire.ui.widget.sizing.
+    min_width=160,
 )
 class NumpyViewerWidget(BaseWidget):
     """
@@ -26,10 +32,19 @@ class NumpyViewerWidget(BaseWidget):
     Config options (via ``NumpyViewerWidget.config(properties={...})``):
 
     - ``quality`` (int): JPEG compression quality (0-100, default: ``80``).
-    - ``width`` (str): CSS width of the viewer (default: ``'100%'``).
-    - ``height`` (str): CSS height of the viewer (default: ``'auto'``).
     - ``frame_queue_size`` (int): Internal frame buffer size (default: ``1``).
     - ``block_on_full`` (bool): Block the producer when the queue is full (default: ``False``).
+    - ``frame_width`` (str): CSS border width around the viewer (default: ``'0'``, no frame).
+    - ``frame_color`` (str): CSS color of the frame border (default: ``'var(--hw-border)'``).
+
+    The viewer fills whatever space its host node gives it — it does not impose
+    its own width/height, so it cooperates with the node's own resize handling
+    (see ``UINode._apply_size``) instead of fighting it. The ``min_width``
+    declaration on the decorator is what lets the node shrink *below* the
+    streamed frame's natural size; without it the frame's pixel width becomes
+    the node's floor. Override it per call site with
+    ``NumpyViewerWidget.config(min_width=320)`` — a top-level ``config()``
+    keyword, NOT one of the ``properties`` above.
     """
 
     def __init__(self, port: Any) -> None:
@@ -44,11 +59,18 @@ class NumpyViewerWidget(BaseWidget):
                 frame_queue_size=props.get("frame_queue_size", 1),
                 block_on_full=props.get("block_on_full", False),
             )
-        width = props.get("width", "100%")
-        height = props.get("height", "auto")
-        with ui.card().classes("w-full") as container:
-            StreamingViewer(self._backend).style(f"width: {width}; height: {height};")
-        return container
+        frame_width = props.get("frame_width", "0")
+        frame_color = props.get("frame_color", "var(--hw-border)")
+        # flex: 1 lets the viewer grow into whatever the host node's own sizing
+        # (UINode._apply_size) gives it, rather than imposing a size that fights
+        # the node's ResizeObserver loop; min-height: 0 lets it shrink again when
+        # the column squeezes. The node's size FLOOR is NOT handled here — an
+        # inline min-width can't lower it, because percentages and mins don't
+        # affect intrinsic sizing. That's what @widget(min_width=) above does.
+        viewer = StreamingViewer(self._backend).style(
+            f"width: 100%; flex: 1; min-width: 0; min-height: 0; border: {frame_width} solid {frame_color};"
+        )
+        return viewer
 
     def on_model_changed(self, frame: Any) -> None:
         # Floor-only widget: owns sync entirely, does not call super().

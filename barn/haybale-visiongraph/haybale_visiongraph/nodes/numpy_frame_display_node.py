@@ -56,8 +56,6 @@ class FrameDisplayNode(BaseNode):
                 widget=NumpyViewerWidget.config(
                     properties={
                         "quality": 85,
-                        "width": "100%",
-                        "height": "300px",
                         "frame_queue_size": 1,
                         "block_on_full": False,
                     }
