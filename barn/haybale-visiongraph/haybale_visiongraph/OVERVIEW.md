@@ -1,33 +1,33 @@
-# Visiongraph (haybale-visiongraph)
+# Visiongraph
 
-v0.0.1 | By Florian Briggisser, Martin Fröhlich
-Visiongraph library for Haywire node system demonstrating custom types, nodes, widgets, and renderers
-
-**Source:** https://github.com/haywire/haywire-repo/libraries/haybale-visiongraph
-**Dependencies:** haywire-core>=0.1.0, haybale-core>=1.0.0, visiongraph[all]
-**Tags:** vision, camera, video, opencv
-
----
+Visiongraph library
 
 ## Nodes
-
-### Events
-
-- **Webcam Frame Event** (`WebcamFrameEventNode`) — event node triggered by webcam frame callbacks, providing frame data and metadata for downstream processing
-
 ### Vision
-
-- **Start Webcam Stream** (`WebCameraNode`) — starts a webcam video stream in a background thread and emits frame callbacks for connected event nodes
-- **Webcam Frame Info Display** (`FrameDisplayNode`) — displays webcam frame metadata and streams a live preview using an embedded video viewer
-
----
+- **Annotate Results** — Draw estimator results (boxes / masks / poses) onto a frame
+- **Frame Event** — Triggered when a camera frame is ready; exposes colour/depth/infrared streams
+- **Frame Info Display** — Displays information about frames with live preview
+- **OAK-D Camera** — Opens an OAK-D depth camera and emits colour/depth/infrared frame callbacks
+- **Object Detector** — Detect objects in a frame (bounding box + class + score)
+- **Pose Estimator** — Estimate human body pose (named joints + skeleton) per person
+- **Segmentation** — Instance segmentation: detect objects and their pixel masks
+- **Tracker** — Assign stable tracking ids to detections across frames
+- **Web Camera** — Starts a webcam stream and emits frame callbacks
 
 ## Types
-
-- **FRAME** (`frame`) — video frame carrying a numpy array with timestamp and frame number metadata
-
----
+- **Depth Frame** — Single-channel uint16 metric depth buffer (millimetres)
+- **Detection Result** — Object detections: bounding box, class, score (and tracking id)
+- **Gray Frame** — Single-channel uint8 luminance video frame (e.g. infrared)
+- **Landmark Result** — Landmark detections: a detection plus a set of landmark points
+- **Multiframe Callback** — Subscription for multi-frame streams
+- **Pose Result** — Human pose: landmarks with named joints and skeleton connections
+- **RGB Frame** — 3-channel uint8 colour video frame
+- **Segmentation Result** — Instance segmentation: detection plus a per-instance mask
+- **Vision Result** — A list of estimator results (base type for all result kinds)
 
 ## Widgets
+- **NumpyViewerWidget** — Streaming video viewer for numpy arrays using custom StreamingViewer
 
-- **NumpyViewerWidget** (`NumpyViewerWidget`) — streaming MJPEG video viewer for numpy arrays. Compatible: frame
+## Adapters
+- **GrayToRgbAdapter** — Replicate a single-channel grey frame to a 3-channel colour frame
+- **RgbToGrayAdapter** — Convert a 3-channel colour frame to a single-channel grey frame (luminance)

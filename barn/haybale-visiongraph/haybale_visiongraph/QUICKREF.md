@@ -1,80 +1,30 @@
-# haybale-visiongraph v0.0.1
-# Library ID: visiongraph
-# Module: haybale_visiongraph
-# Source: https://github.com/haywire/haywire-repo/libraries/haybale-visiongraph
-# Dependencies: haywire-core>=0.1.0, haybale-core>=1.0.0, visiongraph[all]
-# Description: Visiongraph library for Haywire node system demonstrating custom types, nodes, widgets, and renderers
+# visiongraph — component index (v0.0.17)
 
-## Nodes
+## node
+- `visiongraph:node:AnnotateNode` — Annotate Results — Draw estimator results (boxes / masks / poses) onto a frame  _tags: annotate, draw, overlay, render, result, visualize_
+- `visiongraph:node:FrameDisplayNode` — Frame Info Display — Displays information about frames with live preview  _tags: rgb, ir, frame, camera, display, preview, video, stream_
+- `visiongraph:node:NumpyFrameEventNode` — Frame Event — Triggered when a camera frame is ready; exposes colour/depth/infrared streams  _tags: 3d, depth, camera, oak, kinect, realsense, frame, event, rgb, ir, image_
+- `visiongraph:node:OakDCameraNode` — OAK-D Camera — Opens an OAK-D depth camera and emits colour/depth/infrared frame callbacks  _tags: oak, oak-d, depthai, luxonis, depth, camera, 3d, stream_
+- `visiongraph:node:ObjectDetectorNode` — Object Detector — Detect objects in a frame (bounding box + class + score)  _tags: object, detection, detector, yolo, deim, ssd, bbox, coco_
+- `visiongraph:node:PoseEstimatorNode` — Pose Estimator — Estimate human body pose (named joints + skeleton) per person  _tags: pose, human, body, skeleton, joints, landmark, mediapipe, movenet_
+- `visiongraph:node:SegmentationNode` — Segmentation — Instance segmentation: detect objects and their pixel masks  _tags: segmentation, instance, mask, yolo, maskrcnn, yolact_
+- `visiongraph:node:TrackerNode` — Tracker — Assign stable tracking ids to detections across frames  _tags: tracker, tracking, track, centroid, flate, motpy, id_
+- `visiongraph:node:WebCameraNode` — Web Camera — Starts a webcam stream and emits frame callbacks  _tags: webcam, camera, video, capture, stream_
 
-### WebCameraNode
-- registry_key: visiongraph:node:WebCameraNode
-- module: haybale_visiongraph.nodes.start_web_cam_stream_node
-- label: Start Webcam Stream
-- menu: vision/input
-- node_type: CONTROL
-- description: Starts a webcam stream and emits frame callbacks
-- ports:
-  - inlet start: EXEC
-  - inlet stop: EXEC
-  - config camera_index: INT (default: 0) -- Camera index (0 = default camera)
-  - config width: INT (default: 0) -- Desired frame width in pixels (0 = camera default)
-  - config height: INT (default: 0) -- Desired frame height in pixels (0 = camera default)
-  - config fps: INT (default: 0) -- Desired frames per second (0 = camera default)
-  - config frame_skip: INT (default: 1) -- Emit callback every N frames
-  - inlet callback_names: CALLBACK (pooled) -- Registered callback targets to invoke per frame
-  - config status: STRING (default: Idle) -- Live status label (read-only)
-  - outlet started: EXEC
-  - outlet stopped: EXEC
+## type
+- `visiongraph:type:DEPTH_FRAME` — Depth Frame — Single-channel uint16 metric depth buffer (millimetres)
+- `visiongraph:type:DETECTION_RESULT` — Detection Result — Object detections: bounding box, class, score (and tracking id)
+- `visiongraph:type:GRAY_FRAME` — Gray Frame — Single-channel uint8 luminance video frame (e.g. infrared)
+- `visiongraph:type:LANDMARK_RESULT` — Landmark Result — Landmark detections: a detection plus a set of landmark points
+- `visiongraph:type:MULTIFRAME_CALLBACK` — Multiframe Callback — Subscription for multi-frame streams
+- `visiongraph:type:POSE_RESULT` — Pose Result — Human pose: landmarks with named joints and skeleton connections
+- `visiongraph:type:RGB_FRAME` — RGB Frame — 3-channel uint8 colour video frame
+- `visiongraph:type:SEGMENTATION_RESULT` — Segmentation Result — Instance segmentation: detection plus a per-instance mask
+- `visiongraph:type:VISION_RESULT` — Vision Result — A list of estimator results (base type for all result kinds)
 
-### WebcamFrameEventNode
-- registry_key: visiongraph:node:WebcamFrameEventNode
-- module: haybale_visiongraph.nodes.webcam_frame_event_node
-- label: Webcam Frame Event
-- menu: event/vision
-- node_type: EVENT
-- description: Triggered when a webcam frame is ready
-- ports:
-  - outlet callback_name: CALLBACK -- Callback name this node listens on
-  - outlet frame_ready: EXEC
-  - outlet frame: FRAME
-  - outlet timestamp: FLOAT
-  - outlet frame_number: INT
-  - outlet width: INT
-  - outlet height: INT
+## adapter
+- `visiongraph:adapter:GrayToRgbAdapter` — GrayToRgbAdapter — Replicate a single-channel grey frame to a 3-channel colour frame
+- `visiongraph:adapter:RgbToGrayAdapter` — RgbToGrayAdapter — Convert a 3-channel colour frame to a single-channel grey frame (luminance)
 
-### FrameDisplayNode
-- registry_key: visiongraph:node:FrameDisplayNode
-- module: haybale_visiongraph.nodes.frame_info_display_node
-- label: Webcam Frame Info Display
-- menu: vision/info
-- node_type: CONTROL
-- description: Displays information about webcam frames with live preview
-- ports:
-  - inlet execute: EXEC
-  - inlet frame: FRAME
-  - config info_display: STRING (default: No frame yet) -- Live frame metadata label (read-only)
-  - outlet frame_ready: EXEC
-  - outlet frame_pass: FRAME
-  - outlet timestamp: FLOAT
-  - outlet frame_number: INT
-  - outlet width: INT
-  - outlet height: INT
-
-## Types
-
-### FRAME
-- registry_key: visiongraph:type:frame
-- module: haybale_visiongraph.types.frame_type
-- base: BaseType
-- color: #9c27b0
-- description: Video frame carrying a numpy array with timestamp and frame number metadata
-
-## Widgets
-
-### NumpyViewerWidget
-- registry_key: visiongraph:widget:NumpyViewerWidget
-- module: haybale_visiongraph.widgets.opencv_viewer_widget
-- compatible_types: [visiongraph:type:frame]
-- description: Streaming video viewer for numpy arrays using custom StreamingViewer
-- config_options: quality: int, width: str, height: str, frame_queue_size: int, block_on_full: bool
+## widget
+- `visiongraph:widget:NumpyViewerWidget` — NumpyViewerWidget — Streaming video viewer for numpy arrays using custom StreamingViewer
