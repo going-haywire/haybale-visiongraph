@@ -4,14 +4,14 @@
 [[haybales]]
 name = "haybale-visiongraph"
 label = "Visiongraph"
-version = "0.0.19"
+version = "0.0.20"
 requires_haywire = ">=0.0.32"
 description = "Visiongraph library for Haywire node system demonstrating custom types, nodes, widgets, and renderers"
 author = "Haywire Team"
 source = "git"
-install_spec = "haybale-visiongraph @ git+https://github.com/going-haywire/haybale-visiongraph.git@v0.0.19#subdirectory=barn/haybale-visiongraph"
+install_spec = "haybale-visiongraph @ git+https://github.com/going-haywire/haybale-visiongraph.git@v0.0.20#subdirectory=barn/haybale-visiongraph"
 tags = [ "haywire", "node-editor", "visual-programming", "visiongraph",]
 dependencies = [ "haybale-core",]
 source_url = "https://github.com/going-haywire/haybale-visiongraph"
-docs_url = "https://raw.githubusercontent.com/going-haywire/haybale-visiongraph/v0.0.19/barn/haybale-visiongraph/haybale_visiongraph/"
+docs_url = "https://raw.githubusercontent.com/going-haywire/haybale-visiongraph/v0.0.20/barn/haybale-visiongraph/haybale_visiongraph/"
 
