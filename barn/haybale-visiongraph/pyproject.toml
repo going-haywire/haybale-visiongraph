@@ -1,11 +1,11 @@
 [project]
 name = "haybale-visiongraph"
-version = "0.0.18"
+version = "0.0.19"
 description = "Visiongraph library for Haywire node system demonstrating custom types, nodes, widgets, and renderers"
 readme = "README.md"
 requires-python = ">=3.12"
 keywords = [ "haywire", "node-editor", "visual-programming", "visiongraph",]
-dependencies = [ "depthai~=2.30", "fastapi", "haybale-core~=0.0.31", "haywire-core~=0.0.8", "nicegui>=3.12.1", "numpy", "opencv-contrib-python>=5.0.0.93", "opencv-python", "typing_extensions>=4.15.0", "visiongraph[onnx,openvino,mediapipe]",]
+dependencies = [ "depthai~=2.30", "fastapi", "haybale-core~=0.0.32", "haywire-core>=0.0.32", "nicegui>=3.12.1", "numpy", "opencv-contrib-python>=5.0.0.93", "opencv-python", "typing_extensions>=4.15.0", "visiongraph[onnx,openvino,mediapipe]",]
 [[project.authors]]
 name = "Haywire Team"
 
