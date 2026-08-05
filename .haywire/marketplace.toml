@@ -1,54 +1,67 @@
-[[heaps]]
-name = "haybale-visiongraph"
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haybale-visiongraph/barn/haybale-visiongraph"
-label = "Haybale Visiongraph"
-description = "Local library for the haybale-visiongraph project"
-
-[[heaps]]
-name = "haybale-TEST_A"
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-TEST_A"
-label = "Test A"
-description = "Test library for Haywire node system"
-
-[[heaps]]
+[[caches]]
 name = "haybale-core"
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-core"
 label = "Core"
-description = "Haywire's core library with types, nodes, widgets, and renderers"
+version = "0.0.38"
+description = "Fundamental components for hayire graphs"
+author = "maybites"
+source = "pypi"
+install_spec = "haybale-core"
+tags = [ "core", "types", "widgets", "skins", "adapters",]
+source_url = "https://github.com/going-haywire/haywire"
+docs_url = "https://raw.githubusercontent.com/going-haywire/haywire/master/barn/haybale-core/haybale_core/"
+via = "https://going-haywire.github.io/haywire/stalls/haybale-core.toml"
 
-[[heaps]]
-name = "haybale-example"
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-example"
-label = "Example"
-description = "Example library for Haywire node system demonstrating custom types, nodes, widgets, and renderers"
-
-[[heaps]]
-name = "haybale-graph-editor"
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-graph-editor"
-label = "Graph Editor"
-description = "Graph editor library for Haywire — host-agnostic visual graph editing"
-
-[[heaps]]
-name = "haybale-haystack"
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-haystack"
-label = "Haystack"
-description = "Haystack — file-centric multi-graph manager for Haywire"
-
-[[heaps]]
-name = "haybale-marketplace"
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-marketplace"
-label = "Marketplace"
-description = "Library installer + browser editors for Haywire"
-
-[[heaps]]
+[[caches]]
 name = "haybale-studio"
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-studio"
 label = "Studio"
-description = "haywire studio library for basic functionality"
+version = "0.0.38"
+description = "Library for haywire studio"
+author = "Haywire Team"
+source = "pypi"
+install_spec = "haybale-studio"
+tags = [ "experimental", "project-local",]
+source_url = "https://github.com/going-haywire/haywire"
+docs_url = "https://raw.githubusercontent.com/going-haywire/haywire/master/barn/haybale-studio/haybale_studio/"
+via = "https://going-haywire.github.io/haywire/stalls/haybale-studio.toml"
 
-[[heaps]]
-name = "haybale-testing"
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-testing"
-label = "Testing"
-description = "Testing library for Haywire node system"
+[[caches]]
+name = "haybale-marketplace"
+label = "Marketplace"
+version = "0.0.38"
+description = "Library installer + browser editors"
+author = "Haywire Team"
+source = "pypi"
+install_spec = "haybale-marketplace"
+tags = [ "marketplace",]
+dependencies = [ "haybale-studio",]
+source_url = "https://github.com/going-haywire/haywire"
+docs_url = "https://raw.githubusercontent.com/going-haywire/haywire/master/barn/haybale-marketplace/haybale_marketplace/"
+via = "https://going-haywire.github.io/haywire/stalls/haybale-marketplace.toml"
+
+[[caches]]
+name = "haybale-graph-editor"
+label = "Graph Editor"
+version = "0.0.38"
+description = "Visual graph editor library — host-agnostic"
+author = "Haywire Team"
+source = "pypi"
+install_spec = "haybale-graph-editor"
+tags = [ "graph-editor",]
+source_url = "https://github.com/going-haywire/haywire"
+docs_url = "https://raw.githubusercontent.com/going-haywire/haywire/master/barn/haybale-graph-editor/haybale_graph_editor/"
+via = "https://going-haywire.github.io/haywire/stalls/haybale-graph-editor.toml"
+
+[[caches]]
+name = "haybale-haystack"
+label = "Haystack"
+version = "0.0.38"
+description = "File-centric multi-graph manager"
+author = "Haywire Team"
+source = "pypi"
+install_spec = "haybale-haystack"
+tags = [ "graph-management",]
+dependencies = [ "haybale-studio", "haybale-graph-editor",]
+source_url = "https://github.com/going-haywire/haywire"
+docs_url = "https://raw.githubusercontent.com/going-haywire/haywire/master/barn/haybale-haystack/haybale_haystack/"
+via = "https://going-haywire.github.io/haywire/stalls/haybale-haystack.toml"
 

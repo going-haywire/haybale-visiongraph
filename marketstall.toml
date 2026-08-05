@@ -5,7 +5,7 @@
 name = "haybale-visiongraph"
 label = "Visiongraph"
 version = "0.0.20"
-requires_haywire = ">=0.0.32"
+requires = "haywire-core>=0.0.32"
 description = "Visiongraph library for Haywire node system demonstrating custom types, nodes, widgets, and renderers"
 author = "Haywire Team"
 source = "git"

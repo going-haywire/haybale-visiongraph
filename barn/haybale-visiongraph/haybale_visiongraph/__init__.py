@@ -25,8 +25,8 @@ from haywire.ui.widget.registry import WidgetRegistry
     help_url="https://docs.github.io/haywire_library",
     author="Florian Briggisser, Martin Fröhlich",
     author_url="https://author_url",
-    dependencies=["haybale_core"],
-    tags=["vision", "camera", "video", "opencv"],
+    dependencies=['haybale_core'],
+    tags=['vision', 'camera', 'video', 'opencv'],
     needs_refresh=True,
     file_watcher=False,
 )
