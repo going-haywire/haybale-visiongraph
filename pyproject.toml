@@ -29,3 +29,8 @@ editable = true
 [tool.uv.sources.haybale-marketplace]
 path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-marketplace"
 editable = true
+
+[tool.uv.sources.haybale-share]
+path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-share"
+editable = true
+
