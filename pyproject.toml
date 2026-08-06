@@ -34,3 +34,5 @@ editable = true
 path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-share"
 editable = true
 
+[tool.haywire.marketstall]
+pypi_marketplace_url = "https://going-haywire.github.io/haybale-visiongraph/marketplace.toml"
