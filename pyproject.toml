@@ -11,27 +11,27 @@ members = [ "barn/*",]
 workspace = true
 
 [tool.uv.sources.haywire-studio]
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/packages/haywire-studio"
+path = "../haywire-repo/packages/haywire-studio"
 editable = true
 
 [tool.uv.sources.haywire-core]
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/packages/haywire-core"
+path = "../haywire-repo/packages/haywire-core"
 editable = true
 
 [tool.uv.sources.haybale-core]
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-core"
+path = "../haywire-repo/barn/haybale-core"
 editable = true
 
 [tool.uv.sources.haybale-studio]
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-studio"
+path = "../haywire-repo/barn/haybale-studio"
 editable = true
 
 [tool.uv.sources.haybale-marketplace]
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-marketplace"
+path = "../haywire-repo/barn/haybale-marketplace"
 editable = true
 
 [tool.uv.sources.haybale-share]
-path = "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-share"
+path = "../haywire-repo/barn/haybale-share"
 editable = true
 
 [tool.haywire.marketstall]

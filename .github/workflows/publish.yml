@@ -14,6 +14,10 @@ env:
 
   # Your PyPI distribution name — must match [project].name in pyproject.toml.
   DIST_NAME: haybale-visiongraph
+  # The publishable package. The repo root is a dev-only uv workspace whose
+  # [tool.uv.sources] point at a sibling monorepo that does not exist in CI —
+  # every step below works from this directory so that shell is never loaded.
+  PKG_DIR: barn/haybale-visiongraph
   # Human-readable name shown in the Library Browser.
   LIBRARY_LABEL: Visiongraph for Haywire
   # One line. Shown under the label in the browser.
@@ -38,18 +42,42 @@ jobs:
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         run: uv python install ${{ env.PYTHON_VERSION }}
 
-      - name: Install project
-        run: uv sync --dev
-
-      # Your gate. Keep it cheap and keep it here: a broken release is far
-      # more expensive to withdraw from PyPI than to catch before upload.
-      - name: Run tests
-        run: uv run pytest -q
+      # The tag is the source of truth for the release. The wheel version comes
+      # from the package's pyproject.toml, so a tag that disagrees with it would
+      # publish one version while the feed below advertises another.
+      - name: Check tag matches package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(grep -m1 '^version' "${PKG_DIR}/pyproject.toml" | cut -d'"' -f2)
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag v${TAG_VERSION} does not match ${PKG_DIR}/pyproject.toml version ${PKG_VERSION}"
+            exit 1
+          fi
+          echo "Version ${PKG_VERSION} matches tag."
 
       - name: Build wheel + sdist
+        working-directory: ${{ env.PKG_DIR }}
+        run: uv build --out-dir "${GITHUB_WORKSPACE}/dist"
+
+      # Your gate. Keep it cheap and keep it here: a broken release is far more
+      # expensive to withdraw from PyPI than to catch before upload. Installing
+      # the built wheel into a clean venv resolves its dependencies against real
+      # PyPI — the one thing a local editable checkout can never verify.
+      # Resolution is checked before install: the dependency set includes heavy,
+      # platform-specific wheels (depthai, onnxruntime, openvino, mediapipe) whose
+      # availability differs by OS and Python version, so a resolver failure here
+      # is a dependency-range bug to fix in pyproject.toml — not a flaky job.
+      - name: Smoke-test the wheel
         run: |
-          rm -rf dist/
-          uv build
+          uv venv --python ${{ env.PYTHON_VERSION }} /tmp/smoke
+          export VIRTUAL_ENV=/tmp/smoke
+          if ! uv pip install --dry-run dist/*.whl; then
+            echo "::error::Dependencies of ${DIST_NAME} do not resolve on linux/py${PYTHON_VERSION} from PyPI. Fix the ranges in ${PKG_DIR}/pyproject.toml before releasing."
+            exit 1
+          fi
+          uv pip install dist/*.whl
+          python -c "import haybale_visiongraph; print('imported', haybale_visiongraph.Library)"
 
       - uses: actions/upload-artifact@v4
         with:
