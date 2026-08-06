@@ -1,4 +1,4 @@
-# visiongraph — component index (v0.0.25)
+# visiongraph — component index (v0.0.26)
 
 ## node
 - `visiongraph:node:AnnotateNode` — Annotate Results — Draw estimator results (boxes / masks / poses) onto a frame  _tags: annotate, draw, overlay, render, result, visualize_
