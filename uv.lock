@@ -743,6 +743,42 @@ requires-dist = [
 ]
 
 [[package]]
+name = "haybale-graph-editor"
+version = "0.0.39"
+source = { editable = "../haywire-repo/barn/haybale-graph-editor" }
+dependencies = [
+    { name = "haywire-core" },
+    { name = "nicegui" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "haywire-core", editable = "../haywire-repo/packages/haywire-core" },
+    { name = "nicegui", specifier = ">=3.12.1" },
+]
+
+[[package]]
+name = "haybale-haystack"
+version = "0.0.39"
+source = { editable = "../haywire-repo/barn/haybale-haystack" }
+dependencies = [
+    { name = "haybale-graph-editor" },
+    { name = "haybale-studio" },
+    { name = "haywire-core" },
+    { name = "nicegui" },
+    { name = "toml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "haybale-graph-editor", editable = "../haywire-repo/barn/haybale-graph-editor" },
+    { name = "haybale-studio", editable = "../haywire-repo/barn/haybale-studio" },
+    { name = "haywire-core", editable = "../haywire-repo/packages/haywire-core" },
+    { name = "nicegui", specifier = ">=3.12.1" },
+    { name = "toml", specifier = ">=0.10.2" },
+]
+
+[[package]]
 name = "haybale-marketplace"
 version = "0.0.39"
 source = { editable = "../haywire-repo/barn/haybale-marketplace" }
@@ -830,6 +866,8 @@ version = "0.0.17"
 source = { virtual = "." }
 dependencies = [
     { name = "haybale-core" },
+    { name = "haybale-graph-editor" },
+    { name = "haybale-haystack" },
     { name = "haybale-marketplace" },
     { name = "haybale-share" },
     { name = "haybale-studio" },
@@ -840,6 +878,8 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "haybale-core", editable = "../haywire-repo/barn/haybale-core" },
+    { name = "haybale-graph-editor", editable = "../haywire-repo/barn/haybale-graph-editor" },
+    { name = "haybale-haystack", editable = "../haywire-repo/barn/haybale-haystack" },
     { name = "haybale-marketplace", editable = "../haywire-repo/barn/haybale-marketplace" },
     { name = "haybale-share", editable = "../haywire-repo/barn/haybale-share" },
     { name = "haybale-studio", editable = "../haywire-repo/barn/haybale-studio" },
