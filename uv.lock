@@ -766,6 +766,21 @@ requires-dist = [
 ]
 
 [[package]]
+name = "haybale-share"
+version = "0.0.39"
+source = { editable = "../haywire-repo/barn/haybale-share" }
+dependencies = [
+    { name = "haywire-core" },
+    { name = "nicegui" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "haywire-core", editable = "../haywire-repo/packages/haywire-core" },
+    { name = "nicegui", specifier = ">=3.12.1" },
+]
+
+[[package]]
 name = "haybale-studio"
 version = "0.0.39"
 source = { editable = "../haywire-repo/barn/haybale-studio" }
@@ -816,6 +831,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "haybale-core" },
     { name = "haybale-marketplace" },
+    { name = "haybale-share" },
     { name = "haybale-studio" },
     { name = "haybale-visiongraph" },
     { name = "haywire-studio" },
@@ -825,6 +841,7 @@ dependencies = [
 requires-dist = [
     { name = "haybale-core", editable = "../haywire-repo/barn/haybale-core" },
     { name = "haybale-marketplace", editable = "../haywire-repo/barn/haybale-marketplace" },
+    { name = "haybale-share", editable = "../haywire-repo/barn/haybale-share" },
     { name = "haybale-studio", editable = "../haywire-repo/barn/haybale-studio" },
     { name = "haybale-visiongraph", editable = "barn/haybale-visiongraph" },
     { name = "haywire-studio", editable = "../haywire-repo/packages/haywire-studio" },

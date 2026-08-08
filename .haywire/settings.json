@@ -1,0 +1,12 @@
+{
+  "debug": {
+    "log_level": {
+      "value": "WARNING"
+    }
+  },
+  "workbench": {
+    "theme": {
+      "value": "studio:theme:workbench:HaywireDarkTheme"
+    }
+  }
+}
