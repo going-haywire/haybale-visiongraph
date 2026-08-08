@@ -4,6 +4,14 @@
       "value": "WARNING"
     }
   },
+  "haystack": {
+    "last_haystack_name": {
+      "value": "basics"
+    },
+    "new_counter": {
+      "value": 2
+    }
+  },
   "workbench": {
     "theme": {
       "value": "studio:theme:workbench:HaywireDarkTheme"

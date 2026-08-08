@@ -1,0 +1,32 @@
+{
+  "action": {
+    "active_key": "haystack:editor:HaystackEditor",
+    "visible": true,
+    "size": 300,
+    "editors": []
+  },
+  "edit": {
+    "active_key": "graph_editor:editor:GraphEditor::/Volumes/Ddrive/06_open_tracking_tool/haywire/haybale-visiongraph/graphs/webcam.haywire",
+    "visible": true,
+    "size": 300,
+    "editors": [
+      {
+        "key": "graph_editor:editor:GraphEditor",
+        "binding_id": "/Volumes/Ddrive/06_open_tracking_tool/haywire/haybale-visiongraph/graphs/webcam.haywire",
+        "label": "webcam"
+      }
+    ]
+  },
+  "info": {
+    "active_key": "studio:editor:ErrorsEditor",
+    "visible": true,
+    "size": 300,
+    "editors": []
+  },
+  "context": {
+    "active_key": "studio:editor:PropertiesEditor",
+    "visible": true,
+    "size": 300,
+    "editors": []
+  }
+}

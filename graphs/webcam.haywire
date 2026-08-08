@@ -1,0 +1,1200 @@
+{
+  "graph_id": "__unsaved_1__",
+  "name": "Untitled 1",
+  "description": "",
+  "version": "1.0.0",
+  "author": "",
+  "created_at": null,
+  "modified_at": "2026-08-08T16:37:01.488979",
+  "nodes": {
+    "BeginPlayNode_4cc22e4a": {
+      "node_id": "BeginPlayNode_4cc22e4a",
+      "registry_key": "core:node:BeginPlayNode",
+      "position": [
+        3192,
+        3628
+      ],
+      "node_data": {
+        "node_id": "BeginPlayNode_4cc22e4a",
+        "ports": {
+          "exec": {
+            "kwargs": {
+              "registry_id": "EXEC",
+              "registry_key": "core:type:EXEC",
+              "label": "Execute",
+              "description": "Signal for controlling execution flow between nodes",
+              "class_name": "EXEC",
+              "module": "haybale_core.types.specs",
+              "flow_type": "control",
+              "default": {
+                "value": {}
+              },
+              "store_strategy": 1,
+              "color": "#004cff",
+              "id": "exec",
+              "port_type": "outlet",
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "core:type:EXEC"
+            }
+          },
+          "timestamp": {
+            "kwargs": {
+              "registry_id": "FLOAT",
+              "registry_key": "builtin:type:FLOAT",
+              "label": "Start Time",
+              "description": "Decimal numberer",
+              "class_name": "FLOAT",
+              "module": "haywire.barn.builtin.types.specs",
+              "flow_type": "data",
+              "default": {
+                "value": 0.0
+              },
+              "store_strategy": 14,
+              "color": "#50b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "id": "timestamp",
+              "port_type": "outlet",
+              "allow_multiple_links": true,
+              "order": 1,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:FLOAT"
+            },
+            "field_data": {
+              "value": 1786199798.795875
+            }
+          }
+        },
+        "settings": {
+          "props": {
+            "values": {
+              "posX": 3192.0,
+              "posY": 3628.0,
+              "width": 256,
+              "height": 132
+            },
+            "promoted": {}
+          }
+        },
+        "props": {
+          "values": {
+            "posX": 3192.0,
+            "posY": 3628.0,
+            "width": 256,
+            "height": 132
+          },
+          "promoted": {}
+        },
+        "store": {},
+        "identity": {
+          "registry_id": "BeginPlayNode",
+          "registry_key": "core:node:BeginPlayNode",
+          "label": "Begin Player",
+          "description": "Triggered once when execution starts",
+          "deprecation_warning": "",
+          "hidden": false,
+          "class_name": "BeginPlayNode",
+          "module": "haybale_core.nodes.events.begin_play",
+          "search_tags": [
+            "start",
+            "init",
+            "begin",
+            "event"
+          ],
+          "menu": "core/event",
+          "help_md": null,
+          "help_url": "https://haywire.io/internals/node-help",
+          "_is_error": false,
+          "_error_priority": 0,
+          "_is_reroute": false
+        },
+        "library": {
+          "label": "Core",
+          "version": "0.0.39",
+          "description": "Fundamental components for hayire graphs",
+          "url": "https://github.com/going-haywire/haywire",
+          "help_url": "https://github.com/going-haywire/haywire",
+          "author": "maybites",
+          "author_url": "https://maybites.ch",
+          "folder_path": "/Volumes/Ddrive/06_open_tracking_tool/haywire/haywire-repo/barn/haybale-core/haybale_core",
+          "module_name": "haybale_core",
+          "id": "core",
+          "dependencies": [],
+          "tags": [
+            "core",
+            "types",
+            "widgets",
+            "skins",
+            "adapters"
+          ],
+          "file_watcher": false,
+          "on_reload": "none"
+        }
+      }
+    },
+    "WebCameraNode_19ee7b14": {
+      "node_id": "WebCameraNode_19ee7b14",
+      "registry_key": "visiongraph:node:WebCameraNode",
+      "position": [
+        3564,
+        3544
+      ],
+      "node_data": {
+        "node_id": "WebCameraNode_19ee7b14",
+        "ports": {
+          "start": {
+            "kwargs": {
+              "registry_id": "EXEC",
+              "registry_key": "core:type:EXEC",
+              "label": "Start",
+              "description": "Signal for controlling execution flow between nodes",
+              "class_name": "EXEC",
+              "module": "haybale_core.types.specs",
+              "flow_type": "control",
+              "default": {
+                "value": {}
+              },
+              "store_strategy": 1,
+              "color": "#004cff",
+              "id": "start",
+              "port_type": "inlet",
+              "allow_multiple_links": true
+            },
+            "recipe": {
+              "registry_key": "core:type:EXEC"
+            }
+          },
+          "stop": {
+            "kwargs": {
+              "registry_id": "EXEC",
+              "registry_key": "core:type:EXEC",
+              "label": "Stop",
+              "description": "Signal for controlling execution flow between nodes",
+              "class_name": "EXEC",
+              "module": "haybale_core.types.specs",
+              "flow_type": "control",
+              "default": {
+                "value": {}
+              },
+              "store_strategy": 1,
+              "color": "#004cff",
+              "id": "stop",
+              "port_type": "inlet",
+              "allow_multiple_links": true,
+              "order": 1
+            },
+            "recipe": {
+              "registry_key": "core:type:EXEC"
+            }
+          },
+          "camera_index": {
+            "kwargs": {
+              "registry_id": "INT",
+              "registry_key": "builtin:type:INT",
+              "label": "Camera Index",
+              "description": "Whole number",
+              "class_name": "INT",
+              "module": "haywire.barn.builtin.types.specs",
+              "default": {
+                "value": 0
+              },
+              "store_strategy": 14,
+              "color": "#f7b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "widget_config": {
+                "properties": {
+                  "min": 0,
+                  "max": 10,
+                  "step": 1
+                }
+              },
+              "id": "camera_index",
+              "port_type": "config",
+              "order": 2,
+              "show_widget": "always"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:INT"
+            },
+            "field_data": {
+              "value": 0
+            }
+          },
+          "width": {
+            "kwargs": {
+              "registry_id": "INT",
+              "registry_key": "builtin:type:INT",
+              "label": "Width (0=auto)",
+              "description": "Whole number",
+              "class_name": "INT",
+              "module": "haywire.barn.builtin.types.specs",
+              "default": {
+                "value": 0
+              },
+              "store_strategy": 14,
+              "color": "#f7b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "widget_config": {
+                "properties": {
+                  "min": 0,
+                  "max": 3840,
+                  "step": 1
+                }
+              },
+              "id": "width",
+              "port_type": "config",
+              "order": 3,
+              "show_widget": "always"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:INT"
+            },
+            "field_data": {
+              "value": 0
+            }
+          },
+          "height": {
+            "kwargs": {
+              "registry_id": "INT",
+              "registry_key": "builtin:type:INT",
+              "label": "Height (0=auto)",
+              "description": "Whole number",
+              "class_name": "INT",
+              "module": "haywire.barn.builtin.types.specs",
+              "default": {
+                "value": 0
+              },
+              "store_strategy": 14,
+              "color": "#f7b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "widget_config": {
+                "properties": {
+                  "min": 0,
+                  "max": 2160,
+                  "step": 1
+                }
+              },
+              "id": "height",
+              "port_type": "config",
+              "order": 4,
+              "show_widget": "always"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:INT"
+            },
+            "field_data": {
+              "value": 0
+            }
+          },
+          "fps": {
+            "kwargs": {
+              "registry_id": "INT",
+              "registry_key": "builtin:type:INT",
+              "label": "FPS (0=auto)",
+              "description": "Whole number",
+              "class_name": "INT",
+              "module": "haywire.barn.builtin.types.specs",
+              "default": {
+                "value": 0
+              },
+              "store_strategy": 14,
+              "color": "#f7b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "widget_config": {
+                "properties": {
+                  "min": 0,
+                  "max": 120,
+                  "step": 1
+                }
+              },
+              "id": "fps",
+              "port_type": "config",
+              "order": 5,
+              "show_widget": "always"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:INT"
+            },
+            "field_data": {
+              "value": 0
+            }
+          },
+          "frame_skip": {
+            "kwargs": {
+              "registry_id": "INT",
+              "registry_key": "builtin:type:INT",
+              "label": "Frame Skip",
+              "description": "Whole number",
+              "class_name": "INT",
+              "module": "haywire.barn.builtin.types.specs",
+              "default": {
+                "value": 1
+              },
+              "store_strategy": 14,
+              "color": "#f7b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "widget_config": {
+                "properties": {
+                  "min": 1,
+                  "max": 60,
+                  "step": 1
+                }
+              },
+              "id": "frame_skip",
+              "port_type": "config",
+              "order": 6,
+              "show_widget": "always"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:INT"
+            },
+            "field_data": {
+              "value": 1
+            }
+          },
+          "callbacks": {
+            "kwargs": {
+              "registry_id": "PooledType",
+              "registry_key": "core:type:PooledType",
+              "label": "Subscribers",
+              "description": "Connect to a Frame Event node. Beware: this camera type can only deliver rgb frames",
+              "class_name": "PooledType",
+              "module": "haybale_core.types.pooled_type",
+              "flow_type": "callback",
+              "default": {
+                "value": {}
+              },
+              "store_strategy": 2,
+              "color": "#ff3c00",
+              "id": "callbacks",
+              "port_type": "inlet",
+              "allow_multiple_links": true,
+              "order": 7
+            },
+            "recipe": {
+              "registry_key": "core:type:PooledType",
+              "element_type": {
+                "registry_key": "visiongraph:type:MULTIFRAME_CALLBACK"
+              }
+            }
+          },
+          "status": {
+            "kwargs": {
+              "registry_id": "STRING",
+              "registry_key": "builtin:type:STRING",
+              "label": "Status",
+              "description": "Text data",
+              "class_name": "STRING",
+              "module": "haywire.barn.builtin.types.specs",
+              "default": {
+                "value": "Idle"
+              },
+              "store_strategy": 14,
+              "color": "#ffc107",
+              "widget_key": "builtin:widget:SimpleLabelWidget",
+              "id": "status",
+              "port_type": "config",
+              "order": 8,
+              "show_widget": "always"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:STRING"
+            },
+            "field_data": {
+              "value": "Shutdown"
+            }
+          },
+          "started": {
+            "kwargs": {
+              "registry_id": "EXEC",
+              "registry_key": "core:type:EXEC",
+              "label": "Started",
+              "description": "Signal for controlling execution flow between nodes",
+              "class_name": "EXEC",
+              "module": "haybale_core.types.specs",
+              "flow_type": "control",
+              "default": {
+                "value": {}
+              },
+              "store_strategy": 1,
+              "color": "#004cff",
+              "id": "started",
+              "port_type": "outlet",
+              "order": 9,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "core:type:EXEC"
+            }
+          },
+          "stopped": {
+            "kwargs": {
+              "registry_id": "EXEC",
+              "registry_key": "core:type:EXEC",
+              "label": "Stopped",
+              "description": "Signal for controlling execution flow between nodes",
+              "class_name": "EXEC",
+              "module": "haybale_core.types.specs",
+              "flow_type": "control",
+              "default": {
+                "value": {}
+              },
+              "store_strategy": 1,
+              "color": "#004cff",
+              "id": "stopped",
+              "port_type": "outlet",
+              "order": 10,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "core:type:EXEC"
+            }
+          }
+        },
+        "settings": {
+          "props": {
+            "values": {
+              "posX": 3564.0,
+              "posY": 3544.0,
+              "width": 256,
+              "height": 341
+            },
+            "promoted": {}
+          }
+        },
+        "props": {
+          "values": {
+            "posX": 3564.0,
+            "posY": 3544.0,
+            "width": 256,
+            "height": 341
+          },
+          "promoted": {}
+        },
+        "store": {},
+        "identity": {
+          "registry_id": "WebCameraNode",
+          "registry_key": "visiongraph:node:WebCameraNode",
+          "label": "Web Camera",
+          "description": "Starts a webcam stream and emits frame callbacks",
+          "deprecation_warning": "",
+          "hidden": false,
+          "class_name": "WebCameraNode",
+          "module": "haybale_visiongraph.nodes.web_cam_node",
+          "search_tags": [
+            "webcam",
+            "camera",
+            "video",
+            "capture",
+            "stream"
+          ],
+          "menu": "vision/input",
+          "help_md": null,
+          "help_url": "https://haywire.io/internals/node-help",
+          "_is_error": false,
+          "_error_priority": 0,
+          "_is_reroute": false
+        },
+        "library": {
+          "label": "Visiongraph",
+          "version": "0.0.29",
+          "description": "Visiongraph library",
+          "url": "https://github.com/haywire/haywire-repo/libraries/haybale-visiongraph",
+          "help_url": "https://docs.github.io/haywire_library",
+          "author": "Florian Briggisser, Martin Fröhlich",
+          "author_url": "https://author_url",
+          "folder_path": "/Volumes/Ddrive/06_open_tracking_tool/haywire/haybale-visiongraph/barn/haybale-visiongraph/haybale_visiongraph",
+          "module_name": "haybale_visiongraph",
+          "id": "visiongraph",
+          "dependencies": [
+            "haybale_core"
+          ],
+          "tags": [
+            "vision",
+            "camera",
+            "video",
+            "opencv"
+          ],
+          "file_watcher": false,
+          "on_reload": "restart"
+        }
+      }
+    },
+    "FrameDisplayNode_1e7c4329": {
+      "node_id": "FrameDisplayNode_1e7c4329",
+      "registry_key": "visiongraph:node:FrameDisplayNode",
+      "position": [
+        3564,
+        3964
+      ],
+      "node_data": {
+        "node_id": "FrameDisplayNode_1e7c4329",
+        "ports": {
+          "execute": {
+            "kwargs": {
+              "registry_id": "EXEC",
+              "registry_key": "core:type:EXEC",
+              "label": "Analyze Frame",
+              "description": "Signal for controlling execution flow between nodes",
+              "class_name": "EXEC",
+              "module": "haybale_core.types.specs",
+              "flow_type": "control",
+              "default": {
+                "value": {}
+              },
+              "store_strategy": 1,
+              "color": "#004cff",
+              "id": "execute",
+              "port_type": "inlet",
+              "allow_multiple_links": true
+            },
+            "recipe": {
+              "registry_key": "core:type:EXEC"
+            }
+          },
+          "frame": {
+            "kwargs": {
+              "registry_id": "RGB_FRAME",
+              "registry_key": "visiongraph:type:RGB_FRAME",
+              "label": "Frame",
+              "description": "3-channel uint8 colour video frame",
+              "class_name": "RGB_FRAME",
+              "module": "haybale_visiongraph.types.frame_type",
+              "flow_type": "data",
+              "default": {
+                "data": null,
+                "timestamp": 0.0,
+                "frame_number": 0
+              },
+              "store_strategy": 1,
+              "color": "#9c27b0",
+              "widget_key": "visiongraph:widget:NumpyViewerWidget",
+              "widget_config": {
+                "properties": {
+                  "quality": 85,
+                  "frame_queue_size": 1,
+                  "block_on_full": false
+                }
+              },
+              "id": "frame",
+              "port_type": "inlet",
+              "order": 1,
+              "show_widget": "when_linked"
+            },
+            "recipe": {
+              "registry_key": "visiongraph:type:RGB_FRAME"
+            }
+          },
+          "info_display": {
+            "kwargs": {
+              "registry_id": "STRING",
+              "registry_key": "builtin:type:STRING",
+              "label": "Frame Info",
+              "description": "Text data",
+              "class_name": "STRING",
+              "module": "haywire.barn.builtin.types.specs",
+              "default": {
+                "value": "No frame yet"
+              },
+              "store_strategy": 14,
+              "color": "#ffc107",
+              "widget_key": "builtin:widget:SimpleLabelWidget",
+              "id": "info_display",
+              "port_type": "config",
+              "order": 2,
+              "show_widget": "always"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:STRING"
+            },
+            "field_data": {
+              "value": "Frame #162 | 1920x1080x3 | 5.90s | 27.5 FPS"
+            }
+          },
+          "frame_ready": {
+            "kwargs": {
+              "registry_id": "EXEC",
+              "registry_key": "core:type:EXEC",
+              "label": "Frame Ready",
+              "description": "Signal for controlling execution flow between nodes",
+              "class_name": "EXEC",
+              "module": "haybale_core.types.specs",
+              "flow_type": "control",
+              "default": {
+                "value": {}
+              },
+              "store_strategy": 1,
+              "color": "#004cff",
+              "id": "frame_ready",
+              "port_type": "outlet",
+              "order": 3,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "core:type:EXEC"
+            }
+          },
+          "frame_pass": {
+            "kwargs": {
+              "registry_id": "RGB_FRAME",
+              "registry_key": "visiongraph:type:RGB_FRAME",
+              "label": "Frame Pass",
+              "description": "3-channel uint8 colour video frame",
+              "class_name": "RGB_FRAME",
+              "module": "haybale_visiongraph.types.frame_type",
+              "flow_type": "data",
+              "default": {
+                "data": null,
+                "timestamp": 0.0,
+                "frame_number": 0
+              },
+              "store_strategy": 1,
+              "color": "#9c27b0",
+              "id": "frame_pass",
+              "port_type": "outlet",
+              "allow_multiple_links": true,
+              "order": 4,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "visiongraph:type:RGB_FRAME"
+            }
+          },
+          "timestamp": {
+            "kwargs": {
+              "registry_id": "FLOAT",
+              "registry_key": "builtin:type:FLOAT",
+              "label": "Timestamp (s)",
+              "description": "Decimal numberer",
+              "class_name": "FLOAT",
+              "module": "haywire.barn.builtin.types.specs",
+              "flow_type": "data",
+              "default": {
+                "value": 0.0
+              },
+              "store_strategy": 14,
+              "color": "#50b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "id": "timestamp",
+              "port_type": "outlet",
+              "allow_multiple_links": true,
+              "order": 5,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:FLOAT"
+            },
+            "field_data": {
+              "value": 5.896184206008911
+            }
+          },
+          "frame_number": {
+            "kwargs": {
+              "registry_id": "INT",
+              "registry_key": "builtin:type:INT",
+              "label": "Frame Number",
+              "description": "Whole number",
+              "class_name": "INT",
+              "module": "haywire.barn.builtin.types.specs",
+              "flow_type": "data",
+              "default": {
+                "value": 0
+              },
+              "store_strategy": 14,
+              "color": "#f7b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "id": "frame_number",
+              "port_type": "outlet",
+              "allow_multiple_links": true,
+              "order": 6,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:INT"
+            },
+            "field_data": {
+              "value": 162
+            }
+          },
+          "width": {
+            "kwargs": {
+              "registry_id": "INT",
+              "registry_key": "builtin:type:INT",
+              "label": "Width",
+              "description": "Whole number",
+              "class_name": "INT",
+              "module": "haywire.barn.builtin.types.specs",
+              "flow_type": "data",
+              "default": {
+                "value": 0
+              },
+              "store_strategy": 14,
+              "color": "#f7b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "id": "width",
+              "port_type": "outlet",
+              "allow_multiple_links": true,
+              "order": 7,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:INT"
+            },
+            "field_data": {
+              "value": 1920
+            }
+          },
+          "height": {
+            "kwargs": {
+              "registry_id": "INT",
+              "registry_key": "builtin:type:INT",
+              "label": "Height",
+              "description": "Whole number",
+              "class_name": "INT",
+              "module": "haywire.barn.builtin.types.specs",
+              "flow_type": "data",
+              "default": {
+                "value": 0
+              },
+              "store_strategy": 14,
+              "color": "#f7b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "id": "height",
+              "port_type": "outlet",
+              "allow_multiple_links": true,
+              "order": 8,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:INT"
+            },
+            "field_data": {
+              "value": 1080
+            }
+          }
+        },
+        "settings": {
+          "props": {
+            "values": {
+              "posX": 3564.0,
+              "posY": 3964.0,
+              "width": 283,
+              "height": 455
+            },
+            "promoted": {}
+          }
+        },
+        "props": {
+          "values": {
+            "posX": 3564.0,
+            "posY": 3964.0,
+            "width": 283,
+            "height": 455
+          },
+          "promoted": {}
+        },
+        "store": {},
+        "identity": {
+          "registry_id": "FrameDisplayNode",
+          "registry_key": "visiongraph:node:FrameDisplayNode",
+          "label": "Frame Info Display",
+          "description": "Displays information about frames with live preview",
+          "deprecation_warning": "",
+          "hidden": false,
+          "class_name": "FrameDisplayNode",
+          "module": "haybale_visiongraph.nodes.numpy_frame_display_node",
+          "search_tags": [
+            "rgb",
+            "ir",
+            "frame",
+            "camera",
+            "display",
+            "preview",
+            "video",
+            "stream"
+          ],
+          "menu": "vision/info",
+          "help_md": null,
+          "help_url": "https://haywire.io/internals/node-help",
+          "_is_error": false,
+          "_error_priority": 0,
+          "_is_reroute": false
+        },
+        "library": {
+          "label": "Visiongraph",
+          "version": "0.0.29",
+          "description": "Visiongraph library",
+          "url": "https://github.com/haywire/haywire-repo/libraries/haybale-visiongraph",
+          "help_url": "https://docs.github.io/haywire_library",
+          "author": "Florian Briggisser, Martin Fröhlich",
+          "author_url": "https://author_url",
+          "folder_path": "/Volumes/Ddrive/06_open_tracking_tool/haywire/haybale-visiongraph/barn/haybale-visiongraph/haybale_visiongraph",
+          "module_name": "haybale_visiongraph",
+          "id": "visiongraph",
+          "dependencies": [
+            "haybale_core"
+          ],
+          "tags": [
+            "vision",
+            "camera",
+            "video",
+            "opencv"
+          ],
+          "file_watcher": false,
+          "on_reload": "restart"
+        }
+      }
+    },
+    "NumpyFrameEventNode_51ae30eb": {
+      "node_id": "NumpyFrameEventNode_51ae30eb",
+      "registry_key": "visiongraph:node:NumpyFrameEventNode",
+      "position": [
+        3208,
+        3984
+      ],
+      "node_data": {
+        "node_id": "NumpyFrameEventNode_51ae30eb",
+        "ports": {
+          "subscription": {
+            "kwargs": {
+              "registry_id": "MULTIFRAME_CALLBACK",
+              "registry_key": "visiongraph:type:MULTIFRAME_CALLBACK",
+              "label": "Subscribe",
+              "description": "Subscribe for camera frames",
+              "class_name": "MULTIFRAME_CALLBACK",
+              "module": "haybale_visiongraph.types.multiframe_callback_type",
+              "flow_type": "callback",
+              "default": {
+                "name": "NumpyFrameEventNode_51ae30eb",
+                "rgb": true,
+                "depth": false,
+                "ir": false
+              },
+              "store_strategy": 14,
+              "color": "#ff3c00",
+              "id": "subscription",
+              "port_type": "outlet",
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "visiongraph:type:MULTIFRAME_CALLBACK"
+            },
+            "field_data": {
+              "name": "NumpyFrameEventNode_51ae30eb",
+              "rgb": true,
+              "depth": false,
+              "ir": false
+            }
+          },
+          "enable_rgb": {
+            "kwargs": {
+              "registry_id": "BOOL",
+              "registry_key": "builtin:type:BOOL",
+              "label": "Color",
+              "description": "True or False",
+              "class_name": "BOOL",
+              "module": "haywire.barn.builtin.types.specs",
+              "default": {
+                "value": true
+              },
+              "store_strategy": 14,
+              "color": "#4caf50",
+              "widget_key": "builtin:widget:SwitchWidget",
+              "id": "enable_rgb",
+              "port_type": "config",
+              "order": 1,
+              "on_change": "hb_reconfigure",
+              "show_widget": "always"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:BOOL"
+            },
+            "field_data": {
+              "value": true
+            }
+          },
+          "enable_depth": {
+            "kwargs": {
+              "registry_id": "BOOL",
+              "registry_key": "builtin:type:BOOL",
+              "label": "Depth",
+              "description": "True or False",
+              "class_name": "BOOL",
+              "module": "haywire.barn.builtin.types.specs",
+              "default": {
+                "value": false
+              },
+              "store_strategy": 14,
+              "color": "#4caf50",
+              "widget_key": "builtin:widget:SwitchWidget",
+              "id": "enable_depth",
+              "port_type": "config",
+              "order": 2,
+              "on_change": "hb_reconfigure",
+              "show_widget": "always"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:BOOL"
+            },
+            "field_data": {
+              "value": false
+            }
+          },
+          "enable_ir": {
+            "kwargs": {
+              "registry_id": "BOOL",
+              "registry_key": "builtin:type:BOOL",
+              "label": "Infrared",
+              "description": "True or False",
+              "class_name": "BOOL",
+              "module": "haywire.barn.builtin.types.specs",
+              "default": {
+                "value": false
+              },
+              "store_strategy": 14,
+              "color": "#4caf50",
+              "widget_key": "builtin:widget:SwitchWidget",
+              "id": "enable_ir",
+              "port_type": "config",
+              "order": 3,
+              "on_change": "hb_reconfigure",
+              "show_widget": "always"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:BOOL"
+            },
+            "field_data": {
+              "value": false
+            }
+          },
+          "frame_ready": {
+            "kwargs": {
+              "registry_id": "EXEC",
+              "registry_key": "core:type:EXEC",
+              "label": "Frame Ready",
+              "description": "Signal for controlling execution flow between nodes",
+              "class_name": "EXEC",
+              "module": "haybale_core.types.specs",
+              "flow_type": "control",
+              "default": {
+                "value": {}
+              },
+              "store_strategy": 1,
+              "color": "#004cff",
+              "id": "frame_ready",
+              "port_type": "outlet",
+              "order": 4,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "core:type:EXEC"
+            }
+          },
+          "timestamp": {
+            "kwargs": {
+              "registry_id": "FLOAT",
+              "registry_key": "builtin:type:FLOAT",
+              "label": "Timestamp (s)",
+              "description": "Decimal numberer",
+              "class_name": "FLOAT",
+              "module": "haywire.barn.builtin.types.specs",
+              "flow_type": "data",
+              "default": {
+                "value": 0.0
+              },
+              "store_strategy": 14,
+              "color": "#50b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "id": "timestamp",
+              "port_type": "outlet",
+              "allow_multiple_links": true,
+              "order": 5,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:FLOAT"
+            },
+            "field_data": {
+              "value": 5.896184206008911
+            }
+          },
+          "frame_number": {
+            "kwargs": {
+              "registry_id": "INT",
+              "registry_key": "builtin:type:INT",
+              "label": "Frame Number",
+              "description": "Whole number",
+              "class_name": "INT",
+              "module": "haywire.barn.builtin.types.specs",
+              "flow_type": "data",
+              "default": {
+                "value": 0
+              },
+              "store_strategy": 14,
+              "color": "#f7b0ff",
+              "widget_key": "builtin:widget:NumberWidget",
+              "id": "frame_number",
+              "port_type": "outlet",
+              "allow_multiple_links": true,
+              "order": 6,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "builtin:type:INT"
+            },
+            "field_data": {
+              "value": 162
+            }
+          },
+          "rgb": {
+            "kwargs": {
+              "registry_id": "RGB_FRAME",
+              "registry_key": "visiongraph:type:RGB_FRAME",
+              "label": "Color",
+              "description": "3-channel uint8 colour video frame",
+              "class_name": "RGB_FRAME",
+              "module": "haybale_visiongraph.types.frame_type",
+              "flow_type": "data",
+              "default": {
+                "data": null,
+                "timestamp": 0.0,
+                "frame_number": 0
+              },
+              "store_strategy": 1,
+              "color": "#9c27b0",
+              "id": "rgb",
+              "port_type": "outlet",
+              "allow_multiple_links": true,
+              "order": 7,
+              "show_widget": "never"
+            },
+            "recipe": {
+              "registry_key": "visiongraph:type:RGB_FRAME"
+            }
+          }
+        },
+        "settings": {
+          "props": {
+            "values": {
+              "posX": 3208.0,
+              "posY": 3984.0,
+              "width": 256,
+              "height": 277,
+              "size_adapt": "manual_width"
+            },
+            "promoted": {}
+          }
+        },
+        "props": {
+          "values": {
+            "posX": 3208.0,
+            "posY": 3984.0,
+            "width": 256,
+            "height": 277,
+            "size_adapt": "manual_width"
+          },
+          "promoted": {}
+        },
+        "store": {},
+        "identity": {
+          "registry_id": "NumpyFrameEventNode",
+          "registry_key": "visiongraph:node:NumpyFrameEventNode",
+          "label": "Frame Event",
+          "description": "Triggered when a camera frame is ready; exposes colour/depth/infrared streams",
+          "deprecation_warning": "",
+          "hidden": false,
+          "class_name": "NumpyFrameEventNode",
+          "module": "haybale_visiongraph.nodes.numpy_frame_event_node",
+          "search_tags": [
+            "3d",
+            "depth",
+            "camera",
+            "oak",
+            "kinect",
+            "realsense",
+            "frame",
+            "event",
+            "rgb",
+            "ir",
+            "image"
+          ],
+          "menu": "vision/event",
+          "help_md": null,
+          "help_url": "https://haywire.io/internals/node-help",
+          "_is_error": false,
+          "_error_priority": 0,
+          "_is_reroute": false
+        },
+        "library": {
+          "label": "Visiongraph",
+          "version": "0.0.29",
+          "description": "Visiongraph library",
+          "url": "https://github.com/haywire/haywire-repo/libraries/haybale-visiongraph",
+          "help_url": "https://docs.github.io/haywire_library",
+          "author": "Florian Briggisser, Martin Fröhlich",
+          "author_url": "https://author_url",
+          "folder_path": "/Volumes/Ddrive/06_open_tracking_tool/haywire/haybale-visiongraph/barn/haybale-visiongraph/haybale_visiongraph",
+          "module_name": "haybale_visiongraph",
+          "id": "visiongraph",
+          "dependencies": [
+            "haybale_core"
+          ],
+          "tags": [
+            "vision",
+            "camera",
+            "video",
+            "opencv"
+          ],
+          "file_watcher": false,
+          "on_reload": "restart"
+        }
+      }
+    }
+  },
+  "edges": {
+    "edge::exec@BeginPlayNode_4cc22e4a>>start@WebCameraNode_19ee7b14": {
+      "source_node_id": "BeginPlayNode_4cc22e4a",
+      "outlet_port_id": "exec",
+      "sink_node_id": "WebCameraNode_19ee7b14",
+      "inlet_port_id": "start",
+      "edge_type": "control",
+      "chain_adapter_keys": [],
+      "is_lazy": false
+    },
+    "edge::subscription@NumpyFrameEventNode_51ae30eb>>callbacks@WebCameraNode_19ee7b14": {
+      "source_node_id": "NumpyFrameEventNode_51ae30eb",
+      "outlet_port_id": "subscription",
+      "sink_node_id": "WebCameraNode_19ee7b14",
+      "inlet_port_id": "callbacks",
+      "edge_type": "callback",
+      "chain_adapter_keys": [],
+      "is_lazy": false
+    },
+    "edge::rgb@NumpyFrameEventNode_51ae30eb>>frame@FrameDisplayNode_1e7c4329": {
+      "source_node_id": "NumpyFrameEventNode_51ae30eb",
+      "outlet_port_id": "rgb",
+      "sink_node_id": "FrameDisplayNode_1e7c4329",
+      "inlet_port_id": "frame",
+      "edge_type": "data",
+      "chain_adapter_keys": [],
+      "is_lazy": false
+    },
+    "edge::frame_ready@NumpyFrameEventNode_51ae30eb>>execute@FrameDisplayNode_1e7c4329": {
+      "source_node_id": "NumpyFrameEventNode_51ae30eb",
+      "outlet_port_id": "frame_ready",
+      "sink_node_id": "FrameDisplayNode_1e7c4329",
+      "inlet_port_id": "execute",
+      "edge_type": "control",
+      "chain_adapter_keys": [],
+      "is_lazy": false
+    }
+  },
+  "variables": {},
+  "props": {
+    "values": {},
+    "promoted": {}
+  }
+}
