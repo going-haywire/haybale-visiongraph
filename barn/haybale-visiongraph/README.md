@@ -9,7 +9,7 @@ https://going-haywire.github.io/haybale-visiongraph/marketplace.toml
 https://github.com/going-haywire/haybale-visiongraph/blob/master/marketstall.toml
 
 # Frozen to this version:
-https://github.com/going-haywire/haybale-visiongraph/blob/v0.0.26/marketstall.toml
+https://github.com/going-haywire/haybale-visiongraph/blob/v0.0.27/marketstall.toml
 ```
 <!-- marketstall:share-url:end -->
 
