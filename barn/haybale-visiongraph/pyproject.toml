@@ -1,10 +1,8 @@
 [project]
 name = "haybale-visiongraph"
 version = "0.0.33"
-description = "Visiongraph library for Haywire node system demonstrating custom types, nodes, widgets, and renderers"
 readme = "README.md"
 requires-python = ">=3.12"
-keywords = [ "haywire", "node-editor", "visual-programming", "visiongraph",]
 dependencies = [
     "depthai~=2.30", 
     "fastapi", 
@@ -15,9 +13,6 @@ dependencies = [
     "opencv-contrib-python>=5.0.0.93", 
     "typing_extensions>=4.15.0", 
     "visiongraph[onnx,openvino,mediapipe]"]
-[[project.authors]]
-name = "Haywire Team"
-
 [build-system]
 requires = [ "hatchling",]
 build-backend = "hatchling.build"

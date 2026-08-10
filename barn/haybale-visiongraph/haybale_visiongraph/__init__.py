@@ -2,7 +2,6 @@
 Visiongraph Library for Haywire
 """
 
-from importlib.metadata import version as _pkg_version
 from pathlib import Path
 
 from haywire.core.library.base import BaseLibrary
@@ -17,17 +16,7 @@ from haywire.ui.widget.registry import WidgetRegistry
 
 
 @library(
-    label="Visiongraph",
     id="visiongraph",
-    version=_pkg_version("haybale-visiongraph"),
-    description="Visiongraph library",
-    url="https://github.com/haywire/haywire-repo/libraries/haybale-visiongraph",
-    help_url="https://docs.github.io/haywire_library",
-    author="Florian Briggisser, Martin Fröhlich",
-    author_url="https://author_url",
-    dependencies=['haybale_core'],
-    tags=['vision', 'camera', 'video', 'opencv'],
-    on_reload="restart",
     file_watcher=False,
 )
 class Library(BaseLibrary):
