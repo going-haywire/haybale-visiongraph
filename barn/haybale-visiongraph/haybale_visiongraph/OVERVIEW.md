@@ -1,6 +1,6 @@
 # Visiongraph
 
-Visiongraph library
+Visiongraph is a computer-vision pipeline library designed to simplify the prototyping of image-based algorithms
 
 ## Nodes
 ### Vision

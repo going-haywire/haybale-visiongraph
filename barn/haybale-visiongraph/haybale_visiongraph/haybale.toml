@@ -5,7 +5,7 @@
 name = "haybale-visiongraph"
 id = "visiongraph"
 label = "Visiongraph"
-version = "0.0.33"
+version = "0.0.34"
 on_reload = "restart"
 
 # Sibling haybales this library subscribes to, as MODULE names.
@@ -16,6 +16,8 @@ homepage_url = "https://github.com/going-haywire/haybale-visiongraph"
 documentation_url = "https://cansik.github.io/visiongraph/visiongraph.html#documentation"
 issues_url = "https://github.com/going-haywire/haybale-visiongraph/issues"
 tags = ["computer vision", "machine learning", "camera", "image capture"]
+origin = "https://github.com/going-haywire/haybale-visiongraph"
+origin_provider = "github"
 
 [[authors]]
 name = "cansik"

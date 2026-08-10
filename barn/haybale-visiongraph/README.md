@@ -9,11 +9,11 @@ https://going-haywire.github.io/haybale-visiongraph/marketplace.toml
 https://github.com/going-haywire/haybale-visiongraph/blob/master/marketstall.toml
 
 # Frozen to this version:
-https://github.com/going-haywire/haybale-visiongraph/blob/v0.0.33/marketstall.toml
+https://github.com/going-haywire/haybale-visiongraph/blob/v0.0.34/marketstall.toml
 ```
 <!-- marketstall:share-url:end -->
 
-Visiongraph library
+Visiongraph is a computer-vision pipeline library designed to simplify the prototyping of image-based algorithms
 
 ## Nodes
 ### Vision
