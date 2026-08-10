@@ -13,6 +13,19 @@ dependencies = [
     "opencv-contrib-python>=5.0.0.93", 
     "typing_extensions>=4.15.0", 
     "visiongraph[onnx,openvino,mediapipe]"]
+description = "Visiongraph is a computer-vision pipeline library designed to simplify the prototyping of image-based algorithms"
+keywords = ["computer vision", "machine learning", "camera", "image capture"]
+
+[[project.authors]]
+name = "cansik"
+
+[[project.authors]]
+name = "maybites"
+
+[project.urls]
+Homepage = "https://github.com/going-haywire/haybale-visiongraph"
+Documentation = "https://cansik.github.io/visiongraph/visiongraph.html#documentation"
+Issues = "https://github.com/going-haywire/haybale-visiongraph/issues"
 [build-system]
 requires = [ "hatchling",]
 build-backend = "hatchling.build"
