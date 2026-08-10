@@ -4,12 +4,12 @@
 [[haybales]]
 name = "haybale-visiongraph"
 label = [ "V", "i", "s", "i", "o", "n", "g", "r", "a", "p", "h",]
-version = "0.0.34"
-require = "haywire-core>=0.0.32"
+version = "0.0.35"
+require = "haywire-core>=0.1.0"
 description = [ "V", "i", "s", "i", "o", "n", "g", "r", "a", "p", "h", " ", "i", "s", " ", "a", " ", "c", "o", "m", "p", "u", "t", "e", "r", "-", "v", "i", "s", "i", "o", "n", " ", "p", "i", "p", "e", "l", "i", "n", "e", " ", "l", "i", "b", "r", "a", "r", "y", " ", "d", "e", "s", "i", "g", "n", "e", "d", " ", "t", "o", " ", "s", "i", "m", "p", "l", "i", "f", "y", " ", "t", "h", "e", " ", "p", "r", "o", "t", "o", "t", "y", "p", "i", "n", "g", " ", "o", "f", " ", "i", "m", "a", "g", "e", "-", "b", "a", "s", "e", "d", " ", "a", "l", "g", "o", "r", "i", "t", "h", "m", "s",]
 author = "cansik, maybites"
 source = "git"
-install_spec = "haybale-visiongraph @ git+https://github.com/going-haywire/haybale-visiongraph.git@v0.0.34#subdirectory=barn/haybale-visiongraph"
+install_spec = "haybale-visiongraph @ git+https://github.com/going-haywire/haybale-visiongraph.git@v0.0.35#subdirectory=barn/haybale-visiongraph"
 tags = [ [ "c", "o", "m", "p", "u", "t", "e", "r", " ", "v", "i", "s", "i", "o", "n",], [ "m", "a", "c", "h", "i", "n", "e", " ", "l", "e", "a", "r", "n", "i", "n", "g",], [ "c", "a", "m", "e", "r", "a",], [ "i", "m", "a", "g", "e", " ", "c", "a", "p", "t", "u", "r", "e",],]
 on_reload = "none"
 linked_libraries = [ [ "h", "a", "y", "b", "a", "l", "e", "_", "c", "o", "r", "e",],]
