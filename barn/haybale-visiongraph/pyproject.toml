@@ -21,11 +21,11 @@ name = "cansik"
 
 [[project.authors]]
 name = "maybites"
-
 [project.urls]
 Homepage = "https://github.com/going-haywire/haybale-visiongraph"
 Documentation = "https://cansik.github.io/visiongraph/visiongraph.html#documentation"
 Issues = "https://github.com/going-haywire/haybale-visiongraph/issues"
+Source = "https://github.com/going-haywire/haybale-visiongraph"
 [build-system]
 requires = [ "hatchling",]
 build-backend = "hatchling.build"
