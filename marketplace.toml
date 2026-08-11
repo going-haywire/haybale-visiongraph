@@ -5,7 +5,7 @@
 [[haybales]]
 name = "haybale-visiongraph"
 label = "Visiongraph for Haywire"
-version = "0.0.35"
+version = "0.0.36"
 description = "Visiongraph library for Haywire node system demonstrating custom types, nodes, widgets, and renderers"
 author = "Martin Froehlich"
 source = "pypi"
