@@ -833,7 +833,7 @@ requires-dist = [
 
 [[package]]
 name = "haybale-visiongraph"
-version = "0.0.35"
+version = "0.0.36"
 source = { editable = "barn/haybale-visiongraph" }
 dependencies = [
     { name = "depthai" },

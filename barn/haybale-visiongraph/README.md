@@ -9,7 +9,7 @@ https://going-haywire.github.io/haybale-visiongraph/marketplace.toml
 https://github.com/going-haywire/haybale-visiongraph/blob/master/marketstall.toml
 
 # Frozen to this version:
-https://github.com/going-haywire/haybale-visiongraph/blob/v0.0.35/marketstall.toml
+https://github.com/going-haywire/haybale-visiongraph/blob/v0.0.36/marketstall.toml
 ```
 <!-- marketstall:share-url:end -->
 
@@ -38,9 +38,9 @@ Visiongraph is a computer-vision pipeline library designed to simplify the proto
 - **Segmentation Result** — Instance segmentation: detection plus a per-instance mask
 - **Vision Result** — A list of estimator results (base type for all result kinds)
 
-## Widgets
-- **NumpyViewerWidget** — Streaming video viewer for numpy arrays using custom StreamingViewer
-
 ## Adapters
 - **GrayToRgbAdapter** — Replicate a single-channel grey frame to a 3-channel colour frame
 - **RgbToGrayAdapter** — Convert a 3-channel colour frame to a single-channel grey frame (luminance)
+
+## Widgets
+- **NumpyViewerWidget** — Streaming video viewer for numpy arrays using custom StreamingViewer

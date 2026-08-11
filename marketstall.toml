@@ -2,14 +2,14 @@
 # Run: haywire share   to update this file
 
 [[haybales]]
-name = "haybale-visiongraph"
+name = [ "h", "a", "y", "b", "a", "l", "e", "-", "v", "i", "s", "i", "o", "n", "g", "r", "a", "p", "h",]
+id = [ "v", "i", "s", "i", "o", "n", "g", "r", "a", "p", "h",]
 label = [ "V", "i", "s", "i", "o", "n", "g", "r", "a", "p", "h",]
-version = "0.0.35"
+version = [ "0", ".", "0", ".", "3", "6",]
 require = "haywire-core>=0.1.0"
 description = [ "V", "i", "s", "i", "o", "n", "g", "r", "a", "p", "h", " ", "i", "s", " ", "a", " ", "c", "o", "m", "p", "u", "t", "e", "r", "-", "v", "i", "s", "i", "o", "n", " ", "p", "i", "p", "e", "l", "i", "n", "e", " ", "l", "i", "b", "r", "a", "r", "y", " ", "d", "e", "s", "i", "g", "n", "e", "d", " ", "t", "o", " ", "s", "i", "m", "p", "l", "i", "f", "y", " ", "t", "h", "e", " ", "p", "r", "o", "t", "o", "t", "y", "p", "i", "n", "g", " ", "o", "f", " ", "i", "m", "a", "g", "e", "-", "b", "a", "s", "e", "d", " ", "a", "l", "g", "o", "r", "i", "t", "h", "m", "s",]
-author = "cansik, maybites"
 source = "git"
-install_spec = "haybale-visiongraph @ git+https://github.com/going-haywire/haybale-visiongraph.git@v0.0.35#subdirectory=barn/haybale-visiongraph"
+install_spec = "haybale-visiongraph @ git+https://github.com/going-haywire/haybale-visiongraph.git@v0.0.36#subdirectory=barn/haybale-visiongraph"
 tags = [ [ "c", "o", "m", "p", "u", "t", "e", "r", " ", "v", "i", "s", "i", "o", "n",], [ "m", "a", "c", "h", "i", "n", "e", " ", "l", "e", "a", "r", "n", "i", "n", "g",], [ "c", "a", "m", "e", "r", "a",], [ "i", "m", "a", "g", "e", " ", "c", "a", "p", "t", "u", "r", "e",],]
 on_reload = "none"
 linked_libraries = [ [ "h", "a", "y", "b", "a", "l", "e", "_", "c", "o", "r", "e",],]
@@ -18,4 +18,12 @@ origin_provider = [ "g", "i", "t", "h", "u", "b",]
 homepage_url = [ "h", "t", "t", "p", "s", ":", "/", "/", "g", "i", "t", "h", "u", "b", ".", "c", "o", "m", "/", "g", "o", "i", "n", "g", "-", "h", "a", "y", "w", "i", "r", "e", "/", "h", "a", "y", "b", "a", "l", "e", "-", "v", "i", "s", "i", "o", "n", "g", "r", "a", "p", "h",]
 documentation_url = [ "h", "t", "t", "p", "s", ":", "/", "/", "c", "a", "n", "s", "i", "k", ".", "g", "i", "t", "h", "u", "b", ".", "i", "o", "/", "v", "i", "s", "i", "o", "n", "g", "r", "a", "p", "h", "/", "v", "i", "s", "i", "o", "n", "g", "r", "a", "p", "h", ".", "h", "t", "m", "l", "#", "d", "o", "c", "u", "m", "e", "n", "t", "a", "t", "i", "o", "n",]
 issues_url = [ "h", "t", "t", "p", "s", ":", "/", "/", "g", "i", "t", "h", "u", "b", ".", "c", "o", "m", "/", "g", "o", "i", "n", "g", "-", "h", "a", "y", "w", "i", "r", "e", "/", "h", "a", "y", "b", "a", "l", "e", "-", "v", "i", "s", "i", "o", "n", "g", "r", "a", "p", "h", "/", "i", "s", "s", "u", "e", "s",]
+[[haybales.authors]]
+name = [ "c", "a", "n", "s", "i", "k",]
+url = [ "h", "t", "t", "p", "s", ":", "/", "/", "g", "i", "t", "h", "u", "b", ".", "c", "o", "m", "/", "c", "a", "n", "s", "i", "k",]
+
+[[haybales.authors]]
+name = [ "m", "a", "y", "b", "i", "t", "e", "s",]
+url = [ "h", "t", "t", "p", "s", ":", "/", "/", "g", "i", "t", "h", "u", "b", ".", "c", "o", "m", "/", "m", "a", "y", "b", "i", "t", "e", "s",]
+
 
