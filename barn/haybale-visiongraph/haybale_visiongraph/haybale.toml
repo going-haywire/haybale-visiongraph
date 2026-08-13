@@ -3,7 +3,6 @@
 # Edited in the studio's library overview — no reinstall, no reload.
 
 name = "haybale-visiongraph"
-id = "visiongraph"
 label = "Visiongraph"
 version = "0.0.36"
 on_reload = "restart"

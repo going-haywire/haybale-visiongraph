@@ -16,7 +16,6 @@ from haywire.ui.widget.registry import WidgetRegistry
 
 
 @library(
-    id="visiongraph",
     file_watcher=False,
 )
 class Library(BaseLibrary):
