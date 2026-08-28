@@ -43,4 +43,8 @@ path = "../haywire-repo/barn/haybale-haystack"
 editable = true
 
 [tool.haywire.marketstall]
-pypi_marketplace_url = "https://going-haywire.github.io/haybale-visiongraph/marketplace.toml"
+# This project publishes released wheels to PyPI, so every marketstall row
+# carries `haybale-visiongraph==<version>` rather than a git clone spec.
+# One coordinate per version: a PyPI row and a git row of the same name read
+# as two different libraries to a subscriber.
+distribute = "pypi"
