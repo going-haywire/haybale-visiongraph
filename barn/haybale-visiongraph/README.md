@@ -1,12 +1,16 @@
 # Visiongraph
 
 <!-- marketstall:share-url:start -->
-```sh
-# Always the latest (tracks the current branch):
-https://github.com/going-haywire/haybale-visiongraph/blob/master/marketstall.toml
+Always the latest (tracks the current branch):
 
-# Frozen to this version:
-https://github.com/going-haywire/haybale-visiongraph/blob/v0.0.37/marketstall.toml
+```sh
+https://github.com/going-haywire/haybale-visiongraph/blob/master/marketstall.toml
+```
+
+Frozen to this version:
+
+```sh
+https://github.com/going-haywire/haybale-visiongraph/blob/v0.0.38/marketstall.toml
 ```
 <!-- marketstall:share-url:end -->
 

@@ -1,4 +1,4 @@
-# haybale-visiongraph — component index (v0.0.37)
+# haybale-visiongraph — component index (v0.0.38)
 
 ## node
 - `haybale-visiongraph:node:AnnotateNode` — Annotate Results — Draw estimator results (boxes / masks / poses) onto a frame  _tags: annotate, draw, overlay, render, result, visualize_
