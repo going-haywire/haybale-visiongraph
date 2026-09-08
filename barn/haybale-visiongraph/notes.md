@@ -696,11 +696,15 @@ tweak — `subscribe()` callbacks only fire on future changes. Added
 current `ir`/`color` field onto the new device once, so device state matches
 panel state from frame one.
 
-### `mxid` — stayed a config port, gained a live dropdown
+### `mxid` — gained a live dropdown
 
-`mxid` keeps its `as_config` shape (constructor-arg-like, read once at
-Start — config ports are the right tool, migrating it into `NodeSettings`
-for uniformity would have been unjustified scope creep). But the old
+> **Superseded (sixth inquisition).** This section recorded `mxid` staying an
+> `as_config` port. It did not; it is a `setting[STRING]` in `class device`,
+> seeded to a config port by `promote("mxid", PortType.CONFIG)`. The dropdown
+> reasoning below still holds — only the "stayed a config port" framing is
+> wrong. See "Settings-first configuration" at the end of this file.
+
+`mxid` reads like a constructor arg (read once at Start). The old
 free-text field left users guessing what to type. `dai.Device.getAllAvailableDevices()`
 is a cheap static enumeration call (no device opened, confirmed
 ~instant with zero hardware attached) returning `dai.DeviceInfo` objects
@@ -712,22 +716,17 @@ callable resolves fresh on every dropdown open (same mechanism as dynamic
 theme lists elsewhere in the framework) and includes a synthetic
 `"" -> "(auto — first available)"` entry.
 
-### Parked follow-ups (explicitly NOT built here — separate `/design` topics)
+### Parked follow-ups (as of the fourth inquisition — both have since SHIPPED)
 
-- **A `promotable=NONE|INLET|OUTLET|ALL` flag on `setting()`.** Doesn't exist
-  today — `promote_setting()` eligibility is exactly two checks
-  (`read_only` ⇒ outlet-only; everything else ⇒ either direction). The right
-  -click "Promote Setting" menu will still technically offer promotion on
-  the `depth` fields even though nothing here calls `promote_setting()` on
-  them — nobody is forced to click it. A real enforced flag is a
-  framework-level change (touches `descriptor.py`, `promotion.py`, the
-  context menu) affecting every settings-declaring node in the codebase, not
-  just this one — deserves its own design session.
-- **Reactive/dynamic panel disabling** of one setting based on another's
-  value (e.g. greying out the `color` category when `enable_color` is
-  False). Also a framework-level capability question, likely useful beyond
-  this node (any enable-flag-gates-a-block pattern) — parked alongside the
-  `promotable=` flag rather than built as a one-off hack here.
+- ~~**A `promotable=NONE|INLET|OUTLET|ALL` flag on `setting()`.**~~ **Shipped.**
+  `Promotable` is now a Flag (`NONE`/`INLET`/`OUTLET`/`CONFIG`/`INPUT`/`ALL`)
+  read by the single `eligible_promotion_directions()` oracle. See "Depth
+  settings are promotable" below — and note the sixth inquisition changed
+  the `depth` bag from `NONE` to `CONFIG`.
+- ~~**Reactive/dynamic panel disabling** of one setting based on another's
+  value.~~ **Shipped.** `UiState` + `set_ui_state_all` for the imperative
+  cross-node case, `enabled_when`/`visible_when` for the declarative same-bag
+  case. See "Stream-status indication via reactive panel disabling" below.
 - Everything already deferred above (`distance(x,y)` query, sensor-resolution
   micromanagement, "Colorize Depth" node) remains deferred — untouched by
   this round.
@@ -800,10 +799,228 @@ starting to emit a newly-requested stream without a stop/start cycle) is a
 separate, larger piece of work inside `hb_handle_start`'s pipeline-rebuild
 logic and remains out of scope here.
 
-## Depth settings are promotable=NONE (BUILT)
+## Depth settings are promotable=NONE (BUILT — revised, see sixth inquisition)
 
 The `depth` bag is restart-required pipeline configuration; a promoted port
 would imply live control the hardware can't deliver. The framework's
 `promotable=` flag (see setting-canon.md) now enforces what the module
 docstring only promised: all six depth fields are `Promotable.NONE` — hidden
 from the promote menu, rejected by `promote_setting()`.
+
+> **Revised (sixth inquisition): `NONE` → `Promotable.CONFIG`.** The premise
+> above conflates two things. "A promoted port would imply live control" is
+> true of an **inlet** and false of a **config** port, which is pinless and
+> takes no edge — it is a widget on the node face and nothing more. `NONE`
+> forbade the harmless one along with the misleading one, and contradicted
+> `mxid` in the same node (also read-once-at-Start, but promoted to CONFIG).
+> The rule is now: rebuild-category ⇒ `Promotable.CONFIG`; `NONE` is reserved
+> for display-only fields like `stream_flags`, where no direction is
+> meaningful. This is a widening — nothing that worked stops working, and no
+> saved graph is affected because nothing was ever promoted.
+
+---
+
+# Settings-first configuration (sixth inquisition — BUILT, 0.0.39)
+
+Reviewed every node in the library against what visiongraph actually exposes.
+Two questions turned out to be one: the nodes look inconsistent (OakD uses
+`NodeSettings`, everything else uses `as_config`) *because* the rule that
+governed the split has been obsolete since `promotable=` shipped.
+
+## The rule that changed
+
+**Q14 (third inquisition) is superseded.** It split config ports from
+`NodeSettings` by *frequency of use*, on the premise that a config port is
+"immediately reachable, AND optionally wire-able from an upstream value".
+The second half is false: `PortType.CONFIG` is *"has neither Inlets nor
+Outlets"*, pinless (`flow_type=NONE`), and **can never take an edge**. The
+Annotate rationale's "bonus: wire-able from a slider" for `min_score` never
+worked.
+
+More importantly, Q14 was written before `promotable=` and `Settings.promote()`
+existed, so the author *had* to pick the affordance up front. Now a
+`setting()` is a strict superset of `as_config`: it can be promoted to a
+config port (rendering the same face widget while keeping its panel row),
+demoted by the user, or promoted to an INLET to become genuinely wire-able —
+plus it gets `category`, `ui_state`, `subscribe`, and live `widget_config`
+callables.
+
+**The new rule.** Every user-facing knob is a `setting()`. The author seeds a
+*default* face with `self.<bag>.promote(field, PortType.CONFIG)` in `init()`;
+the user overrides it from the Setting-row menu and that choice survives a
+save. `as_config` survives only for what was never a setting: read-only
+status labels (`status`, `info_display`).
+
+**Seed in `init()`, never `post_init()`.** `post_init` runs after graph load
+and on both paths, so an unconditional promote there re-promotes on every
+load and the user's demotion is unrecoverable. OakD does exactly this today
+and must be fixed. Full reasoning in setting-canon.md.
+
+## Live vs rebuild-category
+
+The taxonomy OakD invented informally ("pipeline-construction params" vs
+"live camera-control params") generalises to every node here, and is decided
+by where the wrapped attribute is *read* — a fact, not a judgement:
+
+| | Read | `promotable=` |
+|---|---|---|
+| live | per-frame `process()` / `read()` | `ALL` |
+| rebuild-category | constructor or `setup()` | `CONFIG` |
+| display-only | node code writes it, nobody else | `NONE` |
+
+## Per-node outcome
+
+`status` / `info_display` labels stay `as_config` throughout and are omitted.
+
+| Node | Seeded to CONFIG in `init()` | New bags | Notes |
+|---|---|---|---|
+| `OakDCameraNode` | `device.mxid` (already) | — | already settings-first; move `promote` to `init()`, `depth` → `CONFIG` |
+| `AnnotateNode` | `min_score`, `show_info` | `style` gains `color`, `use_class_color` | |
+| `BaseEstimatorNode` + 3 families | `model`, `min_score` | `nms`, `openvino`, `mediapipe`, `movenet` — hidden by `model` | |
+| `TrackerNode` | `backend`, `result_type` (`Promotable.CONFIG`) | `flate`, `motpy`, `centroid` — hidden by `backend` | |
+| `WebCameraNode` | `camera_index`, `frame_skip` | `capture`, `image` | rerouted onto `VideoCaptureInput` |
+| `NumpyFrameEventNode` | `enable_rgb/depth/ir` (`Promotable.CONFIG`) | `dispatch` (`queue_mode`, `max_queue_size`) | |
+| `FrameDisplayNode` | — | — | nothing convertible; viewer knobs are widget config, stamped once (ADR 0017) |
+
+`result_type` and `enable_*` are `Promotable.CONFIG` because they drive
+`rejig`: an edge-driven inlet that destroys and rebuilds ports mid-run could
+drop the very edges feeding it.
+
+## Coverage decisions
+
+- **Estimators — per-backend bags, hidden by `model`.** The `MODELS` dropdown
+  spans backends with disjoint knobs. Declare all of them, grouped per
+  backend, and `set_ui_state_all(HIDDEN)` the ones the current model doesn't
+  use — the same primitive OakD already uses for stream gating, but on a
+  *local* condition, which is easier. A single flat union bag was rejected:
+  setting `mask_threshold` with MoveNet selected would silently do nothing.
+- **`min_score` becomes native.** Today's post-hoc Python filter has a floor
+  you cannot go below — the backend prunes at its own default (0.3/0.5)
+  before the node sees anything, so a node `min_score` of 0.1 yields nothing
+  extra. Set `estimator.min_score` instead. But its liveness is
+  backend-dependent (live everywhere except MediaPipe, which consumes it in
+  `setup()`), so `ModelSpec` gains `rebuild_fields: frozenset[str]` and the
+  change handler releases the cached estimator only for fields in that set.
+- **Per-estimator overlay colour goes upstream.** `BaseVisionResult` gains a
+  `color` field that the estimator node sets and `AnnotateNode` reads back
+  out as the `color=` kwarg. visiongraph's own `annotation_color` is a
+  read-only property derived from `tracking_id`, so there is no way to stamp
+  it on the result objects themselves. Note segmentation ignores `color`
+  entirely (`InstanceSegmentationResult.annotate` has no `if color is None`
+  fallthrough) — `use_class_color` is its only colour control.
+- **Webcam joins the library.** It is the only node still bypassing
+  visiongraph (raw `cv2.VideoCapture`). Rerouting onto `VideoCaptureInput`
+  deletes hand-rolled capture code that already duplicates `_setup_cap`'s
+  size read-back, and brings `capture_backend` plus `BaseInput`'s per-frame
+  `rotate`/`flip`/`crop`/`raw_input` — with visiongraph's own
+  `RotationParameter`/`FlipParameter` dicts as the CHOICES bridging tables.
+  Two riders: `BaseInput` defaults width/height to 640×480, so `0 = auto`
+  must be preserved by assigning only when `> 0`; and `mask` is excluded
+  (image-valued, no widget).
+- **Camera picker.** OpenCV has *no* device enumeration API at all —
+  `cv2.videoio_registry` lists backends, not devices — so `camera_index` is
+  the only OpenCV-native identifier and it is positional. A labelled dropdown
+  (OakD `mxid` pattern) is built per-OS: macOS `system_profiler
+  SPCameraDataType` (~0.4s), Linux `/sys/class/video4linux/video*/name`,
+  Windows falling back to bare indices (`pygrabber` would be a new
+  Windows-only dep). The stored value stays the **index** — the name→index
+  mapping is not contractual on any platform, so storing the name would turn
+  a confusing label into a hard start failure.
+- **Frame Event unpins ADR 0010.** `queue_mode`/`max_queue_size` are
+  hardcoded to `DROP`/1. That is right for live preview and wrong for
+  frame-accurate offline work, with nothing telling the user which they are
+  in. Exposed in a `dispatch` bag (rebuild-category — the `CallbackEvent` is
+  registered at startup).
+
+## Non-goals
+
+- **`VideoFileNode` is its own node**, not a retype of `WebCameraNode`.
+  `VideoCaptureInput.channel` accepts a path, and `loop`/`fps_lock`/
+  `input_skip` come with it — but that changes the node's identity, label,
+  menu entry, and the *type* of a saved config value.
+- **`engine` (ONNX vs OpenVINO) is unreachable.** `UltralyticsYOLODetector.
+  __init__` consumes the enum immediately into an engine object, and
+  `create()` takes only the config variant. Exposing it means abandoning the
+  `ModelSpec`/`create()` design.
+- **`FrameDisplayNode`'s viewer knobs** (`quality`, `frame_queue_size`,
+  `block_on_full`) stay hardcoded. They are widget config, stamped once at
+  class-definition time per ADR 0017 — making them runtime-editable is a
+  widget task, not a settings one.
+- `info_text`, `landmark_colors`, `connections`, `marker_type` on Annotate:
+  per-result data or structural, not node configuration.
+
+## Migration
+
+Converting a knob from `as_config` to a setting is **not** transparent.
+`_deserialize_ports` clears every port and rebuilds from the saved spec, then
+regenerates promoted ports from `_promoted_keys`; `init()` does not run. So an
+old graph reloads with the stale config port restored *showing the user's
+saved value*, while the worker reads a settings field sitting at its default.
+Silent, and it looks correct.
+
+Handled with one `CompatibilityWarning` per converted node at the release
+version, remedy "Reset the node" — the same mechanism and the same remedy
+already used for `FrameDisplayNode` at 0.0.13. Reset re-runs `init()`, so the
+stale port disappears, the seed promotions fire, and `build()` clears the
+warning itself. The cost is that Reset returns the *whole* node to defaults;
+`OakDCameraNode` is exempt because it converts nothing.
+
+## What shipped beyond the design
+
+Three things the design did not anticipate, found while building:
+
+- **`MotpyTracker` could not import at all** — `filterpy` comes from
+  visiongraph's `mot` extra, which this library never requested. So the
+  Tracker node advertised a backend whose dependency was undeclared. Added
+  `mot` to the extras.
+- **A promoted port's id is `<accessor>.<field>`**, not the bare field name.
+  That improves the migration story: an unmigrated graph shows the old
+  `min_score` port AND the new `style.min_score` side by side rather than one
+  silently shadowing the other.
+- **A bag touched from an *annotated* method needs a `TYPE_CHECKING`
+  annotation**, or mypy sees the aliased class instead of the bound instance.
+  OakD escaped this only because its bag-touching methods are unannotated.
+  Every converted node declares its bags at module level plus a
+  `if TYPE_CHECKING: <accessor>: <BagClass>` alias — the framework's own
+  `NodeProperties` idiom.
+
+Also: `TrackerNode` now carries the incoming `color` through to its output.
+A tracker sits BETWEEN the estimator that chose the colour and the Annotate
+node that reads it, so dropping it would silently un-colour any tracked branch.
+
+## Prerequisites (found during the review, all blocking — all now done)
+
+1. **Re-lock to `visiongraph>=1.2.0,<2`.** The dependency is unbounded and the
+   dev venv is at 1.1.0.1, where `DEIMv2Detector` does not exist — so the two
+   DEIMv2 entries in `ObjectDetectorNode.MODELS` fail at first frame into a
+   status label for anyone resolving 1.1.x, today. 1.2.0 also **changed the
+   API**: `nms`/`nms_threshold`/`nms_eta`/`nms_top_k` collapsed into one
+   `nms_options: NMSOptions` dataclass now shared by YOLOv8, YOLOv8-Seg,
+   DEIMv2 *and* MoveNet; `FlateTracker.max_cost` default moved 0.2 → 0.5 and
+   it gained `class_aware`. Re-verify the inventory against the installed
+   package before building.
+2. **`TrackerNode` never calls `setup()`.** `CentroidTracker` and
+   `MotpyTracker` both leave `self.tracker = None` until `setup()` builds it,
+   so both raise on the first frame into the status label — two of three
+   backends are non-functional today. `FlateTracker` survives only because
+   its `setup()` merely resets counters. The module comment "plain
+   constructors with sensible defaults (no `.create()`)" is true about
+   `create()` and wrongly generalised to `setup()`.
+3. **Prove `rejig` works from a `subscribe_field` callback.** `on_change=`
+   string dispatch was retired for settings (ADR 0013), so
+   `hb_on_result_type_change` and `hb_reconfigure` change shape. Everything
+   in `TrackerNode` and `NumpyFrameEventNode` rests on this. Do it first.
+4. Remove the stray `print("was here")` in `hb_on_callbacks_changed`.
+5. `AnnotateNode` passes `show_bounding_box` unconditionally at `False`, but
+   `InstanceSegmentationResult.annotate` defaults it to **`True`** — so
+   wiring a segmentation result in silently turns its boxes off. Fixed by
+   making the field a **tri-state** `CHOICES` (`Auto (per result type)` /
+   `Always` / `Never`, default Auto), where Auto omits the kwarg entirely.
+
+   A bool plus `is_locally_set()` ("untouched ⇒ omit") was tried first and
+   does not work: a write equal to the default records no local override,
+   because cell writes are transition-only. So an explicit `False` is
+   indistinguishable from never having touched the field, and segmentation
+   would keep drawing boxes against a direct instruction. **Any wrapper knob
+   whose "leave it alone" state must be distinguishable from one of its
+   values needs its own sentinel — `is_locally_set()` cannot supply one.**

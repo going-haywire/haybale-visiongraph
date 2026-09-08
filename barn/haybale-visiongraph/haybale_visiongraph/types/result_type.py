@@ -45,9 +45,29 @@ class BaseVisionResult(BaseType):
         results: The visiongraph ``ResultList`` returned by an estimator's
             ``process()``. Each element is a ``BaseResult`` that can
             ``annotate(image)`` itself; the ``ResultList`` annotates the batch.
+        color: Optional overlay colour for THIS result list, as a hex string
+            (``"#rrggbb"``); ``""`` means "no opinion". Set by the producing
+            estimator node, read back by the Annotate node and passed as
+            ``annotate(color=...)`` — see below for why it lives here.
+
+    ``color`` is the one field that is NOT a mirror of visiongraph's own shape.
+    It exists because a pooled Annotate inlet accepts several estimators at
+    once and there was no way to tell them apart. visiongraph's per-result
+    ``annotation_color`` cannot carry it: that is a **read-only property**
+    derived from ``tracking_id`` (``COLOR_SEQUENCE[tracking_id % len]``), with
+    no setter — so an estimator cannot stamp a colour onto the result objects
+    themselves. Carrying it on *our* wrapper keeps the choice next to the
+    identity that owns it (the estimator node) while never touching a
+    visiongraph object; it is unwrapped again at the Annotate seam.
+
+    Note ``InstanceSegmentationResult.annotate`` ignores ``color`` entirely
+    (it reads ``self.annotation_color`` with no ``if color is None``
+    fallthrough), so this has no effect on segmentation masks — those are
+    coloured by tracking id, or by class via ``use_class_color``.
     """
 
     results: ResultList = field(default_factory=ResultList)
+    color: str = ""
 
     def count(self) -> int:
         """Number of results in the list (0 if empty/None)."""

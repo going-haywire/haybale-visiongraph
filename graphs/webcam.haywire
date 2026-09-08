@@ -1155,7 +1155,7 @@
     }
   },
   "edges": {
-    "edge::exec@BeginPlayNode_4cc22e4a>>start@WebCameraNode_19ee7b14": {
+    "BeginPlayNode_4cc22e4a[exec]->WebCameraNode_19ee7b14[start]": {
       "source_node_id": "BeginPlayNode_4cc22e4a",
       "outlet_port_id": "exec",
       "sink_node_id": "WebCameraNode_19ee7b14",
@@ -1164,7 +1164,7 @@
       "chain_adapter_keys": [],
       "is_lazy": false
     },
-    "edge::subscription@NumpyFrameEventNode_51ae30eb>>callbacks@WebCameraNode_19ee7b14": {
+    "NumpyFrameEventNode_51ae30eb[subscription]->WebCameraNode_19ee7b14[callbacks]": {
       "source_node_id": "NumpyFrameEventNode_51ae30eb",
       "outlet_port_id": "subscription",
       "sink_node_id": "WebCameraNode_19ee7b14",
@@ -1173,7 +1173,7 @@
       "chain_adapter_keys": [],
       "is_lazy": false
     },
-    "edge::rgb@NumpyFrameEventNode_51ae30eb>>frame@FrameDisplayNode_1e7c4329": {
+    "NumpyFrameEventNode_51ae30eb[rgb]->FrameDisplayNode_1e7c4329[frame]": {
       "source_node_id": "NumpyFrameEventNode_51ae30eb",
       "outlet_port_id": "rgb",
       "sink_node_id": "FrameDisplayNode_1e7c4329",
@@ -1182,7 +1182,7 @@
       "chain_adapter_keys": [],
       "is_lazy": false
     },
-    "edge::frame_ready@NumpyFrameEventNode_51ae30eb>>execute@FrameDisplayNode_1e7c4329": {
+    "NumpyFrameEventNode_51ae30eb[frame_ready]->FrameDisplayNode_1e7c4329[execute]": {
       "source_node_id": "NumpyFrameEventNode_51ae30eb",
       "outlet_port_id": "frame_ready",
       "sink_node_id": "FrameDisplayNode_1e7c4329",

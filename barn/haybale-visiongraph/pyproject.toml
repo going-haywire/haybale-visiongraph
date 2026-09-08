@@ -1,6 +1,6 @@
 [project]
 name = "haybale-visiongraph"
-version = "0.0.38"
+version = "0.0.39"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -12,7 +12,7 @@ dependencies = [
     "numpy", 
     "opencv-contrib-python>=5.0.0.93", 
     "typing_extensions>=4.15.0", 
-    "visiongraph[onnx,openvino,mediapipe]"]
+    "visiongraph[onnx,openvino,mediapipe,mot]>=1.2.0,<2"]
 description = "Visiongraph is a computer-vision pipeline library designed to simplify the prototyping of image-based algorithms"
 keywords = ["computer vision", "machine learning", "camera", "image capture"]
 

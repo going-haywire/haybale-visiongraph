@@ -3,7 +3,7 @@ OpenCV Viewer Widget - Displays numpy arrays as streaming video in nodes
 """
 
 from typing import Any
-from haybale_visiongraph.types.frame_type import RGB_FRAME
+
 import numpy as np
 
 from haywire.ui.widget.base import BaseWidget

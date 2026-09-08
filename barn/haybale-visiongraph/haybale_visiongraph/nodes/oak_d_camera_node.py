@@ -14,13 +14,17 @@ Lifecycle (see notes.md Q9-Q11):
 - ``on_shutdown`` : close the device as a fallback if ``stop`` was never pulsed.
 
 Tuning surface (see notes.md "Depth-quality / IR / color live-control knobs"):
-- ``depth`` (NodeSettings): pipeline-construction params, read once at
-  ``pre_start_setup()``/``setup()``. Immutable while running — panel-only,
-  never promotable to a port (promoting would imply live control that the
-  hardware can't actually deliver without a device rebuild).
-- ``ir`` / ``color`` (NodeSettings): live camera-control params. OakDInput's
+- ``depth`` (NodeSettings): **rebuild-category** — pipeline-construction params,
+  read once at ``pre_start_setup()``/``setup()`` and immutable while running.
+  ``Promotable.CONFIG``: a pinless config port is just a face widget and is
+  harmless, but an *edge-driven inlet* would imply live control the hardware
+  can't deliver without a device rebuild.
+- ``ir`` / ``color`` (NodeSettings): **live** camera-control params. OakDInput's
   own setters guard on ``self.device is not None`` and push straight to the
   running device, so these ARE safe to promote to an inlet.
+- ``stream_flags`` (NodeSettings): display-only, written solely by node code
+  from the callback edge — ``Promotable.NONE``, since no direction is
+  meaningful.
 """
 
 import logging
@@ -364,7 +368,6 @@ class OakDCameraNode(BaseNode):
             category="Infrared",
         )
 
-
     class depth(NodeSettings):
         preset_mode = setting[CHOICES](
             "HIGH_DENSITY",
@@ -372,7 +375,7 @@ class OakDCameraNode(BaseNode):
             category="Depth",
             description="Stereo depth quality/speed preset. Requires a device restart to apply.",
             widget_config={"options": list(_DEPTH_PRESET_MODES.keys())},
-            promotable=Promotable.NONE,
+            promotable=Promotable.CONFIG,
         )
         median_filter = setting[CHOICES](
             "KERNEL_7x7",
@@ -380,28 +383,28 @@ class OakDCameraNode(BaseNode):
             category="Depth",
             description="Disparity smoothing kernel. Requires a device restart to apply.",
             widget_config={"options": list(_DEPTH_MEDIAN_FILTERS.keys())},
-            promotable=Promotable.NONE,
+            promotable=Promotable.CONFIG,
         )
         left_right_check = setting[BOOL](
             True,
             label="Left/Right Check",
             category="Depth",
             description="Better handling of occlusions. Requires a device restart to apply.",
-            promotable=Promotable.NONE,
+            promotable=Promotable.CONFIG,
         )
         subpixel = setting[BOOL](
             False,
             label="Subpixel",
             category="Depth",
             description="Fractional disparity for longer-range accuracy. Restart required.",
-            promotable=Promotable.NONE,
+            promotable=Promotable.CONFIG,
         )
         extended_disparity = setting[BOOL](
             False,
             label="Extended Disparity",
             category="Depth",
             description="Closer-in minimum depth, doubled disparity range. Restart required.",
-            promotable=Promotable.NONE,
+            promotable=Promotable.CONFIG,
         )
         frame_alignment = setting[CHOICES](
             "Color",
@@ -409,9 +412,8 @@ class OakDCameraNode(BaseNode):
             category="Depth",
             description="Align the depth map to Color, Infrared, or leave Disabled. Restart required.",
             widget_config={"options": _FRAME_ALIGNMENT_OPTIONS},
-            promotable=Promotable.NONE,
+            promotable=Promotable.CONFIG,
         )
-
 
     def init(self):
         from haybale_core.types import EXEC
@@ -448,6 +450,17 @@ class OakDCameraNode(BaseNode):
         self.add(EXEC.as_outlet("started", label="Started"))
         self.add(EXEC.as_outlet("stopped", label="Stopped"))
 
+        # Seeded promotion: the device picker is this node's default face.
+        # MUST be here and not in post_init() — post_init runs on BOTH a fresh
+        # drop and a graph load, and on load it runs AFTER _promoted_keys has
+        # been restored and its ports regenerated. promote() is only a no-op
+        # when the field is *currently* promoted, so it cannot tell "the user
+        # demoted this" from "nobody has decided yet" and would silently
+        # re-promote on every load, making the demotion unrecoverable.
+        # init() runs only on a fresh drop, so the saved bag stays the
+        # authority thereafter.
+        self.device.promote("mxid", PortType.CONFIG)
+
     def post_init(self):
         """Initialize node state."""
         self.hb_input = None
@@ -461,8 +474,6 @@ class OakDCameraNode(BaseNode):
         # name to the running device. No-op (guarded) while hb_input is None.
         self.ir.subscribe(self.hb_on_ir_changed)
         self.color.subscribe(self.hb_on_color_changed)
-
-        self.device.promote("mxid", PortType.CONFIG)
 
     # ir setting field name -> OakDInput attribute name.
     _IR_ATTR_MAP = {
@@ -553,7 +564,6 @@ class OakDCameraNode(BaseNode):
         panel-facing half (hb_refresh_stream_status_indication). See its
         docstring for why this is safe to fire on every pool change.
         """
-        print("was here")
         self.hb_gather_requirements()
 
     def hb_gather_requirements(self):

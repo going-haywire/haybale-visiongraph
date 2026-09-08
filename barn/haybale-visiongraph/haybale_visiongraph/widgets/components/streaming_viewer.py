@@ -195,11 +195,19 @@ class StreamingBackend:
                         if await request.is_disconnected():
                             break
 
-                        # Wait for a newer frame than we've sent
+                        # Wait for a newer frame than we've sent.
+                        #
+                        # `seen=last_id` binds the id at predicate-creation
+                        # time rather than closing over the variable, which is
+                        # rebound two lines below on every pass. A closure
+                        # happens to work today only because wait_for calls the
+                        # predicate before that rebind — bind it and the
+                        # predicate means what it says regardless of ordering.
                         try:
                             async with self.cond:
                                 await asyncio.wait_for(
-                                    self.cond.wait_for(lambda: self.frame_id > last_id), timeout=5.0
+                                    self.cond.wait_for(lambda seen=last_id: self.frame_id > seen),
+                                    timeout=5.0,
                                 )
                                 last_id = self.frame_id
                                 frame = self.latest_frame
