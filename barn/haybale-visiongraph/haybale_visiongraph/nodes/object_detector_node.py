@@ -9,8 +9,7 @@ Models are declared as lazily-resolved ``ModelSpec``s so no detector backend is
 imported until the first frame flows (notes.md Q13).
 """
 
-from typing import TYPE_CHECKING
-
+from haywire.core.settings import bag
 from haywire.core.node import node, NodeType
 
 from .base_estimator_node import BaseEstimatorNode, ModelSpec
@@ -86,10 +85,7 @@ class ObjectDetectorNode(BaseEstimatorNode):
         ),
     }
 
-    if TYPE_CHECKING:
-        nms: NmsSettings
-        openvino: OpenVinoSettings
-    else:
-        selection = selection_bag(MODELS)
-        nms = NmsSettings
-        openvino = OpenVinoSettings
+    # `selection` is per-family: the dropdown carries this node's own MODELS.
+    selection = selection_bag(MODELS)
+    nms = bag(NmsSettings)
+    openvino = bag(OpenVinoSettings)

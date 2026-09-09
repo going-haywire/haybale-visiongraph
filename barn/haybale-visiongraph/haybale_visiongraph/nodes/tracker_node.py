@@ -30,11 +30,11 @@ offered.
 """
 
 import time
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Any, Optional
 
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
-from haywire.core.settings import NodeSettings, Promotable, UiState, setting
+from haywire.core.settings import NodeSettings, Promotable, UiState, bag, setting, settings_fields
 from haywire.core.types.enums import PortType
 from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT
 
@@ -98,6 +98,7 @@ class TrackerChoiceSettings(NodeSettings):
         description="Which tracker implementation to use. Changing this rebuilds the tracker.",
         widget_config={"options": list(_TRACKERS.keys())},
         promotable=Promotable.CONFIG,
+        promote_default=PortType.CONFIG,
     )
     result_type = setting[CHOICES](
         "Detection",
@@ -106,6 +107,7 @@ class TrackerChoiceSettings(NodeSettings):
         description="Which result subtype the inlet and outlet carry. Changing this retypes both ports.",
         widget_config={"options": list(_RESULT_TYPES.keys())},
         promotable=Promotable.CONFIG,
+        promote_default=PortType.CONFIG,
     )
 
 
@@ -258,16 +260,10 @@ class TrackerNode(BaseNode):
         tracked: The same results, stamped with tracking ids (typed by ``result_type``).
     """
 
-    if TYPE_CHECKING:
-        choice: TrackerChoiceSettings
-        flate: FlateSettings
-        motpy: MotpySettings
-        centroid: CentroidSettings
-    else:
-        choice = TrackerChoiceSettings
-        flate = FlateSettings
-        motpy = MotpySettings
-        centroid = CentroidSettings
+    choice = bag(TrackerChoiceSettings)
+    flate = bag(FlateSettings)
+    motpy = bag(MotpySettings)
+    centroid = bag(CentroidSettings)
 
     def init(self):
         from haywire.barn.builtin.types import STRING
@@ -287,12 +283,6 @@ class TrackerNode(BaseNode):
 
         # Typed result ports built from the current result_type.
         self._build_result_ports()
-
-        # Seeded promotions: this node's default face. In init(), NOT post_init
-        # — post_init also runs on graph load (after promotions are restored),
-        # so promoting there would undo a user's demotion on every load.
-        self.choice.promote("backend", PortType.CONFIG)
-        self.choice.promote("result_type", PortType.CONFIG)
 
     def _result_type_cls(self) -> Any:
         """Resolve the chosen result_type label to its ``@type`` class."""
@@ -324,12 +314,12 @@ class TrackerNode(BaseNode):
         self.hb_tracker: Optional[Any] = None
         self.hb_loaded_backend: Optional[str] = None
 
-        self.choice.subscribe_field("backend", self.hb_on_backend_change)
-        self.choice.subscribe_field("result_type", self.hb_on_result_type_change)
+        self.choice._subscribe_field("backend", self.hb_on_backend_change)
+        self.choice._subscribe_field("result_type", self.hb_on_result_type_change)
         for accessor, _rebuild in _BACKEND_BAGS.values():
             bag = getattr(self, accessor, None)
             if bag is not None:
-                bag.subscribe(self.hb_on_bag_field_changed)
+                bag._subscribe(self.hb_on_bag_field_changed)
 
         self.hb_refresh_bag_visibility()
 
@@ -369,7 +359,7 @@ class TrackerNode(BaseNode):
         for accessor, _rebuild in _BACKEND_BAGS.values():
             bag = getattr(self, accessor, None)
             if bag is not None:
-                bag.set_ui_state_all(UiState.NORMAL if accessor == active else UiState.HIDDEN)
+                bag._set_ui_state_all(UiState.NORMAL if accessor == active else UiState.HIDDEN)
 
     def hb_ensure_tracker(self) -> Optional[Any]:
         """Lazily build + ``setup()`` the chosen tracker backend.
@@ -423,7 +413,7 @@ class TrackerNode(BaseNode):
         bag = getattr(self, accessor, None)
         if bag is None:
             return
-        for name in type(bag)._property_settings():
+        for name in settings_fields(bag):
             if (name in rebuild_fields) is build_time:
                 setattr(tracker, name, getattr(bag, name))
 

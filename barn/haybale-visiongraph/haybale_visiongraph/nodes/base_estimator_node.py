@@ -36,12 +36,11 @@ Design decisions realised here:
 import importlib
 import time
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Any, Optional
 
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import BaseNode
-from haywire.core.settings import UiState
-from haywire.core.types.enums import PortType
+from haywire.core.settings import UiState, bag, settings_fields
 
 from .estimator_settings import UNSET, InferenceSettings, OverlaySettings, SelectionSettings
 
@@ -120,17 +119,11 @@ class BaseEstimatorNode(BaseNode):
     # --- Subclass contract -------------------------------------------------
     MODELS: "dict[str, ModelSpec]" = {}
 
-    if TYPE_CHECKING:
-        # mypy view: the bags are bound instances, not the aliased classes.
-        inference: InferenceSettings
-        overlay: OverlaySettings
-        selection: SelectionSettings
-    else:
-        inference = InferenceSettings
-        overlay = OverlaySettings
-        # Each family node overrides this with `selection_bag(MODELS)` so the
-        # dropdown carries its own labels; the base's is empty on purpose.
-        selection = SelectionSettings
+    inference = bag(InferenceSettings)
+    overlay = bag(OverlaySettings)
+    # Each family node overrides this with `selection_bag(MODELS)` so the
+    # dropdown carries its own labels; the base's is empty on purpose.
+    selection = bag(SelectionSettings)
 
     def hb_result_type(self) -> Any:
         """Return the ``@type`` class this node outlets. Subclasses override with
@@ -162,13 +155,6 @@ class BaseEstimatorNode(BaseNode):
         self.add(result_type.as_outlet("result", label="Result"))
         self.add(INT.as_outlet("count", label="Count"))
 
-        # Seeded promotions: this node's default face. In init(), NOT post_init
-        # — post_init also runs on graph load, after promotions have been
-        # restored, so promoting there would undo a user's demotion on every
-        # load. init() runs only on a fresh drop.
-        self.selection.promote("model", PortType.CONFIG)
-        self.inference.promote("min_score", PortType.CONFIG)
-
     def post_init(self):
         """Initialise the lazy-estimator cache and wire setting subscriptions."""
         self.hb_estimator: Optional[Any] = None
@@ -176,12 +162,12 @@ class BaseEstimatorNode(BaseNode):
 
         # on_change='method' string dispatch was retired for settings (ADR
         # 0013), so both of these are subscribe_field callbacks now.
-        self.selection.subscribe_field("model", self.hb_on_model_change)
-        self.inference.subscribe_field("min_score", self.hb_on_maybe_rebuild_field)
+        self.selection._subscribe_field("model", self.hb_on_model_change)
+        self.inference._subscribe_field("min_score", self.hb_on_maybe_rebuild_field)
         for accessor in self.hb_backend_bags():
             bag = getattr(self, accessor, None)
             if bag is not None:
-                bag.subscribe(self.hb_on_bag_field_changed)
+                bag._subscribe(self.hb_on_bag_field_changed)
 
         self.hb_refresh_bag_visibility()
 
@@ -208,7 +194,7 @@ class BaseEstimatorNode(BaseNode):
         for accessor in self.hb_backend_bags():
             bag = getattr(self, accessor, None)
             if bag is not None:
-                bag.set_ui_state_all(UiState.NORMAL if accessor in active else UiState.HIDDEN)
+                bag._set_ui_state_all(UiState.NORMAL if accessor in active else UiState.HIDDEN)
 
     def hb_on_model_change(self, value=None, old=None):
         """A model change invalidates the estimator AND re-gates the panel."""
@@ -299,7 +285,7 @@ class BaseEstimatorNode(BaseNode):
             bag = getattr(self, accessor, None)
             if bag is None:
                 continue
-            for name in type(bag)._property_settings():
+            for name in settings_fields(bag):
                 if name in spec.rebuild_fields:
                     self.hb_assign(estimator, name, getattr(bag, name))
 
@@ -317,7 +303,7 @@ class BaseEstimatorNode(BaseNode):
             bag = getattr(self, accessor, None)
             if bag is None:
                 continue
-            for name in type(bag)._property_settings():
+            for name in settings_fields(bag):
                 if name not in spec.rebuild_fields:
                     self.hb_assign(estimator, name, getattr(bag, name))
 

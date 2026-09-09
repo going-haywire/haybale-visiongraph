@@ -179,6 +179,7 @@ class OakDCameraNode(BaseNode):
             category="Device",
             description="Leave empty to auto-select the first available OAK device.",
             widget=SelectWidget.config(properties={"options": _list_available_mxids}),
+            promote_default=PortType.CONFIG,
         )
 
     class stream_flags(NodeSettings):
@@ -450,17 +451,6 @@ class OakDCameraNode(BaseNode):
         self.add(EXEC.as_outlet("started", label="Started"))
         self.add(EXEC.as_outlet("stopped", label="Stopped"))
 
-        # Seeded promotion: the device picker is this node's default face.
-        # MUST be here and not in post_init() — post_init runs on BOTH a fresh
-        # drop and a graph load, and on load it runs AFTER _promoted_keys has
-        # been restored and its ports regenerated. promote() is only a no-op
-        # when the field is *currently* promoted, so it cannot tell "the user
-        # demoted this" from "nobody has decided yet" and would silently
-        # re-promote on every load, making the demotion unrecoverable.
-        # init() runs only on a fresh drop, so the saved bag stays the
-        # authority thereafter.
-        self.device.promote("mxid", PortType.CONFIG)
-
     def post_init(self):
         """Initialize node state."""
         self.hb_input = None
@@ -472,8 +462,8 @@ class OakDCameraNode(BaseNode):
 
         # Live-control settings: one subscription per bag, dispatched by field
         # name to the running device. No-op (guarded) while hb_input is None.
-        self.ir.subscribe(self.hb_on_ir_changed)
-        self.color.subscribe(self.hb_on_color_changed)
+        self.ir._subscribe(self.hb_on_ir_changed)
+        self.color._subscribe(self.hb_on_color_changed)
 
     # ir setting field name -> OakDInput attribute name.
     _IR_ATTR_MAP = {
@@ -586,9 +576,9 @@ class OakDCameraNode(BaseNode):
         want_depth = self.stream_flags.want_depth
         want_ir = self.stream_flags.want_ir
         want_rgb = self.stream_flags.want_rgb
-        self.depth.set_ui_state_all(UiState.NORMAL if want_depth else UiState.HIDDEN)
-        self.ir.set_ui_state_all(UiState.NORMAL if want_ir else UiState.HIDDEN)
-        self.color.set_ui_state_all(UiState.NORMAL if want_rgb else UiState.HIDDEN)
+        self.depth._set_ui_state_all(UiState.NORMAL if want_depth else UiState.HIDDEN)
+        self.ir._set_ui_state_all(UiState.NORMAL if want_ir else UiState.HIDDEN)
+        self.color._set_ui_state_all(UiState.NORMAL if want_rgb else UiState.HIDDEN)
 
     def worker(self, context: ExecutionContext) -> Optional[str]:
         """Handle start/stop control signals."""

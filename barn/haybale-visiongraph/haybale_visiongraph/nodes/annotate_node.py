@@ -13,16 +13,17 @@ the frame first — annotating in place would corrupt the shared ``RGB_FRAME`` v
 flowing to other consumers — then draws every pooled result onto the copy.
 
 Every knob is a ``setting()`` in ``AnnotateStyle``; ``min_score`` and
-``show_info`` are *seeded* to config ports in ``init()`` so the node arrives
-with its familiar face, and the user may demote them. See "Settings-first
+``show_info`` declare ``promote_default=PortType.CONFIG`` so the node arrives
+with its familiar face, and the user may demote them — that choice then
+survives a save/load, because the saved block beats the default. See "Settings-first
 configuration" in notes.md (which supersedes Q14's config-port/settings split).
 """
 
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
-from haywire.core.settings import NodeSettings, setting
+from haywire.core.settings import NodeSettings, bag, setting
 from haywire.core.types.enums import PortType
 from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT
 
@@ -89,12 +90,14 @@ class AnnotateStyle(NodeSettings):
         max=1.0,
         label="Min Score",
         category="Filter",
+        promote_default=PortType.CONFIG,
         description="Hide results and landmarks below this confidence.",
     )
     show_info = setting[BOOL](
         True,
         label="Show Info",
         category="Filter",
+        promote_default=PortType.CONFIG,
         description="Draw the label / info text next to each result.",
     )
     show_bounding_box = setting[CHOICES](
@@ -160,13 +163,7 @@ class AnnotateNode(BaseNode):
         frame: The annotated frame (a copy; inputs are not mutated).
     """
 
-    if TYPE_CHECKING:
-        # mypy view: instances expose `style` as a bound AnnotateStyle. Without
-        # this the class-body alias below is all mypy sees, and every field read
-        # types as the `setting[T]` descriptor instead of T.
-        style: AnnotateStyle
-    else:
-        style = AnnotateStyle
+    style = bag(AnnotateStyle)
 
     def init(self):
         from haybale_core.types import EXEC, PooledType
@@ -187,12 +184,6 @@ class AnnotateNode(BaseNode):
 
         # Frame to draw on.
         self.add(RGB_FRAME.as_inlet("frame", label="Frame"))
-
-        # Seeded promotions: this node's default face. Seeded in init() (NOT
-        # post_init) so a user who demotes one keeps that choice across a
-        # save/load — init() runs only on a fresh drop.
-        self.style.promote("min_score", PortType.CONFIG)
-        self.style.promote("show_info", PortType.CONFIG)
 
         # Control out.
         self.add(EXEC.as_outlet("frame_ready", label="Frame Ready"))

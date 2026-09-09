@@ -700,7 +700,7 @@ panel state from frame one.
 
 > **Superseded (sixth inquisition).** This section recorded `mxid` staying an
 > `as_config` port. It did not; it is a `setting[STRING]` in `class device`,
-> seeded to a config port by `promote("mxid", PortType.CONFIG)`. The dropdown
+> seeded to a config port (now declaratively, via `promote_default=`). The dropdown
 > reasoning below still holds — only the "stayed a config port" framing is
 > wrong. See "Settings-first configuration" at the end of this file.
 
@@ -846,15 +846,19 @@ plus it gets `category`, `ui_state`, `subscribe`, and live `widget_config`
 callables.
 
 **The new rule.** Every user-facing knob is a `setting()`. The author seeds a
-*default* face with `self.<bag>.promote(field, PortType.CONFIG)` in `init()`;
-the user overrides it from the Setting-row menu and that choice survives a
-save. `as_config` survives only for what was never a setting: read-only
-status labels (`status`, `info_display`).
+*default* face with `setting(..., promote_default=PortType.CONFIG)`; the user
+overrides it from the Setting-row menu and that choice survives a save.
+`as_config` survives only for what was never a setting: read-only status
+labels (`status`, `info_display`).
 
-**Seed in `init()`, never `post_init()`.** `post_init` runs after graph load
-and on both paths, so an unconditional promote there re-promotes on every
-load and the user's demotion is unrecoverable. OakD does exactly this today
-and must be fixed. Full reasoning in setting-canon.md.
+> **Amended after the framework round.** This library originally seeded with a
+> hand-written `self.<bag>.promote(field, PortType.CONFIG)` call in `init()`
+> (never `post_init()` — that hook also runs on load, *after* promotions are
+> restored, so it re-promoted on every load and a demotion was unrecoverable;
+> OakD shipped that bug). Writing it 13 times across 6 nodes was the evidence
+> that it wanted to be declarative, and `promote_default=` landed in
+> haywire-core shortly after. All 13 calls are now field declarations. Full
+> reasoning in setting-canon.md.
 
 ## Live vs rebuild-category
 

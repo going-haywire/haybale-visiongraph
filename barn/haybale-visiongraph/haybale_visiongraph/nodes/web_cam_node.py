@@ -20,11 +20,11 @@ saved config value) and belongs in its own ``VideoFileNode``.
 
 import time
 import threading
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
-from haywire.core.settings import NodeSettings, Promotable, setting
+from haywire.core.settings import NodeSettings, Promotable, bag, setting
 from haywire.core.types.enums import PortType
 from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT
 from haywire.barn.builtin.widgets import SelectWidget
@@ -68,6 +68,7 @@ class CaptureSettings(NodeSettings):
         # has to survive a save/load. It re-runs on every dropdown open.
         widget=SelectWidget.config(properties={"options": list_camera_options}),
         promotable=Promotable.CONFIG,
+        promote_default=PortType.CONFIG,
     )
     width = setting[INT](
         0,
@@ -111,6 +112,7 @@ class CaptureSettings(NodeSettings):
         label="Frame Skip",
         category="Capture",
         description="Emit a callback every Nth frame. 1 emits every frame.",
+        promote_default=PortType.CONFIG,
     )
 
 
@@ -183,12 +185,8 @@ class WebCameraNode(BaseNode):
         stopped: Triggered when stream stops
     """
 
-    if TYPE_CHECKING:
-        capture: CaptureSettings
-        image: ImageSettings
-    else:
-        capture = CaptureSettings
-        image = ImageSettings
+    capture = bag(CaptureSettings)
+    image = bag(ImageSettings)
 
     def init(self):
         from haywire.barn.builtin.types import STRING
@@ -220,14 +218,6 @@ class WebCameraNode(BaseNode):
         # Control outputs
         self.add(EXEC.as_outlet("started", label="Started"))
         self.add(EXEC.as_outlet("stopped", label="Stopped"))
-
-        # Seeded promotions: this node's default face. The open-time knobs
-        # (width/height/fps/backend) stay panel-only — they are set once when
-        # the camera is first wired, and would otherwise crowd the card.
-        # In init(), NOT post_init: post_init also runs on graph load, after
-        # promotions are restored, so promoting there would undo a demotion.
-        self.capture.promote("camera_index", PortType.CONFIG)
-        self.capture.promote("frame_skip", PortType.CONFIG)
 
     def post_init(self):
         """Initialize node state"""

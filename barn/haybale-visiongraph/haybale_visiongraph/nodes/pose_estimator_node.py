@@ -5,8 +5,7 @@ of ``POSE_RESULT`` (per person: landmarks with named joints + skeleton connectio
 Thin subclass of ``BaseEstimatorNode`` (see that module + notes.md Q6/Q13).
 """
 
-from typing import TYPE_CHECKING
-
+from haywire.core.settings import bag
 from haywire.core.node import node, NodeType
 
 from .base_estimator_node import BaseEstimatorNode, ModelSpec
@@ -91,14 +90,9 @@ class PoseEstimatorNode(BaseEstimatorNode):
         ),
     }
 
-    if TYPE_CHECKING:
-        mediapipe: MediaPipeSettings
-        movenet: MoveNetSettings
-        nms: NmsSettings
-        openvino: OpenVinoSettings
-    else:
-        selection = selection_bag(MODELS)
-        mediapipe = MediaPipeSettings
-        movenet = MoveNetSettings
-        nms = NmsSettings
-        openvino = OpenVinoSettings
+    # `selection` is per-family: the dropdown carries this node's own MODELS.
+    selection = selection_bag(MODELS)
+    mediapipe = bag(MediaPipeSettings)
+    movenet = bag(MoveNetSettings)
+    nms = bag(NmsSettings)
+    openvino = bag(OpenVinoSettings)

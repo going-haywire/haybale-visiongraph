@@ -29,7 +29,8 @@ reads the attribute, verified against 1.2.0:
   the field name goes in the owning ``ModelSpec.rebuild_fields``
 """
 
-from haywire.core.settings import NodeSettings, Promotable, setting
+from haywire.core.settings import NodeSettings, Promotable, bag, setting
+from haywire.core.types.enums import PortType
 from haywire.barn.builtin.types import BOOL, CHOICES, COLOR, FLOAT, INT
 
 # `eta` and `top_k` are Optional[...] in NMSOptions: "unset" is a distinct
@@ -57,15 +58,19 @@ class SelectionSettings(NodeSettings):
         category="Model",
         description="Which backend + weights to run. Changing this reloads the model.",
         widget_config={"options": []},
+        promote_default=PortType.CONFIG,
     )
 
 
-def selection_bag(models: dict) -> type:
+def selection_bag(models: dict) -> SelectionSettings:
     """Build a family node's `selection` bag from its own MODELS map.
 
     A factory rather than a shared descriptor with a live callable: the options
     are a fixed property of the class, and a zero-arg `widget_config` callable
     could not see which node it was being rendered for anyway.
+
+    Returns through `bag()`, so a family node's `selection` types as a bound
+    instance and matches the annotation `BaseEstimatorNode` declares.
     """
     labels = list(models)
 
@@ -76,9 +81,10 @@ def selection_bag(models: dict) -> type:
             category="Model",
             description="Which backend + weights to run. Changing this reloads the model.",
             widget_config={"options": labels},
+            promote_default=PortType.CONFIG,
         )
 
-    return selection
+    return bag(selection)
 
 
 class OverlaySettings(NodeSettings):
@@ -116,6 +122,7 @@ class InferenceSettings(NodeSettings):
             "go BELOW the backend's own default. MediaPipe consumes this when "
             "the model is built, so changing it there reloads the model."
         ),
+        promote_default=PortType.CONFIG,
     )
 
 

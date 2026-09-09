@@ -16,13 +16,13 @@ open-keyed so future device-specific nodes can carry extra streams without
 changing this node or the callback type.
 """
 
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from haywire.core.execution.event_source import CallbackEvent
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.execution.scheduler import QueueMode
 from haywire.core.node import node, BaseNode, NodeType
-from haywire.core.settings import NodeSettings, Promotable, setting
+from haywire.core.settings import NodeSettings, Promotable, bag, setting
 from haywire.core.types.enums import PortType
 from haywire.barn.builtin.types import BOOL, CHOICES, INT
 
@@ -43,6 +43,7 @@ class StreamSettings(NodeSettings):
         category="Streams",
         description="Request and expose the colour stream.",
         promotable=Promotable.CONFIG,
+        promote_default=PortType.CONFIG,
     )
     enable_depth = setting[BOOL](
         False,
@@ -50,6 +51,7 @@ class StreamSettings(NodeSettings):
         category="Streams",
         description="Request and expose the depth stream.",
         promotable=Promotable.CONFIG,
+        promote_default=PortType.CONFIG,
     )
     enable_ir = setting[BOOL](
         False,
@@ -57,6 +59,7 @@ class StreamSettings(NodeSettings):
         category="Streams",
         description="Request and expose the infrared stream.",
         promotable=Promotable.CONFIG,
+        promote_default=PortType.CONFIG,
     )
 
 
@@ -134,12 +137,8 @@ class NumpyFrameEventNode(BaseNode):
         frame_number / timestamp: Frame metadata.
     """
 
-    if TYPE_CHECKING:
-        streams: StreamSettings
-        dispatch: DispatchSettings
-    else:
-        streams = StreamSettings
-        dispatch = DispatchSettings
+    streams = bag(StreamSettings)
+    dispatch = bag(DispatchSettings)
 
     def init(self):
         from haywire.barn.builtin.types import INT, FLOAT
@@ -165,13 +164,6 @@ class NumpyFrameEventNode(BaseNode):
 
         # Dynamic stream outlets built from the initial flags.
         self._build_stream_outlets()
-
-        # Seeded promotions: the three stream toggles are this node's face.
-        # In init(), NOT post_init — post_init also runs on graph load, after
-        # promotions are restored, so promoting there would undo a demotion.
-        self.streams.promote("enable_rgb", PortType.CONFIG)
-        self.streams.promote("enable_depth", PortType.CONFIG)
-        self.streams.promote("enable_ir", PortType.CONFIG)
 
     def _build_stream_outlets(self):
         """Add the frame outlets for whichever streams are currently enabled."""
@@ -206,7 +198,7 @@ class NumpyFrameEventNode(BaseNode):
             max_queue_size=int(self.dispatch.max_queue_size),
         )
         for name in ("enable_rgb", "enable_depth", "enable_ir"):
-            self.streams.subscribe_field(name, self.hb_reconfigure)
+            self.streams._subscribe_field(name, self.hb_reconfigure)
         self.hb_publish_subscription()
 
     def hb_publish_subscription(self):

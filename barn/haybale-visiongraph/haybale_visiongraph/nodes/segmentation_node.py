@@ -5,8 +5,7 @@ outlets a list of ``SEGMENTATION_RESULT`` (a detection plus a per-instance mask)
 Thin subclass of ``BaseEstimatorNode`` (see that module + notes.md Q6/Q13).
 """
 
-from typing import TYPE_CHECKING
-
+from haywire.core.settings import bag
 from haywire.core.node import node, NodeType
 
 from .base_estimator_node import BaseEstimatorNode, ModelSpec
@@ -64,12 +63,8 @@ class SegmentationNode(BaseEstimatorNode):
         ),
     }
 
-    if TYPE_CHECKING:
-        nms: NmsSettings
-        segmentation: SegmentationSettings
-        openvino: OpenVinoSettings
-    else:
-        selection = selection_bag(MODELS)
-        nms = NmsSettings
-        segmentation = SegmentationSettings
-        openvino = OpenVinoSettings
+    # `selection` is per-family: the dropdown carries this node's own MODELS.
+    selection = selection_bag(MODELS)
+    nms = bag(NmsSettings)
+    segmentation = bag(SegmentationSettings)
+    openvino = bag(OpenVinoSettings)
