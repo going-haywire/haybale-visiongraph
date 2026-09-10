@@ -31,14 +31,7 @@ reads the attribute, verified against 1.2.0:
 
 from haywire.core.settings import NodeSettings, Promotable, bag, setting
 from haywire.core.types.enums import PortType
-from haywire.barn.builtin.types import BOOL, CHOICES, COLOR, FLOAT, INT
-
-# `eta` and `top_k` are Optional[...] in NMSOptions: "unset" is a distinct
-# state from any number, and a settings field has no null. -1 is the sentinel.
-# (is_locally_set() cannot serve here — a write equal to the default records
-# no local override, so it cannot distinguish "untouched" from "set to the
-# default value". See notes.md prerequisite 5.)
-UNSET = -1
+from haywire.barn.builtin.types import BOOL, CHOICES, COLOR, FLOAT, INT, OPTIONAL
 
 _NMS_BATCH_MODES = ["Auto", "Batched", "Sequential"]
 
@@ -155,21 +148,26 @@ class NmsSettings(NodeSettings):
         category="NMS",
         description="Overlap above which the lower-scoring box is dropped.",
     )
-    eta = setting[FLOAT](
-        UNSET,
-        min=-1.0,
+    # Optional[...] in NMSOptions, where None disables the feature and any
+    # number enables it. The declared range is the parameter's REAL range —
+    # absence lives outside the value domain, so it never had to be smuggled in
+    # by widening min to -1 (which admitted values that are neither a valid
+    # setting nor the sentinel).
+    eta = setting[OPTIONAL[FLOAT]](
+        None,
+        min=0.0,
         max=1.0,
         label="Eta",
         category="NMS",
-        description="Adaptive NMS threshold coefficient. -1 leaves it unset.",
+        description="Adaptive NMS threshold coefficient. None disables it.",
     )
-    top_k = setting[INT](
-        UNSET,
-        min=-1,
+    top_k = setting[OPTIONAL[INT]](
+        None,
+        min=1,
         max=1000,
         label="Top K",
         category="NMS",
-        description="Keep at most this many detections. -1 leaves it unset.",
+        description="Keep at most this many detections. None disables it.",
     )
     batch_mode = setting[CHOICES](
         "Auto",

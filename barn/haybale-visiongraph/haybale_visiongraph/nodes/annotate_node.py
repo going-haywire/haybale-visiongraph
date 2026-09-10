@@ -25,23 +25,7 @@ from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
 from haywire.core.settings import NodeSettings, bag, setting
 from haywire.core.types.enums import PortType
-from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT
-
-# `show_bounding_box` is a TRI-state, not a bool, because the visiongraph
-# subtypes disagree on its default: LandmarkDetectionResult and
-# PoseLandmarkResult default it to False, InstanceSegmentationResult to True.
-# AUTO means "don't pass the kwarg at all", so each subtype keeps its own
-# default; the other two force it for every connected result list.
-#
-# A plain BOOL cannot express this. `is_locally_set()` looked like it could —
-# untouched ⇒ omit — but a write equal to the default records no local
-# override (cell writes are transition-only), so a user explicitly choosing
-# False is indistinguishable from one who never touched the field, and
-# segmentation would keep drawing boxes against an explicit instruction.
-BBOX_AUTO = "Auto (per result type)"
-BBOX_ALWAYS = "Always"
-BBOX_NEVER = "Never"
-_BBOX_OPTIONS = [BBOX_AUTO, BBOX_ALWAYS, BBOX_NEVER]
+from haywire.barn.builtin.types import BOOL, FLOAT, INT, OPTIONAL
 
 
 def hex_to_bgr(value: str) -> Optional[tuple]:
@@ -100,15 +84,18 @@ class AnnotateStyle(NodeSettings):
         promote_default=PortType.CONFIG,
         description="Draw the label / info text next to each result.",
     )
-    show_bounding_box = setting[CHOICES](
-        BBOX_AUTO,
+    # visiongraph's annotate() takes Optional[bool] here, and the subtypes
+    # disagree on the default: LandmarkDetectionResult and PoseLandmarkResult
+    # default it to False, InstanceSegmentationResult to True. Absence means
+    # "don't pass the kwarg", so each subtype keeps its own default.
+    show_bounding_box = setting[OPTIONAL[BOOL]](
+        None,
         label="Show Bounding Box",
         category="Style",
         description=(
-            "Draw bounding boxes. Auto keeps each result type's own default "
+            "Draw bounding boxes. None keeps each result type's own default "
             "(off for landmark/pose, on for segmentation)."
         ),
-        widget_config={"options": _BBOX_OPTIONS},
     )
     marker_size = setting[INT](
         3,
@@ -215,11 +202,10 @@ class AnnotateNode(BaseNode):
             "use_class_color": bool(self.style.use_class_color),
         }
 
-        # AUTO omits the kwarg entirely so each subtype keeps its own default;
-        # the two explicit choices force it. See the _BBOX_OPTIONS comment.
-        bbox = str(self.style.show_bounding_box)
-        if bbox != BBOX_AUTO:
-            kwargs["show_bounding_box"] = bbox == BBOX_ALWAYS
+        # Absence omits the kwarg entirely so each subtype keeps its own default.
+        bbox = self.style.show_bounding_box
+        if bbox is not None:
+            kwargs["show_bounding_box"] = bool(bbox)
 
         # Pooled inlet yields {source_id: VISION_RESULT}; draw each result list.
         pooled = self.value("result") or {}

@@ -42,7 +42,7 @@ from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import BaseNode
 from haywire.core.settings import UiState, bag, settings_fields
 
-from .estimator_settings import UNSET, InferenceSettings, OverlaySettings, SelectionSettings
+from .estimator_settings import InferenceSettings, OverlaySettings, SelectionSettings
 
 
 @dataclass(frozen=True)
@@ -312,16 +312,16 @@ class BaseEstimatorNode(BaseNode):
         """Write one setting onto the estimator, translating where the shapes differ.
 
         The NMS fields live on a nested ``nms_options`` dataclass rather than on
-        the estimator, and its ``eta``/``top_k`` are ``Optional`` — which a
-        settings field cannot express, hence the UNSET sentinel.
+        the estimator. Its ``eta``/``top_k`` are ``Optional`` and the settings
+        fields are ``OPTIONAL[...]``, so the value already IS ``None`` when the
+        user cleared it — no per-name sentinel translation to keep in sync with
+        the declarations in ``estimator_settings``.
         """
         if name in ("enabled", "score_threshold", "nms_threshold", "eta", "top_k", "batch_mode"):
             options = getattr(estimator, "nms_options", None)
             if options is None:
                 return
-            if name in ("eta", "top_k"):
-                setattr(options, name, None if value == UNSET else value)
-            elif name == "batch_mode":
+            if name == "batch_mode":
                 from visiongraph.model.NMSOptions import NMSBatchMode
 
                 setattr(options, name, NMSBatchMode[str(value)])

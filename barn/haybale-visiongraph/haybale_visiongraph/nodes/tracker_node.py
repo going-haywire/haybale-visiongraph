@@ -36,7 +36,7 @@ from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
 from haywire.core.settings import NodeSettings, Promotable, UiState, bag, setting, settings_fields
 from haywire.core.types.enums import PortType
-from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT
+from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT, OPTIONAL
 
 
 # Tracking backends — plain constructors with sensible defaults (no .create()).
@@ -202,13 +202,13 @@ class MotpySettings(NodeSettings):
         description="Above 1.0 disables multi-matching. Applied when the tracker is built.",
         promotable=Promotable.CONFIG,
     )
-    min_steps_alive = setting[INT](
+    min_steps_alive = setting[OPTIONAL[INT]](
         -1,
         min=-1,
         max=100,
         label="Min Steps Alive",
         category="Motpy",
-        description="Steps before a track is reported; -1 leaves it unset.",
+        description="Steps before a track is reported. None leaves it to motpy.",
         promotable=Promotable.CONFIG,
     )
     max_staleness_to_positive_ratio = setting[FLOAT](
@@ -415,7 +415,13 @@ class TrackerNode(BaseNode):
             return
         for name in settings_fields(bag):
             if (name in rebuild_fields) is build_time:
-                setattr(tracker, name, getattr(bag, name))
+                value = getattr(bag, name)
+                if value is None:
+                    # An OPTIONAL field the user cleared: absence means "don't
+                    # touch this parameter", so the backend keeps its own
+                    # default rather than being handed None.
+                    continue
+                setattr(tracker, name, value)
 
     def worker(self, context: ExecutionContext, result=None) -> Optional[str]:
         """Run the tracker over one frame's results."""
