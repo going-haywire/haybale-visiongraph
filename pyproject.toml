@@ -42,6 +42,11 @@ editable = true
 path = "../haywire-repo/barn/haybale-haystack"
 editable = true
 
+[tool.ruff]
+# Matches the framework monorepo, which lints these same files through its
+# barn/ symlink — a narrower limit here would fight it on every save.
+line-length = 109
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
