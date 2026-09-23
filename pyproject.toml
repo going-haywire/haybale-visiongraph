@@ -42,6 +42,15 @@ editable = true
 path = "../haywire-repo/barn/haybale-haystack"
 editable = true
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unit: Unit tests (fast, isolated)",
+    "integration: Integration tests (slower, full system)",
+]
+addopts = "-v --strict-markers --tb=short"
+timeout = 120
+
 [tool.haywire.marketstall]
 # This project publishes released wheels to PyPI, so every marketstall row
 # carries `haybale-visiongraph==<version>` rather than a git clone spec.

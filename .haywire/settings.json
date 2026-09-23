@@ -12,9 +12,16 @@
       "value": 2
     }
   },
+  "ui": {
+    "minimap": {
+      "enabled": {
+        "value": false
+      }
+    }
+  },
   "workbench": {
     "theme": {
-      "value": "studio:theme:workbench:HaywireDarkTheme"
+      "value": "haybale-studio:theme:HaywireDarkTheme"
     }
   }
 }

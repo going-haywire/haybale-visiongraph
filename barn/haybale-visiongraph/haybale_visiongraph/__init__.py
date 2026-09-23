@@ -8,8 +8,11 @@ from haywire.core.library.base import BaseLibrary
 from haywire.core.library.compatibility import CompatibilityWarning
 from haywire.core.library.decorator import library
 from haywire.core.adapter.registry import AdapterRegistry
-from haywire.core.macro.registry import MacroRegistry
+
+# Before haywire.core.macro.registry: that module reaches back into
+# haywire.core.node, whose package init imports MacroRegistry in turn.
 from haywire.core.node.registry import NodeRegistry
+from haywire.core.macro.registry import MacroRegistry
 from haywire.core.types.registry import TypeRegistry
 
 from haywire.ui.skin.registry import SkinRegistry
