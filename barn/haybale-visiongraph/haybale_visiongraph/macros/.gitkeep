@@ -1,0 +1,3 @@
+Macro documents (.hwm) live here — graph documents, not Python, so this
+folder carries no __init__.py. Keeps the folder in git while it is empty, so
+the file watcher has something to claim.

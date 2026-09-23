@@ -8,6 +8,7 @@ from haywire.core.library.base import BaseLibrary
 from haywire.core.library.compatibility import CompatibilityWarning
 from haywire.core.library.decorator import library
 from haywire.core.adapter.registry import AdapterRegistry
+from haywire.core.macro.registry import MacroRegistry
 from haywire.core.node.registry import NodeRegistry
 from haywire.core.types.registry import TypeRegistry
 
@@ -41,6 +42,9 @@ class Library(BaseLibrary):
 
         # Register nodes
         self.add_folder_to_registry(folder_path=str(base_path / "nodes"), registry_cls=NodeRegistry)
+
+        # Register macros (.hwm documents)
+        self.add_folder_to_registry(folder_path=str(base_path / "macros"), registry_cls=MacroRegistry)
 
     def validate(self) -> bool:
         """Validate that the test library is properly structured"""
