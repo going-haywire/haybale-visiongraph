@@ -132,7 +132,7 @@ class BaseEstimatorNode(BaseNode):
 
     def init(self):
         from haywire.barn.builtin.types import STRING, INT
-        from haybale_core.types import EXEC
+        from haywire.barn.builtin.types import EXEC
         from haywire.barn.builtin.widgets import SimpleLabelWidget
         from haybale_visiongraph.types.frame_type import RGB_FRAME
 

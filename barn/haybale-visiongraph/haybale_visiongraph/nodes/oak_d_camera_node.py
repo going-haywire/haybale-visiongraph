@@ -417,7 +417,7 @@ class OakDCameraNode(BaseNode):
         )
 
     def init(self):
-        from haybale_core.types import EXEC
+        from haywire.barn.builtin.types import EXEC
         from haybale_core.types import PooledType
         from haywire.barn.builtin.widgets import SimpleLabelWidget
         from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK

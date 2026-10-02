@@ -153,7 +153,8 @@ class AnnotateNode(BaseNode):
     style = bag(AnnotateStyle)
 
     def init(self):
-        from haybale_core.types import EXEC, PooledType
+        from haybale_core.types import PooledType
+        from haywire.barn.builtin.types import EXEC
         from haybale_visiongraph.types.frame_type import RGB_FRAME
         from haybale_visiongraph.types.result_type import VISION_RESULT
 

@@ -142,7 +142,7 @@ class NumpyFrameEventNode(BaseNode):
 
     def init(self):
         from haywire.barn.builtin.types import INT, FLOAT
-        from haybale_core.types import EXEC
+        from haywire.barn.builtin.types import EXEC
         from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
 
         # Subscription outlet: carries this node's name + stream requirements.
