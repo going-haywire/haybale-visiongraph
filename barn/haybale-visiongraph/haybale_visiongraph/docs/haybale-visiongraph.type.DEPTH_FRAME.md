@@ -6,7 +6,7 @@ Single-channel uint16 metric depth buffer (millimetres)
 
 ## Details
 
-- **flow_type**: `data`
+- **wire_type**: `haywire-core:wire:DataWire`
 - **default**: `{'data': None, 'timestamp': 0.0, 'frame_number': 0}`
 - **color**: `#00838f`
 

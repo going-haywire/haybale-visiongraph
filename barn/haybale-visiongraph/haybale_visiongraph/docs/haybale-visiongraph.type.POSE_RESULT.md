@@ -6,7 +6,7 @@ Human pose: landmarks with named joints and skeleton connections
 
 ## Details
 
-- **flow_type**: `data`
+- **wire_type**: `haywire-core:wire:DataWire`
 - **default**: `{'results': []}`
 - **color**: `#0288d1`
 

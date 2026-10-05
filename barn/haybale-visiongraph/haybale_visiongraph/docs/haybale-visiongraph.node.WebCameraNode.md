@@ -8,14 +8,14 @@ Starts a webcam stream and emits frame callbacks
 
 | id | direction | type | description |
 |---|---|---|---|
-| start | inlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
-| stop | inlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
+| start | inlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
+| stop | inlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
 | callbacks | inlet | haybale-core:type:PooledType | Connect to a Frame Event node. Beware: this camera type can only deliver rgb frames |
 | status | config | haywire-core:type:STRING | Text data |
 | capture.camera_index | config | haywire-core:type:INT | Which camera to open. The stored value is the positional index OpenCV uses — names are labels only, and may not match under a different capture backend. |
 | capture.frame_skip | config | haywire-core:type:INT | Emit a callback every Nth frame. 1 emits every frame. |
-| started | outlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
-| stopped | outlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
+| started | outlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
+| stopped | outlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
 
 ## Settings
 

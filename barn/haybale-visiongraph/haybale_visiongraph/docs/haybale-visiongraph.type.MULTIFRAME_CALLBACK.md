@@ -6,7 +6,7 @@ Subscription for multi-frame streams
 
 ## Details
 
-- **flow_type**: `callback`
+- **wire_type**: `haywire-core:wire:CallbackWire`
 - **default**: `{'name': '', 'rgb': False, 'depth': False, 'ir': False}`
 - **color**: `#ff3c00`
 

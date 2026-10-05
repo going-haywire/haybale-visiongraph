@@ -32,8 +32,9 @@ from dataclasses import dataclass, field
 
 from visiongraph.result.ResultList import ResultList
 
-from haywire.core.types import type, FlowType, BaseType
+from haywire.core.types import type, BaseType
 from haywire.core.types.enums import StoreStrategy
+from haywire.barn.builtin.wires import DataWire
 
 
 @dataclass
@@ -77,7 +78,7 @@ class BaseVisionResult(BaseType):
 @type(
     label="Vision Result",
     description="A list of estimator results (base type for all result kinds)",
-    flow_type=FlowType.DATA,
+    wire_type=DataWire,
     default={"results": []},
     color="#455a64",
     store_strategy=StoreStrategy.NEVER,
@@ -91,7 +92,7 @@ class VISION_RESULT(BaseVisionResult):
 @type(
     label="Detection Result",
     description="Object detections: bounding box, class, score (and tracking id)",
-    flow_type=FlowType.DATA,
+    wire_type=DataWire,
     default={"results": []},
     color="#f57c00",
     store_strategy=StoreStrategy.NEVER,
@@ -105,7 +106,7 @@ class DETECTION_RESULT(VISION_RESULT):
 @type(
     label="Segmentation Result",
     description="Instance segmentation: detection plus a per-instance mask",
-    flow_type=FlowType.DATA,
+    wire_type=DataWire,
     default={"results": []},
     color="#7b1fa2",
     store_strategy=StoreStrategy.NEVER,
@@ -119,7 +120,7 @@ class SEGMENTATION_RESULT(DETECTION_RESULT):
 @type(
     label="Landmark Result",
     description="Landmark detections: a detection plus a set of landmark points",
-    flow_type=FlowType.DATA,
+    wire_type=DataWire,
     default={"results": []},
     color="#00897b",
     store_strategy=StoreStrategy.NEVER,
@@ -133,7 +134,7 @@ class LANDMARK_RESULT(DETECTION_RESULT):
 @type(
     label="Pose Result",
     description="Human pose: landmarks with named joints and skeleton connections",
-    flow_type=FlowType.DATA,
+    wire_type=DataWire,
     default={"results": []},
     color="#0288d1",
     store_strategy=StoreStrategy.NEVER,

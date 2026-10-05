@@ -8,13 +8,13 @@ Opens an OAK-D depth camera and emits colour/depth/infrared frame callbacks
 
 | id | direction | type | description |
 |---|---|---|---|
-| start | inlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
-| stop | inlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
+| start | inlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
+| stop | inlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
 | callbacks | inlet | haybale-core:type:PooledType | Connect to a Frame Event node |
 | status | config | haywire-core:type:STRING | Text data |
 | device.mxid | config | haywire-core:type:STRING | Leave empty to auto-select the first available OAK device. |
-| started | outlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
-| stopped | outlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
+| started | outlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
+| stopped | outlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
 
 ## Settings
 

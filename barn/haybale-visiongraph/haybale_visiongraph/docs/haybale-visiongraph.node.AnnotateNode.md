@@ -8,12 +8,12 @@ Draw estimator results (boxes / masks / poses) onto a frame
 
 | id | direction | type | description |
 |---|---|---|---|
-| execute | inlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
+| execute | inlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
 | result | inlet | haybale-core:type:PooledType | Connect one or more estimator result outlets |
 | frame | inlet | haybale-visiongraph:type:RGB_FRAME | 3-channel uint8 colour video frame |
 | style.min_score | config | haywire-core:type:FLOAT | Hide results and landmarks below this confidence. |
 | style.show_info | config | haywire-core:type:BOOL | Draw the label / info text next to each result. |
-| frame_ready | outlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
+| frame_ready | outlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
 | annotated | outlet | haybale-visiongraph:type:RGB_FRAME | 3-channel uint8 colour video frame |
 
 ## Settings

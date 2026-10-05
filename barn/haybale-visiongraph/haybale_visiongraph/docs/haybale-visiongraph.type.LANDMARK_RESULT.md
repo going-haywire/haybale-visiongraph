@@ -6,7 +6,7 @@ Landmark detections: a detection plus a set of landmark points
 
 ## Details
 
-- **flow_type**: `data`
+- **wire_type**: `haywire-core:wire:DataWire`
 - **default**: `{'results': []}`
 - **color**: `#00897b`
 

@@ -6,7 +6,7 @@
 
 ## Details
 
-- **flow_type**: `data`
+- **wire_type**: `haywire-core:wire:DataWire`
 - **default**: `{'data': None, 'timestamp': 0.0, 'frame_number': 0}`
 - **color**: `#9c27b0`
 

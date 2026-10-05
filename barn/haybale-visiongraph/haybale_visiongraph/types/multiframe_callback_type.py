@@ -2,11 +2,10 @@
 MULTIFRAME_CALLBACK — the subscription carrier between a 3D-camera emit node and
 the shared ``NumpyFrameEventNode``.
 
-A ``BaseType`` dataclass (NOT a subclass of core ``CALLBACK``) declared with
-``flow_type=FlowType.CALLBACK``. A callback edge is identified by the framework
-purely via the edge's flow_type (set by ``@type``), and the event *name* is read
-off this value's ``name`` field by the node — not by treating the whole value as
-a string. So a dataclass works cleanly (see notes.md Q14/Q15).
+A ``BaseType`` dataclass (NOT a subclass of core ``CALLBACK``) declared on
+`CallbackWire`, so the framework recognises a callback edge by its wire type's
+role. The event *name* is read off this value's ``name`` field by the node — not by
+treating the whole value as a string. So a dataclass works cleanly (see notes.md Q14/Q15).
 
 It serves two purposes on the single subscription edge:
 
@@ -21,18 +20,21 @@ Note on the name: "multiframe" describes the type's *capability* (it can carry
 up to several stream requirements), not a mandate that all be present. A
 single-stream device legitimately uses it with one flag set — e.g. the webcam
 emit node sets only ``rgb=True`` and ignores ``depth`` / ``ir``.
+
+An absent value (``None``) means no subscription; the emitter's pool drops it.
 """
 
 from dataclasses import dataclass
 
-from haywire.core.types import type, FlowType, BaseType
+from haywire.core.types import type, BaseType
+from haywire.barn.builtin.wires import CallbackWire
 
 
 @type(
     label="Multiframe Callback",
     description="Subscription for multi-frame streams",
-    flow_type=FlowType.CALLBACK,
-    default={"name": "", "rgb": False, "depth": False, "ir": False},
+    wire_type=CallbackWire,
+    default=None,
     color="#ff3c00",
 )
 @dataclass

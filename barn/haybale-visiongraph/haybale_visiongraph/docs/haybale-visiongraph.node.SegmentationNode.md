@@ -8,12 +8,12 @@ Instance segmentation: detect objects and their pixel masks
 
 | id | direction | type | description |
 |---|---|---|---|
-| execute | inlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
+| execute | inlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
 | frame | inlet | haybale-visiongraph:type:RGB_FRAME | 3-channel uint8 colour video frame |
 | status | config | haywire-core:type:STRING | Text data |
 | inference.min_score | config | haywire-core:type:FLOAT | Minimum confidence. Applied natively by the estimator, so it can go BELOW the backend's own default. MediaPipe consumes this when the model is built, so changing it there reloads the model. |
 | selection.model | config | haywire-core:type:CHOICES | Which backend + weights to run. Changing this reloads the model. |
-| result_ready | outlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
+| result_ready | outlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
 | result | outlet | haybale-visiongraph:type:SEGMENTATION_RESULT | Instance segmentation: detection plus a per-instance mask |
 | count | outlet | haywire-core:type:INT | Whole number |
 

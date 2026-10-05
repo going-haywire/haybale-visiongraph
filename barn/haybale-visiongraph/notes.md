@@ -320,7 +320,7 @@ Three small menu groups read as a left-to-right pipeline: estimate → process �
 
 - [ ] `types/result_type.py`: `VISION_RESULT` base + `DETECTION_RESULT` →
       `{SEGMENTATION_RESULT, LANDMARK_RESULT → POSE_RESULT}` wired subtype chain;
-      each `@type(store_strategy=NEVER, flow_type=DATA)`, single field holding the
+      each `@type(store_strategy=NEVER, wire_type=DataWire)`, single field holding the
       visiongraph `ResultList` (import `ResultList`/`BaseResult` at module top —
       0.45s, Q13). Mirror `BaseFrame` style.
 - [ ] `nodes/base_estimator_node.py`: shared `BaseEstimatorNode` — `RGB_FRAME`
@@ -380,7 +380,7 @@ emit nodes (OAK-D, webcam, later Azure/RealSense).
 - [ ] Rename `FRAME → RGB_FRAME` across the 3 existing nodes + `NumpyViewerWidget`
       `compatible_types` + `types/__init__.py` + docs; then `/check-rename`.
 - [ ] `GRAY_FRAME ↔ RGB_FRAME` adapters. No `DEPTH_FRAME` adapter.
-- [ ] `MULTIFRAME_CALLBACK` (`BaseType` dataclass, `flow_type=CALLBACK`,
+- [ ] `MULTIFRAME_CALLBACK` (`BaseType` dataclass, `wire_type=CallbackWire`,
       `name` + stream-requirement fields).
 - [ ] `OakDCameraNode` (device-specific; wraps `OakDInput`; EXEC start/stop;
       `on_startup` reads union; capture thread; open-keyed payload).
@@ -491,14 +491,14 @@ deliberately do NOT use it.
 ### MULTIFRAME_CALLBACK type (Q14–Q15) — the subscription carrier
 
 A **visiongraph-local `BaseType` dataclass** (NOT a subclass of core `CALLBACK`),
-declared with `flow_type=FlowType.CALLBACK`. Fields: `name: str` +
+declared with `wire_type=CallbackWire` (from `haywire.barn.builtin.wires`). Fields: `name: str` +
 stream-requirement fields (e.g. `rgb: bool, depth: bool, ir: bool`, or a
 `streams: set[str]`).
 
 Why a dataclass works (verified against the framework):
-- A callback edge is identified by `edge._edge_type == FlowType.CALLBACK`
-  (`flow_assembly_manager.py:254`) — set by the `@type` decorator, NOT by
-  subclassing `STRING`. So a `BaseType` with `flow_type=CALLBACK` IS a callback edge.
+- A callback edge is one whose ports' wire type has the `IMMEDIATE` role
+  (`DataPort.is_immediate`) — set by the `@type` decorator's `wire_type`, NOT by
+  subclassing `STRING`. So a `BaseType` with the callback wire type IS a callback edge.
 - The event name is read by the **node**, not the edge value: the event node
   does `CallbackEvent(event_name=self.value("...").name)` in `post_init`
   (cf. `webcam_frame_event_node.py:60`). A dataclass with a `name` field

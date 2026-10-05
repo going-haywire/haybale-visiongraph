@@ -8,12 +8,12 @@ Assign stable tracking ids to detections across frames
 
 | id | direction | type | description |
 |---|---|---|---|
-| execute | inlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
+| execute | inlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
 | result | inlet | haybale-visiongraph:type:DETECTION_RESULT | Object detections: bounding box, class, score (and tracking id) |
 | status | config | haywire-core:type:STRING | Text data |
 | choice.backend | config | haywire-core:type:CHOICES | Which tracker implementation to use. Changing this rebuilds the tracker. |
 | choice.result_type | config | haywire-core:type:CHOICES | Which result subtype the inlet and outlet carry. Changing this retypes both ports. |
-| tracked_ready | outlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
+| tracked_ready | outlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
 | tracked | outlet | haybale-visiongraph:type:DETECTION_RESULT | Object detections: bounding box, class, score (and tracking id) |
 
 ## Settings

@@ -6,7 +6,7 @@ Object detections: bounding box, class, score (and tracking id)
 
 ## Details
 
-- **flow_type**: `data`
+- **wire_type**: `haywire-core:wire:DataWire`
 - **default**: `{'results': []}`
 - **color**: `#f57c00`
 

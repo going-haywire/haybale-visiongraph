@@ -6,7 +6,7 @@ Instance segmentation: detection plus a per-instance mask
 
 ## Details
 
-- **flow_type**: `data`
+- **wire_type**: `haywire-core:wire:DataWire`
 - **default**: `{'results': []}`
 - **color**: `#7b1fa2`
 

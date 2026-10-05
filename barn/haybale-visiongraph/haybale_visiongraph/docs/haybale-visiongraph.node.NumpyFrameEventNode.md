@@ -12,7 +12,7 @@ Triggered when a camera frame is ready; exposes colour/depth/infrared streams
 | streams.enable_depth | config | haywire-core:type:BOOL | Request and expose the depth stream. |
 | streams.enable_ir | config | haywire-core:type:BOOL | Request and expose the infrared stream. |
 | subscription | outlet | haybale-visiongraph:type:MULTIFRAME_CALLBACK | Subscribe for camera frames |
-| frame_ready | outlet | haybale-core:type:EXEC | Signal for controlling execution flow between nodes |
+| frame_ready | outlet | haywire-core:type:EXEC | Signal for controlling execution flow between nodes |
 | timestamp | outlet | haywire-core:type:FLOAT | Decimal numberer |
 | frame_number | outlet | haywire-core:type:INT | Whole number |
 | rgb | outlet | haybale-visiongraph:type:RGB_FRAME | 3-channel uint8 colour video frame |
