@@ -167,6 +167,17 @@ scope for these nodes. (Rejected: a display-only off-thread spinner toggling a
 flag around an already-blocking call — spends a thread to fake motion, and the
 toggle's render may stall because the main thread is busy.)
 
+**Resolved in haywire (#42, 2026-10-28) — differently than proposed above:** no
+framework-wide highlight from `is_executing` (that flag was dead and is removed).
+Instead an opt-in progress bar the node reports itself:
+`haywire.barn.builtin.progress.ProgressSettings` + `progress_field()`, written
+with `with self.progress.busy("main", "inferring"):` around the blocking call
+(the bar sweeps) or `self.progress.track("main", items)` over a loop (the bar
+fills). The flow runs on its own scheduler thread, so the bar does paint during a
+synchronous `process()`. See the setting canon §3d and the example node
+`haybale_example.nodes.progress_demo`. Adopting it in the estimator nodes is
+optional and not part of this design.
+
 ### Q10 — Annotate node: `PooledType[VISION_RESULT]` result inlet + `RGB_FRAME` frame inlet
 
 Contract found: visiongraph results carry **normalized** coords (annotate does
@@ -344,8 +355,9 @@ Three small menu groups read as a left-to-right pipeline: estimate → process �
 
 ## OPEN QUESTIONS — none (design complete)
 
-- FOLLOW-UP (framework, separate from this work): node-busy highlight from
-  `is_executing` (see Q9) — possible ADR, cross-cutting UI capability.
+- ~~FOLLOW-UP (framework, separate from this work): node-busy highlight from
+  `is_executing` (see Q9)~~ — DONE in haywire #42 as opt-in `ProgressSettings`
+  (see the Q9 resolution note).
 
 ---
 
