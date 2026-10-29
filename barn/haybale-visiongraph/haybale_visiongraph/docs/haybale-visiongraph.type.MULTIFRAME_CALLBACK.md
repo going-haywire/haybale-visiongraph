@@ -7,7 +7,6 @@ Subscription for multi-frame streams
 ## Details
 
 - **wire_type**: `haywire-core:wire:CallbackWire`
-- **default**: `{'name': '', 'rgb': False, 'depth': False, 'ir': False}`
 - **color**: `#ff3c00`
 
 ## Notes
