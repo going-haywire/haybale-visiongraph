@@ -20,7 +20,7 @@ from typing import Optional
 
 from haywire.core.execution.event_source import CallbackEvent
 from haywire.core.execution.execution_context import ExecutionContext
-from haywire.core.execution.scheduler import QueueMode
+from haywire.core.execution import QueueMode
 from haywire.core.node import node, BaseNode, NodeType
 from haywire.core.settings import NodeSettings, Promotable, bag, setting
 from haywire.core.types.enums import PortType
