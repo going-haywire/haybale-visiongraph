@@ -13,7 +13,6 @@ from .estimator_settings import (
     NmsSettings,
     OpenVinoSettings,
     SegmentationSettings,
-    selection_bag,
 )
 
 # YOLOv8-Seg is Ultralytics-shaped (nms_options) and adds its own mask knob;
@@ -38,22 +37,24 @@ class SegmentationNode(BaseEstimatorNode):
 
         return SEGMENTATION_RESULT
 
+    FAMILY = "segmentation"
+
     MODELS = {
-        "YOLOv8-Seg-N (COCO)": ModelSpec(
+        "haybale-visiongraph:catalog:yolov8n-seg": ModelSpec(
             "visiongraph.estimator.spatial.segmentation.YOLOv8SegmentationEstimator",
             "YOLOv8SegmentationEstimator",
             "YOLOv8SegmentationConfig",
             "YOLOv8_SEG_N",
             bags=_YOLO_SEG,
         ),
-        "YOLOv8-Seg-S (COCO)": ModelSpec(
+        "haybale-visiongraph:catalog:yolov8s-seg": ModelSpec(
             "visiongraph.estimator.spatial.segmentation.YOLOv8SegmentationEstimator",
             "YOLOv8SegmentationEstimator",
             "YOLOv8SegmentationConfig",
             "YOLOv8_SEG_S",
             bags=_YOLO_SEG,
         ),
-        "Mask R-CNN ResNet50 (FP32)": ModelSpec(
+        "haybale-visiongraph:catalog:instance-segmentation-security-0002-fp32": ModelSpec(
             "visiongraph.estimator.spatial.segmentation.MaskRCNNEstimator",
             "MaskRCNNEstimator",
             "MaskRCNNConfig",
@@ -63,8 +64,6 @@ class SegmentationNode(BaseEstimatorNode):
         ),
     }
 
-    # `selection` is per-family: the dropdown carries this node's own MODELS.
-    selection = selection_bag(MODELS)
     nms = bag(NmsSettings)
     segmentation = bag(SegmentationSettings)
     openvino = bag(OpenVinoSettings)

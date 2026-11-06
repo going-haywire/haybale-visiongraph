@@ -1,0 +1,39 @@
+{
+    "name": "SSDLite MobileNetV2",
+    "author": "TensorFlow Object Detection",
+    "license": "Apache-2.0",
+    "commercial": true,
+    "tags": [
+        "object-detection",
+        "ssdlite"
+    ],
+    "description": "SSDLite MobileNetV2, as packaged in the visiongraph model repository.",
+    "architecture": "ssdlite",
+    "purpose": [
+        "object-detection"
+    ],
+    "resources": [
+        {
+            "platform": "openvino",
+            "type": "xml",
+            "files": [
+                {
+                    "path": "ssdlite_mobilenet_v2_fp32.xml",
+                    "sha256": "4a7834acd298ea857eb457604c9de1697d53c4647d14f2e6c5bf82a9161c4e3c",
+                    "size": 344670,
+                    "urls": [
+                        "hf://cansik/visiongraph/ssdlite_mobilenet_v2_fp32.xml@0de7ab36c9cf7d0843a1a19fd8c83db34a19d8a3"
+                    ]
+                },
+                {
+                    "path": "ssdlite_mobilenet_v2_fp32.bin",
+                    "sha256": "a0d4eb8c56f1a12ba6a30514fd105034141f804c3977f30c4cf598ee70744fb9",
+                    "size": 17900844,
+                    "urls": [
+                        "hf://cansik/visiongraph/ssdlite_mobilenet_v2_fp32.bin@0de7ab36c9cf7d0843a1a19fd8c83db34a19d8a3"
+                    ]
+                }
+            ]
+        }
+    ]
+}

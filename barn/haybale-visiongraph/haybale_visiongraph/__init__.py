@@ -8,6 +8,7 @@ from haywire.core.library.base import BaseLibrary
 from haywire.core.library.compatibility import CompatibilityWarning
 from haywire.core.library.decorator import library
 from haywire.core.adapter.registry import AdapterRegistry
+from haywire.core.catalog import CatalogRegistry
 
 # Before haywire.core.macro.registry: that module reaches back into
 # haywire.core.node, whose package init imports MacroRegistry in turn.
@@ -30,6 +31,8 @@ class Library(BaseLibrary):
 
         """Register nodes and types"""
         base_path = Path(__file__).parent
+
+        self.add_folder_to_registry(folder_path=str(base_path / "catalog"), registry_cls=CatalogRegistry)
 
         # Register types (both variants and custom types)
         self.add_folder_to_registry(folder_path=str(base_path / "types"), registry_cls=TypeRegistry)

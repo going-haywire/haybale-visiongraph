@@ -1,0 +1,25 @@
+{
+    "name": "YOLOv8-Seg-S (COCO)",
+    "author": "Ultralytics",
+    "license": "AGPL-3.0 or Ultralytics Enterprise",
+    "tags": [
+        "segmentation",
+        "yolov8-seg"
+    ],
+    "description": "YOLOv8-Seg-S (COCO), as packaged in the visiongraph model repository.",
+    "architecture": "yolov8-seg",
+    "purpose": [
+        "segmentation"
+    ],
+    "resources": [
+        {
+            "platform": "onnx",
+            "type": "onnx",
+            "size": 47414167,
+            "sha256": "329d367c4bc979ef6dd2fec1fff933e92e73813d4dfd7fd8e2c9f6b50d3fb919",
+            "urls": [
+                "hf://cansik/visiongraph/yolov8s-seg.onnx@0de7ab36c9cf7d0843a1a19fd8c83db34a19d8a3"
+            ]
+        }
+    ]
+}

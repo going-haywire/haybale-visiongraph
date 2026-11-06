@@ -1,0 +1,26 @@
+{
+    "name": "MediaPipe Pose (Heavy)",
+    "author": "Google",
+    "license": "Apache-2.0",
+    "commercial": true,
+    "tags": [
+        "pose-estimation",
+        "mediapipe-pose"
+    ],
+    "description": "MediaPipe Pose (Heavy), as packaged in the visiongraph model repository.",
+    "architecture": "mediapipe-pose",
+    "purpose": [
+        "pose-estimation"
+    ],
+    "resources": [
+        {
+            "platform": "mediapipe",
+            "type": "task",
+            "size": 30664242,
+            "sha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b",
+            "urls": [
+                "hf://cansik/visiongraph/pose_landmarker_heavy.task@0de7ab36c9cf7d0843a1a19fd8c83db34a19d8a3"
+            ]
+        }
+    ]
+}

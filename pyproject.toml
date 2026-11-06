@@ -18,6 +18,10 @@ editable = true
 path = "../haywire-repo/packages/haywire-core"
 editable = true
 
+[tool.uv.sources.haybale-models]
+path = "../haywire-repo/barn/haybale-models"
+editable = true
+
 [tool.uv.sources.haybale-core]
 path = "../haywire-repo/barn/haybale-core"
 editable = true

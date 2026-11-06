@@ -14,7 +14,6 @@ from .estimator_settings import (
     MoveNetSettings,
     NmsSettings,
     OpenVinoSettings,
-    selection_bag,
 )
 
 # MediaPipe builds its PoseLandmarker in setup(), so EVERY one of its knobs is
@@ -55,8 +54,10 @@ class PoseEstimatorNode(BaseEstimatorNode):
 
         return POSE_RESULT
 
+    FAMILY = "pose-estimation"
+
     MODELS = {
-        "MediaPipe Pose (Full)": ModelSpec(
+        "haybale-visiongraph:catalog:pose_landmarker_full": ModelSpec(
             "visiongraph.estimator.spatial.pose.MediaPipePoseEstimator",
             "MediaPipePoseEstimator",
             "MediaPipePoseConfig",
@@ -64,7 +65,7 @@ class PoseEstimatorNode(BaseEstimatorNode):
             bags=_MEDIAPIPE,
             rebuild_fields=_MEDIAPIPE_REBUILD,
         ),
-        "MediaPipe Pose (Lite)": ModelSpec(
+        "haybale-visiongraph:catalog:pose_landmarker_lite": ModelSpec(
             "visiongraph.estimator.spatial.pose.MediaPipePoseEstimator",
             "MediaPipePoseEstimator",
             "MediaPipePoseConfig",
@@ -72,7 +73,7 @@ class PoseEstimatorNode(BaseEstimatorNode):
             bags=_MEDIAPIPE,
             rebuild_fields=_MEDIAPIPE_REBUILD,
         ),
-        "MediaPipe Pose (Heavy)": ModelSpec(
+        "haybale-visiongraph:catalog:pose_landmarker_heavy": ModelSpec(
             "visiongraph.estimator.spatial.pose.MediaPipePoseEstimator",
             "MediaPipePoseEstimator",
             "MediaPipePoseConfig",
@@ -80,7 +81,7 @@ class PoseEstimatorNode(BaseEstimatorNode):
             bags=_MEDIAPIPE,
             rebuild_fields=_MEDIAPIPE_REBUILD,
         ),
-        "MoveNet MultiPose": ModelSpec(
+        "haybale-visiongraph:catalog:movenet-multipose-256x320-fp32": ModelSpec(
             "visiongraph.estimator.spatial.pose.MoveNetPoseEstimator",
             "MoveNetPoseEstimator",
             "MoveNetConfig",
@@ -90,8 +91,6 @@ class PoseEstimatorNode(BaseEstimatorNode):
         ),
     }
 
-    # `selection` is per-family: the dropdown carries this node's own MODELS.
-    selection = selection_bag(MODELS)
     mediapipe = bag(MediaPipeSettings)
     movenet = bag(MoveNetSettings)
     nms = bag(NmsSettings)
