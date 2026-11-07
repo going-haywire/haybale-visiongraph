@@ -29,55 +29,11 @@ reads the attribute, verified against 1.2.0:
   the field name goes in the owning ``ModelSpec.rebuild_fields``
 """
 
-from haywire.core.settings import NodeSettings, Promotable, bag, setting
+from haywire.core.settings import NodeSettings, Promotable, setting
 from haywire.core.types.enums import PortType
 from haywire.barn.builtin.types import BOOL, CHOICES, COLOR, FLOAT, INT, OPTIONAL
 
 _NMS_BATCH_MODES = ["Auto", "Batched", "Sequential"]
-
-
-class SelectionSettings(NodeSettings):
-    """Which curated model this estimator runs.
-
-    The options differ per family, so `BaseEstimatorNode` declares this empty
-    base and each family node overrides it via `selection_bag(MODELS)` below.
-    `@node` permits redeclaring an inherited bag **only** as a subclass of it,
-    which is exactly what the factory returns.
-    """
-
-    model = setting[CHOICES](
-        "",
-        label="Model",
-        category="Model",
-        description="Which backend + weights to run. Changing this reloads the model.",
-        widget_config={"options": []},
-        promote_default=PortType.CONFIG,
-    )
-
-
-def selection_bag(models: dict) -> SelectionSettings:
-    """Build a family node's `selection` bag from its own MODELS map.
-
-    A factory rather than a shared descriptor with a live callable: the options
-    are a fixed property of the class, and a zero-arg `widget_config` callable
-    could not see which node it was being rendered for anyway.
-
-    Returns through `bag()`, so a family node's `selection` types as a bound
-    instance and matches the annotation `BaseEstimatorNode` declares.
-    """
-    labels = list(models)
-
-    class selection(SelectionSettings):
-        model = setting[CHOICES](
-            labels[0] if labels else "",
-            label="Model",
-            category="Model",
-            description="Which backend + weights to run. Changing this reloads the model.",
-            widget_config={"options": labels},
-            promote_default=PortType.CONFIG,
-        )
-
-    return bag(selection)
 
 
 class OverlaySettings(NodeSettings):

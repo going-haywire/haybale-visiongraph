@@ -1,0 +1,39 @@
+{
+    "name": "MoveNet MultiPose",
+    "author": "Google",
+    "license": "Apache-2.0",
+    "commercial": true,
+    "tags": [
+        "pose-estimation",
+        "movenet"
+    ],
+    "description": "MoveNet MultiPose, as packaged in the visiongraph model repository.",
+    "architecture": "movenet",
+    "purpose": [
+        "pose-estimation"
+    ],
+    "resources": [
+        {
+            "platform": "openvino",
+            "type": "xml",
+            "files": [
+                {
+                    "path": "movenet-multipose-256x320-fp32.xml",
+                    "sha256": "fe227b53b1f9f06ebc9fcb10199236b010e61992b7f5f3990e8f650e5c84bae5",
+                    "size": 527559,
+                    "urls": [
+                        "hf://cansik/visiongraph/movenet-multipose-256x320-fp32.xml@0de7ab36c9cf7d0843a1a19fd8c83db34a19d8a3"
+                    ]
+                },
+                {
+                    "path": "movenet-multipose-256x320-fp32.bin",
+                    "sha256": "7ce685ce8b8c99b32996d1c4d01c8f42b4530764aea63c5c7ca4ffc1149f5286",
+                    "size": 18936622,
+                    "urls": [
+                        "hf://cansik/visiongraph/movenet-multipose-256x320-fp32.bin@0de7ab36c9cf7d0843a1a19fd8c83db34a19d8a3"
+                    ]
+                }
+            ]
+        }
+    ]
+}

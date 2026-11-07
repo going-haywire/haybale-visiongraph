@@ -1,4 +1,3 @@
-from .frame_type import BaseFrame, RGB_FRAME, DEPTH_FRAME, GRAY_FRAME
 from .multiframe_callback_type import MULTIFRAME_CALLBACK
 from .result_type import (
     BaseVisionResult,
@@ -11,10 +10,6 @@ from .result_type import (
 
 
 __all__ = [
-    "BaseFrame",
-    "RGB_FRAME",
-    "DEPTH_FRAME",
-    "GRAY_FRAME",
     "MULTIFRAME_CALLBACK",
     "BaseVisionResult",
     "VISION_RESULT",

@@ -9,10 +9,10 @@ Estimate human body pose (named joints + skeleton) per person
 | id | direction | type | description |
 |---|---|---|---|
 | `execute` | inlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
-| `frame` | inlet | `haybale-visiongraph:type:RGB_FRAME` | 3-channel uint8 colour video frame |
+| `frame` | inlet | `haybale-image:type:IMAGE_RGB` | A three-channel picture. |
+| `model` | inlet | `haybale-models:type:MODEL_REF` | Which backend + weights to run. Changing this reloads the model. |
 | `status` | config | `haywire-core:type:STRING` | Text data |
 | `inference.min_score` | config | `haywire-core:type:FLOAT` | Minimum confidence. Applied natively by the estimator, so it can go BELOW the backend's own default. MediaPipe consumes this when the model is built, so changing it there reloads the model. |
-| `selection.model` | config | `haywire-core:type:CHOICES` | Which backend + weights to run. Changing this reloads the model. |
 | `result_ready` | outlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
 | `result` | outlet | `haybale-visiongraph:type:POSE_RESULT` | Human pose: landmarks with named joints and skeleton connections |
 | `count` | outlet | `haywire-core:type:INT` | Whole number |
@@ -23,7 +23,6 @@ Estimate human body pose (named joints + skeleton) per person
 |---|---|---|---|
 | `min_score` | inference | `0.3` | Minimum confidence. Applied natively by the estimator, so it can go BELOW the backend's own default. MediaPipe consumes this when the model is built, so changing it there reloads the model. |
 | `color` | overlay | `''` | Colour the Annotate node draws these results in. Empty keeps visiongraph's automatic per-tracking-id palette. Segmentation masks ignore this. |
-| `model` | selection | `'MediaPipe Pose (Full)'` | Which backend + weights to run. Changing this reloads the model. |
 | `max_num_poses` | mediapipe | `1` | How many people to track. Applied when the model is built. |
 | `min_pose_presence_confidence` | mediapipe | `0.5` | Applied when the model is built. |
 | `min_tracking_confidence` | mediapipe | `0.5` | Applied when the model is built. |

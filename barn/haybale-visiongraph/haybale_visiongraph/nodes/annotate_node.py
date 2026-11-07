@@ -9,7 +9,7 @@ several estimators onto one frame.
 
 Every visiongraph ``ResultList`` knows how to ``annotate(image, **kwargs)`` itself
 (mutating the image in place, using normalized coordinates). The worker **copies**
-the frame first — annotating in place would corrupt the shared ``RGB_FRAME`` value
+the frame first — annotating in place would corrupt the shared image
 flowing to other consumers — then draws every pooled result onto the copy.
 
 Every knob is a ``setting()`` in ``AnnotateStyle``; ``min_score`` and
@@ -21,6 +21,8 @@ configuration" in notes.md (which supersedes Q14's config-port/settings split).
 
 from typing import Optional
 
+import numpy as np
+
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
 from haywire.core.settings import NodeSettings, bag, setting
@@ -31,10 +33,9 @@ from haywire.barn.builtin.types import BOOL, FLOAT, INT, OPTIONAL
 def hex_to_bgr(value: str) -> Optional[tuple]:
     """``"#rrggbb"`` → an OpenCV ``(B, G, R)`` tuple. ``None`` for empty/invalid.
 
-    **BGR, not RGB.** Frames here are OpenCV-native: a webcam's `cv2.VideoCapture`
-    and OAK's `get_raw_image` both yield BGR, and the viewer re-encodes with
-    `cv2.imencode(".jpg", frame)`, which reads BGR. `RGB_FRAME` is a misnomer
-    the drawing code must not believe. Every visiongraph annotate() forwards
+    **BGR, not RGB.** The worker draws on the image's BGR pixels: a webcam's
+    `cv2.VideoCapture` and OAK's `get_raw_image` both yield BGR, and the viewer
+    re-encodes with `cv2.imencode(".jpg", frame)`, which reads BGR. Every visiongraph annotate() forwards
     its `color` straight to a cv2 draw call, so the tuple's first element lands
     in channel 0 — blue. Emitting RGB here would render a user's red as blue.
 
@@ -138,7 +139,7 @@ class AnnotateNode(BaseNode):
     Inputs:
         execute: Control flow in.
         result: Pooled result lists (any mix of VISION_RESULT subtypes).
-        frame: The image to draw on (RGB_FRAME).
+        frame: The image to draw on.
 
     Settings (``style``):
         min_score / show_info: seeded to config ports — the node's default face.
@@ -155,7 +156,7 @@ class AnnotateNode(BaseNode):
     def init(self):
         from haybale_core.types import PooledType
         from haywire.barn.builtin.types import EXEC
-        from haybale_visiongraph.types.frame_type import RGB_FRAME
+        from haybale_image.types.image import IMAGE_RGB
         from haybale_visiongraph.types.result_type import VISION_RESULT
 
         # Control in.
@@ -171,28 +172,24 @@ class AnnotateNode(BaseNode):
         )
 
         # Frame to draw on.
-        self.add(RGB_FRAME.as_inlet("frame", label="Frame"))
+        self.add(IMAGE_RGB.as_inlet("frame", label="Frame"))
 
         # Control out.
         self.add(EXEC.as_outlet("frame_ready", label="Frame Ready"))
 
         # Annotated frame out. (Distinct id from the "frame" inlet — port ids are
         # unique per node; cf. FrameDisplayNode's "frame_pass".)
-        self.add(RGB_FRAME.as_outlet("annotated", label="Annotated"))
+        self.add(IMAGE_RGB.as_outlet("annotated", label="Annotated"))
 
     def worker(self, context: ExecutionContext, result=None, frame=None) -> Optional[str]:
         """Copy the frame, draw every pooled result onto it, output the copy."""
-        from haybale_visiongraph.types.frame_type import BaseFrame, RGB_FRAME
+        from haybale_image.value import ChannelOrder, ImageValue
 
-        if frame is None or not isinstance(frame, BaseFrame) or not frame.is_valid():
-            return None
-
-        data = frame.data
-        if data is None:
+        if not isinstance(frame, ImageValue) or frame.is_empty:
             return None
 
         # Copy so in-place annotate() does not corrupt the shared frame (Q10).
-        image = data.copy()
+        image = frame.array(np.uint8, ChannelOrder.BGR).copy()
 
         # NodeSettings fields resolve to their unwrapped values on read.
         kwargs = {
@@ -231,7 +228,7 @@ class AnnotateNode(BaseNode):
                 except Exception:
                     pass
 
-        self.out(
-            "annotated", RGB_FRAME(data=image, timestamp=frame.timestamp, frame_number=frame.frame_number)
-        )
+        drawn = ImageValue.from_array(image, order=ChannelOrder.BGR, source_depth=frame.source_depth)
+        # Drawing keeps the frame's facts true, so its fields travel on.
+        self.out("annotated", frame.derive(drawn).with_fields(frame.fields))
         return "frame_ready"

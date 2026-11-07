@@ -1,0 +1,26 @@
+{
+    "name": "DEIMv2-N (COCO)",
+    "author": "Intellindust",
+    "license": "Apache-2.0",
+    "commercial": true,
+    "tags": [
+        "object-detection",
+        "deimv2"
+    ],
+    "description": "DEIMv2-N (COCO), as packaged in the visiongraph model repository.",
+    "architecture": "deimv2",
+    "purpose": [
+        "object-detection"
+    ],
+    "resources": [
+        {
+            "platform": "onnx",
+            "type": "onnx",
+            "size": 14733896,
+            "sha256": "eccbcf570d4356863aa7a29d4be997713cecfc6bf8ee85272e147da999370882",
+            "urls": [
+                "hf://cansik/visiongraph/deimv2_hgnetv2_n_coco.onnx@0de7ab36c9cf7d0843a1a19fd8c83db34a19d8a3"
+            ]
+        }
+    ]
+}

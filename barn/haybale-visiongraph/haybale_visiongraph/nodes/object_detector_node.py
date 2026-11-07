@@ -13,7 +13,7 @@ from haywire.core.settings import bag
 from haywire.core.node import node, NodeType
 
 from .base_estimator_node import BaseEstimatorNode, ModelSpec
-from .estimator_settings import NmsSettings, OpenVinoSettings, selection_bag
+from .estimator_settings import NmsSettings, OpenVinoSettings
 
 # The Ultralytics-shaped backends (YOLOv8, DEIMv2) all take `nms_options`; the
 # OpenVINO ones (SSD) take `device`. Everything here reads min_score inside
@@ -39,43 +39,45 @@ class ObjectDetectorNode(BaseEstimatorNode):
 
         return DETECTION_RESULT
 
+    FAMILY = "object-detection"
+
     MODELS = {
-        "YOLOv8-N (COCO)": ModelSpec(
+        "haybale-visiongraph:catalog:yolov8n": ModelSpec(
             "visiongraph.estimator.spatial.YOLOv8Detector",
             "YOLOv8Detector",
             "YOLOv8Config",
             "YOLOv8_N",
             bags=_ULTRALYTICS,
         ),
-        "YOLOv8-S (COCO)": ModelSpec(
+        "haybale-visiongraph:catalog:yolov8s": ModelSpec(
             "visiongraph.estimator.spatial.YOLOv8Detector",
             "YOLOv8Detector",
             "YOLOv8Config",
             "YOLOv8_S",
             bags=_ULTRALYTICS,
         ),
-        "YOLOv8-M (COCO)": ModelSpec(
+        "haybale-visiongraph:catalog:yolov8m": ModelSpec(
             "visiongraph.estimator.spatial.YOLOv8Detector",
             "YOLOv8Detector",
             "YOLOv8Config",
             "YOLOv8_M",
             bags=_ULTRALYTICS,
         ),
-        "DEIMv2-Pico (COCO)": ModelSpec(
+        "haybale-visiongraph:catalog:deimv2_hgnetv2_pico_coco": ModelSpec(
             "visiongraph.estimator.spatial.DEIMv2Detector",
             "DEIMv2Detector",
             "DEIMv2Config",
             "DEIMv2_HgNetv2_Pico_COCO",
             bags=_ULTRALYTICS,
         ),
-        "DEIMv2-N (COCO)": ModelSpec(
+        "haybale-visiongraph:catalog:deimv2_hgnetv2_n_coco": ModelSpec(
             "visiongraph.estimator.spatial.DEIMv2Detector",
             "DEIMv2Detector",
             "DEIMv2Config",
             "DEIMv2_HgNetv2_N_COCO",
             bags=_ULTRALYTICS,
         ),
-        "SSDLite MobileNetV2": ModelSpec(
+        "haybale-visiongraph:catalog:ssdlite_mobilenet_v2_fp32": ModelSpec(
             "visiongraph.estimator.spatial.SSDDetector",
             "SSDDetector",
             "SSDConfig",
@@ -85,7 +87,5 @@ class ObjectDetectorNode(BaseEstimatorNode):
         ),
     }
 
-    # `selection` is per-family: the dropdown carries this node's own MODELS.
-    selection = selection_bag(MODELS)
     nms = bag(NmsSettings)
     openvino = bag(OpenVinoSettings)

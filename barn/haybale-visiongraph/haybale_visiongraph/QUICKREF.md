@@ -12,19 +12,12 @@
 - `haybale-visiongraph:node:WebCameraNode` — Web Camera — Starts a webcam stream and emits frame callbacks  _tags: webcam, camera, video, capture, stream_
 
 ## type
-- `haybale-visiongraph:type:DEPTH_FRAME` — Depth Frame — Single-channel uint16 metric depth buffer (millimetres)
 - `haybale-visiongraph:type:DETECTION_RESULT` — Detection Result — Object detections: bounding box, class, score (and tracking id)
-- `haybale-visiongraph:type:GRAY_FRAME` — Gray Frame — Single-channel uint8 luminance video frame (e.g. infrared)
 - `haybale-visiongraph:type:LANDMARK_RESULT` — Landmark Result — Landmark detections: a detection plus a set of landmark points
 - `haybale-visiongraph:type:MULTIFRAME_CALLBACK` — Multiframe Callback — Subscription for multi-frame streams
 - `haybale-visiongraph:type:POSE_RESULT` — Pose Result — Human pose: landmarks with named joints and skeleton connections
-- `haybale-visiongraph:type:RGB_FRAME` — RGB Frame — 3-channel uint8 colour video frame
 - `haybale-visiongraph:type:SEGMENTATION_RESULT` — Segmentation Result — Instance segmentation: detection plus a per-instance mask
 - `haybale-visiongraph:type:VISION_RESULT` — Vision Result — A list of estimator results (base type for all result kinds)
-
-## adapter
-- `haybale-visiongraph:adapter:GrayToRgbAdapter` — GrayToRgbAdapter — Replicate a single-channel grey frame to a 3-channel colour frame
-- `haybale-visiongraph:adapter:RgbToGrayAdapter` — RgbToGrayAdapter — Convert a 3-channel colour frame to a single-channel grey frame (luminance)
 
 ## widget
 - `haybale-visiongraph:widget:NumpyViewerWidget` — NumpyViewerWidget — Streaming video viewer for numpy arrays using custom StreamingViewer

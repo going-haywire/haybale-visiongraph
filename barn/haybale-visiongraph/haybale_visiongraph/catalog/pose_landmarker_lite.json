@@ -1,0 +1,26 @@
+{
+    "name": "MediaPipe Pose (Lite)",
+    "author": "Google",
+    "license": "Apache-2.0",
+    "commercial": true,
+    "tags": [
+        "pose-estimation",
+        "mediapipe-pose"
+    ],
+    "description": "MediaPipe Pose (Lite), as packaged in the visiongraph model repository.",
+    "architecture": "mediapipe-pose",
+    "purpose": [
+        "pose-estimation"
+    ],
+    "resources": [
+        {
+            "platform": "mediapipe",
+            "type": "task",
+            "size": 5777746,
+            "sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a",
+            "urls": [
+                "hf://cansik/visiongraph/pose_landmarker_lite.task@0de7ab36c9cf7d0843a1a19fd8c83db34a19d8a3"
+            ]
+        }
+    ]
+}

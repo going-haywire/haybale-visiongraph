@@ -1,0 +1,25 @@
+{
+    "name": "YOLOv8-N (COCO)",
+    "author": "Ultralytics",
+    "license": "AGPL-3.0 or Ultralytics Enterprise",
+    "tags": [
+        "object-detection",
+        "yolov8"
+    ],
+    "description": "YOLOv8-N (COCO), as packaged in the visiongraph model repository.",
+    "architecture": "yolov8",
+    "purpose": [
+        "object-detection"
+    ],
+    "resources": [
+        {
+            "platform": "onnx",
+            "type": "onnx",
+            "size": 12769071,
+            "sha256": "690f9b94b31e06cd351119bb30fd1c5d023ca5c32caccf1a17a6ecca5d18180b",
+            "urls": [
+                "hf://cansik/visiongraph/yolov8n.onnx@0de7ab36c9cf7d0843a1a19fd8c83db34a19d8a3"
+            ]
+        }
+    ]
+}

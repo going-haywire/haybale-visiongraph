@@ -1,0 +1,39 @@
+{
+    "name": "Mask R-CNN ResNet50 (FP32)",
+    "author": "Intel",
+    "license": "Apache-2.0",
+    "commercial": true,
+    "tags": [
+        "segmentation",
+        "mask-rcnn"
+    ],
+    "description": "Mask R-CNN ResNet50 (FP32), as packaged in the visiongraph model repository.",
+    "architecture": "mask-rcnn",
+    "purpose": [
+        "segmentation"
+    ],
+    "resources": [
+        {
+            "platform": "openvino",
+            "type": "xml",
+            "files": [
+                {
+                    "path": "instance-segmentation-security-0002-fp32.xml",
+                    "sha256": "27bb8cbba8139f7757e1d0e8ff9badf8e388f61d9b1ae2d3d7fe61d21647cfd4",
+                    "size": 840711,
+                    "urls": [
+                        "hf://cansik/visiongraph/instance-segmentation-security-0002-fp32.xml@0de7ab36c9cf7d0843a1a19fd8c83db34a19d8a3"
+                    ]
+                },
+                {
+                    "path": "instance-segmentation-security-0002-fp32.bin",
+                    "sha256": "43df120a06790f0d623645d6cc7d8e410fca005cb8ede7f3495a972f9d701ec6",
+                    "size": 177479928,
+                    "urls": [
+                        "hf://cansik/visiongraph/instance-segmentation-security-0002-fp32.bin@0de7ab36c9cf7d0843a1a19fd8c83db34a19d8a3"
+                    ]
+                }
+            ]
+        }
+    ]
+}

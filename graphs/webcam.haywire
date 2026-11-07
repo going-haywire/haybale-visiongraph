@@ -477,20 +477,22 @@
           },
           "rgb": {
             "kwargs": {
-              "registry_id": "RGB_FRAME",
-              "registry_key": "haybale-visiongraph:type:RGB_FRAME",
+              "registry_id": "IMAGE_RGB",
+              "registry_key": "haybale-image:type:IMAGE_RGB",
               "label": "Color",
-              "description": "3-channel uint8 colour video frame",
-              "class_name": "RGB_FRAME",
-              "module": "haybale_visiongraph.types.frame_type",
+              "description": "A three-channel picture.",
+              "class_name": "IMAGE_RGB",
+              "module": "haybale_image.types.image",
               "flow_type": "data",
               "default": {
-                "data": null,
-                "timestamp": 0.0,
-                "frame_number": 0
+                "value": {
+                  "width": 0,
+                  "height": 0,
+                  "layout": "rgb"
+                }
               },
               "store_strategy": 1,
-              "color": "#9c27b0",
+              "color": "#3f8fd2",
               "id": "rgb",
               "port_type": "outlet",
               "allow_multiple_links": true,
@@ -498,7 +500,7 @@
               "show_widget": "never"
             },
             "recipe": {
-              "registry_key": "haybale-visiongraph:type:RGB_FRAME"
+              "registry_key": "haybale-image:type:IMAGE_RGB"
             }
           }
         },
@@ -620,20 +622,22 @@
           },
           "frame": {
             "kwargs": {
-              "registry_id": "RGB_FRAME",
-              "registry_key": "haybale-visiongraph:type:RGB_FRAME",
+              "registry_id": "IMAGE_RGB",
+              "registry_key": "haybale-image:type:IMAGE_RGB",
               "label": "Frame",
-              "description": "3-channel uint8 colour video frame",
-              "class_name": "RGB_FRAME",
-              "module": "haybale_visiongraph.types.frame_type",
+              "description": "A three-channel picture.",
+              "class_name": "IMAGE_RGB",
+              "module": "haybale_image.types.image",
               "flow_type": "data",
               "default": {
-                "data": null,
-                "timestamp": 0.0,
-                "frame_number": 0
+                "value": {
+                  "width": 0,
+                  "height": 0,
+                  "layout": "rgb"
+                }
               },
               "store_strategy": 1,
-              "color": "#9c27b0",
+              "color": "#3f8fd2",
               "widget_key": "haybale-visiongraph:widget:NumpyViewerWidget",
               "widget_config": {
                 "properties": {
@@ -648,7 +652,7 @@
               "show_widget": "when_linked"
             },
             "recipe": {
-              "registry_key": "haybale-visiongraph:type:RGB_FRAME"
+              "registry_key": "haybale-image:type:IMAGE_RGB"
             }
           },
           "info_display": {
@@ -702,20 +706,22 @@
           },
           "frame_pass": {
             "kwargs": {
-              "registry_id": "RGB_FRAME",
-              "registry_key": "haybale-visiongraph:type:RGB_FRAME",
+              "registry_id": "IMAGE_RGB",
+              "registry_key": "haybale-image:type:IMAGE_RGB",
               "label": "Frame Pass",
-              "description": "3-channel uint8 colour video frame",
-              "class_name": "RGB_FRAME",
-              "module": "haybale_visiongraph.types.frame_type",
+              "description": "A three-channel picture.",
+              "class_name": "IMAGE_RGB",
+              "module": "haybale_image.types.image",
               "flow_type": "data",
               "default": {
-                "data": null,
-                "timestamp": 0.0,
-                "frame_number": 0
+                "value": {
+                  "width": 0,
+                  "height": 0,
+                  "layout": "rgb"
+                }
               },
               "store_strategy": 1,
-              "color": "#9c27b0",
+              "color": "#3f8fd2",
               "id": "frame_pass",
               "port_type": "outlet",
               "allow_multiple_links": true,
@@ -723,7 +729,7 @@
               "show_widget": "never"
             },
             "recipe": {
-              "registry_key": "haybale-visiongraph:type:RGB_FRAME"
+              "registry_key": "haybale-image:type:IMAGE_RGB"
             }
           },
           "timestamp": {

@@ -17,16 +17,22 @@ suite does not run these: the symlink is local-only, so CI there has no
 
 import pytest
 
+from haybale_models.value.model_ref import ModelRef
 from haywire.core.settings import UiState
 
 pytestmark = [pytest.mark.unit]
 
 
 class _StubWrapper:
+    node = None
     graph = None
     state = None
+    is_cleaned_up = False
 
     def mark_as_structuraly_dirty(self):
+        pass
+
+    def replace_warnings(self, kind, warnings):
         pass
 
 
@@ -39,7 +45,9 @@ def _families():
 
 
 def _build(cls):
-    node = cls(node_id="test-node", wrapper=_StubWrapper())
+    wrapper = _StubWrapper()
+    node = cls(node_id="test-node", wrapper=wrapper)
+    wrapper.node = node
     node.init()
     # Mirrors NodeWrapper._initialize: promoted ports (including the ones a
     # setting(promote_default=...) seeded at bag construction) are realised
@@ -47,6 +55,14 @@ def _build(cls):
     node._regenerate_promoted_ports()
     node.post_init()
     return node
+
+
+MEDIAPIPE = "haybale-visiongraph:catalog:pose_landmarker_full"
+MOVENET = "haybale-visiongraph:catalog:movenet-multipose-256x320-fp32"
+
+
+def _choose(node, key):
+    node.ports["model"].set_value(ModelRef(catalog=key))
 
 
 def _bag_state(node, accessor):
@@ -57,7 +73,7 @@ def _bag_state(node, accessor):
 
 
 @pytest.mark.parametrize("cls", _families(), ids=lambda c: c.__name__)
-def test_model_and_min_score_are_seeded_to_config_ports(library_system, cls):
+def test_model_port_and_min_score_are_the_default_face(library_system, cls):
     """The node's default face. Seeded in init(), so a fresh drop has them."""
     node = _build(cls)
 
@@ -65,9 +81,8 @@ def test_model_and_min_score_are_seeded_to_config_ports(library_system, cls):
     # never the bare field name. This is also why an unmigrated graph shows the
     # old `min_score` config port AND the new `inference.min_score` side by
     # side rather than one silently shadowing the other.
-    assert "selection.model" in node.ports
+    assert "model" in node.ports
     assert "inference.min_score" in node.ports
-    assert node.selection._get_promoted_direction("model").value == "config"
     assert node.inference._get_promoted_direction("min_score").value == "config"
 
 
@@ -85,7 +100,7 @@ def test_selecting_a_model_shows_its_bags_and_hides_the_rest(library_system, cls
     backend_bags = cls.hb_backend_bags()
 
     for label, spec in cls.MODELS.items():
-        node.selection.model = label
+        _choose(node, label)
         for accessor in backend_bags:
             expected = UiState.NORMAL if accessor in spec.bags else UiState.HIDDEN
             assert _bag_state(node, accessor) is expected, (
@@ -99,10 +114,10 @@ def test_mediapipe_rebuilds_for_min_score_but_movenet_does_not(library_system):
 
     node = _build(PoseEstimatorNode)
 
-    node.selection.model = "MediaPipe Pose (Full)"
+    _choose(node, MEDIAPIPE)
     assert "min_score" in node.hb_current_spec().rebuild_fields
 
-    node.selection.model = "MoveNet MultiPose"
+    _choose(node, MOVENET)
     assert "min_score" not in node.hb_current_spec().rebuild_fields
 
 
@@ -113,15 +128,15 @@ def test_min_score_change_releases_the_estimator_only_when_rebuild_bound(library
     node = _build(PoseEstimatorNode)
     sentinel = object()
 
-    node.selection.model = "MoveNet MultiPose"
+    _choose(node, MOVENET)
     node.hb_estimator = sentinel
-    node.hb_loaded_model = "MoveNet MultiPose"
+    node.hb_loaded_model = MOVENET
     node.inference.min_score = 0.42
     assert node.hb_estimator is sentinel, "live backend reloaded on a min_score change"
 
-    node.selection.model = "MediaPipe Pose (Full)"
+    _choose(node, MEDIAPIPE)
     node.hb_estimator = sentinel
-    node.hb_loaded_model = "MediaPipe Pose (Full)"
+    node.hb_loaded_model = MEDIAPIPE
     node.inference.min_score = 0.55
     assert node.hb_estimator is None, "MediaPipe did not reload for a build-time field"
 
@@ -133,7 +148,7 @@ def test_changing_model_drops_the_cached_estimator(library_system, cls):
     node.hb_estimator = object()
     node.hb_loaded_model = labels[0]
 
-    node.selection.model = labels[-1] if len(labels) > 1 else labels[0]
+    _choose(node, labels[-1] if len(labels) > 1 else labels[0])
 
     assert node.hb_estimator is None
 
@@ -224,7 +239,7 @@ def test_frame_event_toggle_rebuilds_stream_outlets(library_system):
 
 def test_frame_event_queue_mode_reaches_the_callback_event(library_system):
     """ADR 0010's knob was hardcoded to DROP/1; it is the user's choice now."""
-    from haywire.core.execution.scheduler import QueueMode
+    from haywire.core.execution import QueueMode
     from haybale_visiongraph.nodes.numpy_frame_event_node import NumpyFrameEventNode
 
     node = _build(NumpyFrameEventNode)
