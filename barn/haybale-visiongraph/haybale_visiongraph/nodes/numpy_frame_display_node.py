@@ -3,13 +3,13 @@ Webcam Frame Info Display Node - Displays frame information and preview
 """
 
 from typing import Optional
-import numpy as np
 
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import node, BaseNode, NodeType
 from haywire.core.types.enums import ShowWidgetStrategy
 
-from haybale_visiongraph.types.frame_type import BaseFrame
+from haybale_image.types.image import IMAGE_RGB
+from haybale_image.value import ImageValue
 
 
 @node(
@@ -27,7 +27,7 @@ class FrameDisplayNode(BaseNode):
 
     Inputs:
         execute: Control flow in
-        frame: Frame to display (RGB_FRAME type)
+        frame: Frame to display
 
     Outputs:
         frame_ready: Control flow out
@@ -41,7 +41,6 @@ class FrameDisplayNode(BaseNode):
         from haywire.barn.builtin.types import STRING, INT, FLOAT
         from haywire.barn.builtin.types import EXEC
         from haywire.barn.builtin.widgets import SimpleLabelWidget
-        from haybale_visiongraph.types.frame_type import RGB_FRAME
         from haybale_visiongraph.widgets.numpy_viewer_widget import NumpyViewerWidget
 
         # Control input
@@ -49,7 +48,7 @@ class FrameDisplayNode(BaseNode):
 
         # Frame input with preview widget
         self.add(
-            RGB_FRAME.as_inlet(
+            IMAGE_RGB.as_inlet(
                 "frame",
                 label="Frame",
                 show_widget=ShowWidgetStrategy.WHEN_LINKED,
@@ -74,17 +73,13 @@ class FrameDisplayNode(BaseNode):
         self.add(EXEC.as_outlet("frame_ready", label="Frame Ready"))
 
         # Convenience data outputs
-        self.add(RGB_FRAME.as_outlet("frame_pass", label="Frame Pass"))
+        self.add(IMAGE_RGB.as_outlet("frame_pass", label="Frame Pass"))
 
         # Convenience data outputs
         self.add(FLOAT.as_outlet("timestamp", label="Timestamp (s)"))
         self.add(INT.as_outlet("frame_number", label="Frame Number"))
         self.add(INT.as_outlet("width", label="Width"))
         self.add(INT.as_outlet("height", label="Height"))
-
-    def post_init(self):
-        """Initialize state"""
-        self.hb_last_frame_number = 0
 
     def worker(self, context: ExecutionContext, frame) -> Optional[str]:
         """Process and display frame information"""
@@ -94,28 +89,16 @@ class FrameDisplayNode(BaseNode):
             self.hb_update_display("No frame received")
             return None
 
-        # Handle both frame objects and raw numpy arrays
-        if isinstance(frame, BaseFrame):
-            if not frame.is_valid():
-                self.hb_update_display("Invalid frame")
-                return None
-
-            frame_number = frame.frame_number
-            timestamp = frame.timestamp
-            width = frame.width
-            height = frame.height
-            channels = frame.channels
-        elif isinstance(frame, np.ndarray):
-            # Raw numpy array - extract basic info
-            frame_number = self.hb_last_frame_number + 1
-            timestamp = 0.0
-            height, width = frame.shape[:2]
-            channels = frame.shape[2] if len(frame.shape) > 2 else 1
-        else:
-            self.hb_update_display("Unknown frame type")
+        if not isinstance(frame, ImageValue) or frame.is_empty:
+            self.hb_update_display("Invalid frame")
             return None
 
-        self.hb_last_frame_number = frame_number
+        fields = frame.fields
+        frame_number = fields["camera_frame_number"].value if "camera_frame_number" in fields else 0
+        timestamp = fields["camera_timestamp"].value if "camera_timestamp" in fields else 0.0
+        width = frame.width
+        height = frame.height
+        channels = frame.channels
 
         # Calculate FPS
         fps = frame_number / timestamp if timestamp > 0 else 0

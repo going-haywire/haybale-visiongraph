@@ -9,7 +9,7 @@ Detect objects in a frame (bounding box + class + score)
 | id | direction | type | description |
 |---|---|---|---|
 | `execute` | inlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
-| `frame` | inlet | `haybale-visiongraph:type:RGB_FRAME` | 3-channel uint8 colour video frame |
+| `frame` | inlet | `haybale-image:type:IMAGE_RGB` | A three-channel picture. |
 | `model` | inlet | `haybale-models:type:MODEL_REF` | Which backend + weights to run. Changing this reloads the model. |
 | `status` | config | `haywire-core:type:STRING` | Text data |
 | `inference.min_score` | config | `haywire-core:type:FLOAT` | Minimum confidence. Applied natively by the estimator, so it can go BELOW the backend's own default. MediaPipe consumes this when the model is built, so changing it there reloads the model. |

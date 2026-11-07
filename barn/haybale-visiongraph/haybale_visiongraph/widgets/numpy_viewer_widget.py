@@ -5,6 +5,7 @@ OpenCV Viewer Widget - Displays numpy arrays as streaming video in nodes
 from typing import Any
 
 import numpy as np
+from haybale_image.value import ChannelOrder, ImageValue
 
 from haywire.ui.widget.base import BaseWidget
 from haywire.ui.widget.decorator import widget
@@ -76,10 +77,9 @@ class NumpyViewerWidget(BaseWidget):
         # Floor-only widget: owns sync entirely, does not call super().
         if self._backend is None or not self._backend._is_running:
             return
-        frame_data = frame.data if hasattr(frame, "data") else frame
-        if isinstance(frame_data, np.ndarray) and frame_data.size:
+        if isinstance(frame, ImageValue) and not frame.is_empty:
             try:
-                self._backend.stream(frame_data)
+                self._backend.stream(frame.array(np.uint8, ChannelOrder.BGR))
             except Exception as e:
                 if self._backend and self._backend._is_running:
                     print(f"[NumpyViewerWidget] Error streaming frame: {e}")

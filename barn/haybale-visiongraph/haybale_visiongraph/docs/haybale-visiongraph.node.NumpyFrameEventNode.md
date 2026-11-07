@@ -15,7 +15,7 @@ Triggered when a camera frame is ready; exposes colour/depth/infrared streams
 | `frame_ready` | outlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
 | `timestamp` | outlet | `haywire-core:type:FLOAT` | Decimal number |
 | `frame_number` | outlet | `haywire-core:type:INT` | Whole number |
-| `rgb` | outlet | `haybale-visiongraph:type:RGB_FRAME` | 3-channel uint8 colour video frame |
+| `rgb` | outlet | `haybale-image:type:IMAGE_RGB` | A three-channel picture. |
 
 ## Settings
 

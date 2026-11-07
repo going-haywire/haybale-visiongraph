@@ -16,7 +16,7 @@ a thin subclass that sets just two class attributes::
 
 Design decisions realised here:
 
-- **Image inlet ``RGB_FRAME``** (Q4) — gray auto-adapts; depth is refused.
+- **Image inlet ``IMAGE_RGB``** (Q4) — gray auto-adapts; depth is refused.
 - **Lazy ``setup()`` on first frame** (Q7) — the estimator is a transform, not a
   device. The built estimator is cached; changing ``model`` — or any field a
   spec lists in ``rebuild_fields`` — releases it so the next frame rebuilds.
@@ -41,6 +41,8 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
+
+import numpy as np
 
 from haywire.core.execution.execution_context import ExecutionContext
 from haywire.core.node import BaseNode
@@ -136,7 +138,7 @@ class BaseEstimatorNode(BaseNode):
 
     Inputs:
         execute: Control flow in (pulse per frame).
-        frame: The image to run inference on (RGB_FRAME).
+        frame: The image to run inference on.
 
     Settings:
         model: Port taking a catalog entry of this family; starts empty.
@@ -194,13 +196,13 @@ class BaseEstimatorNode(BaseNode):
         from haywire.barn.builtin.types import STRING, INT
         from haywire.barn.builtin.types import EXEC
         from haywire.barn.builtin.widgets import SimpleLabelWidget
-        from haybale_visiongraph.types.frame_type import RGB_FRAME
+        from haybale_image.types.image import IMAGE_RGB
 
         # Control in.
         self.add(EXEC.as_inlet("execute", label="Run"))
 
         # Image in.
-        self.add(RGB_FRAME.as_inlet("frame", label="Frame"))
+        self.add(IMAGE_RGB.as_inlet("frame", label="Frame"))
 
         self.hb_add_model_port()
 
@@ -432,9 +434,9 @@ class BaseEstimatorNode(BaseNode):
 
     def worker(self, context: ExecutionContext, frame=None, model=None) -> Optional[str]:
         """Run inference on one frame, synchronously (Q8)."""
-        from haybale_visiongraph.types.frame_type import BaseFrame
+        from haybale_image.value import ChannelOrder, ImageValue
 
-        if frame is None or not isinstance(frame, BaseFrame) or not frame.is_valid():
+        if not isinstance(frame, ImageValue) or frame.is_empty:
             self.hb_update_status("No valid frame")
             return None
 
@@ -450,7 +452,7 @@ class BaseEstimatorNode(BaseNode):
 
         try:
             t0 = time.time()
-            results = estimator.process(frame.data)
+            results = estimator.process(frame.array(np.uint8, ChannelOrder.BGR))
             elapsed_ms = (time.time() - t0) * 1000.0
         except Exception as e:
             self.hb_update_status(f"Inference error: {e}")

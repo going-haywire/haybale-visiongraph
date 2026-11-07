@@ -10,9 +10,11 @@ from types import SimpleNamespace
 from typing import Any
 from unittest.mock import patch
 
+import numpy as np
 import pytest
 
 import haybale_visiongraph
+from haybale_image.value import ImageValue
 from haybale_models.resolver import ModelMissing
 from haybale_models.value.model_ref import ModelRef
 from haybale_visiongraph.nodes import base_estimator_node as base
@@ -180,11 +182,8 @@ def test_no_model_empties_the_outputs_and_does_not_continue(library_system: Any)
     node = _build(_families()[0])
     emitted: dict[str, Any] = {}
     node.out = lambda name, value: emitted.__setitem__(name, value)
-    frame = SimpleNamespace(is_valid=lambda: True, data=None)
-    with (
-        patch.object(base, "resolve_port", side_effect=ModelMissing(ModelRef(), [])),
-        patch("haybale_visiongraph.types.frame_type.BaseFrame", SimpleNamespace),
-    ):
+    frame = ImageValue.from_array(np.zeros((2, 2, 3), np.uint8))
+    with patch.object(base, "resolve_port", side_effect=ModelMissing(ModelRef(), [])):
         assert node.worker(SimpleNamespace(), frame=frame) is None
     assert emitted["count"] == 0
     assert list(emitted["result"].results) == []

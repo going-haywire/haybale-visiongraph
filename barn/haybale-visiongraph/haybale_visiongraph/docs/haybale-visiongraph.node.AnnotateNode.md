@@ -10,11 +10,11 @@ Draw estimator results (boxes / masks / poses) onto a frame
 |---|---|---|---|
 | `execute` | inlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
 | `result` | inlet | `haybale-core:type:PooledType` | Connect one or more estimator result outlets |
-| `frame` | inlet | `haybale-visiongraph:type:RGB_FRAME` | 3-channel uint8 colour video frame |
+| `frame` | inlet | `haybale-image:type:IMAGE_RGB` | A three-channel picture. |
 | `style.min_score` | config | `haywire-core:type:FLOAT` | Hide results and landmarks below this confidence. |
 | `style.show_info` | config | `haywire-core:type:BOOL` | Draw the label / info text next to each result. |
 | `frame_ready` | outlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
-| `annotated` | outlet | `haybale-visiongraph:type:RGB_FRAME` | 3-channel uint8 colour video frame |
+| `annotated` | outlet | `haybale-image:type:IMAGE_RGB` | A three-channel picture. |
 
 ## Settings
 
@@ -34,7 +34,7 @@ Overlay pooled vision results onto a frame.
 Inputs:
     execute: Control flow in.
     result: Pooled result lists (any mix of VISION_RESULT subtypes).
-    frame: The image to draw on (RGB_FRAME).
+    frame: The image to draw on.
 
 Settings (``style``):
     min_score / show_info: seeded to config ports — the node's default face.

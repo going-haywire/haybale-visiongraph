@@ -24,7 +24,7 @@ from haywire.core.execution import QueueMode
 from haywire.core.node import node, BaseNode, NodeType
 from haywire.core.settings import NodeSettings, Promotable, bag, setting
 from haywire.core.types.enums import PortType
-from haywire.barn.builtin.types import BOOL, CHOICES, INT
+from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT
 
 _QUEUE_MODES = {"Drop (realtime)": QueueMode.DROP, "Block (every frame)": QueueMode.BLOCK}
 
@@ -167,14 +167,15 @@ class NumpyFrameEventNode(BaseNode):
 
     def _build_stream_outlets(self):
         """Add the frame outlets for whichever streams are currently enabled."""
-        from ..types.frame_type import RGB_FRAME, DEPTH_FRAME, GRAY_FRAME
+        from haybale_image.types.depth import DEPTH
+        from haybale_image.types.image import IMAGE_GRAY, IMAGE_RGB
 
         if self.streams.enable_rgb:
-            self.add(RGB_FRAME.as_outlet("rgb", label="Color"))
+            self.add(IMAGE_RGB.as_outlet("rgb", label="Color"))
         if self.streams.enable_depth:
-            self.add(DEPTH_FRAME.as_outlet("depth", label="Depth"))
+            self.add(DEPTH.as_outlet("depth", label="Depth"))
         if self.streams.enable_ir:
-            self.add(GRAY_FRAME.as_outlet("ir", label="Infrared"))
+            self.add(IMAGE_GRAY.as_outlet("ir", label="Infrared"))
 
     def hb_reconfigure(self, value=None, old=None):
         """On a flag change: rebuild stream outlets and refresh the subscription.
@@ -218,24 +219,42 @@ class NumpyFrameEventNode(BaseNode):
 
     def worker(self, context: ExecutionContext) -> Optional[str]:
         """Unpack an incoming multi-stream payload into the enabled outlets."""
-        from ..types.frame_type import RGB_FRAME, DEPTH_FRAME, GRAY_FRAME
-
         payload = context.trigger.payload if context.trigger else None
         if not isinstance(payload, dict):
             return None
 
-        frame_number = payload.get("frame_number", 0)
-        timestamp = payload.get("timestamp", 0.0)
+        wrapped = self.hb_wrap_streams(payload)
+        if self.streams.enable_rgb and "rgb" in wrapped:
+            self.out("rgb", wrapped["rgb"])
+        if self.streams.enable_depth and "depth" in wrapped:
+            self.out("depth", wrapped["depth"])
+        if self.streams.enable_ir and "ir" in wrapped:
+            self.out("ir", wrapped["ir"])
 
-        if self.streams.enable_rgb and payload.get("rgb") is not None:
-            self.out("rgb", RGB_FRAME(data=payload["rgb"], timestamp=timestamp, frame_number=frame_number))
-        if self.streams.enable_depth and payload.get("depth") is not None:
-            self.out(
-                "depth", DEPTH_FRAME(data=payload["depth"], timestamp=timestamp, frame_number=frame_number)
-            )
-        if self.streams.enable_ir and payload.get("ir") is not None:
-            self.out("ir", GRAY_FRAME(data=payload["ir"], timestamp=timestamp, frame_number=frame_number))
-
-        self.out("timestamp", timestamp)
-        self.out("frame_number", frame_number)
+        self.out("timestamp", payload.get("timestamp", 0.0))
+        self.out("frame_number", payload.get("frame_number", 0))
         return "frame_ready"
+
+    def hb_wrap_streams(self, payload: dict) -> dict:
+        """Return the payload's streams as values stamped with the frame's time and number.
+
+        The buffers are wrapped, not copied. `rgb` is in OpenCV's BGR order. A stream
+        the payload does not hold is left out.
+        """
+        from haybale_image.value import ChannelOrder, DepthValue, ImageValue
+
+        wrapped: dict = {}
+        if payload.get("rgb") is not None:
+            wrapped["rgb"] = ImageValue.from_array(payload["rgb"], order=ChannelOrder.BGR)
+        if payload.get("depth") is not None:
+            wrapped["depth"] = DepthValue.from_array(payload["depth"])
+        if payload.get("ir") is not None:
+            wrapped["ir"] = ImageValue.from_array(payload["ir"])
+        timestamp = payload.get("timestamp", 0.0)
+        frame_number = payload.get("frame_number", 0)
+        return {
+            name: value.stamped("camera_timestamp", timestamp, FLOAT).stamped(
+                "camera_frame_number", frame_number, INT
+            )
+            for name, value in wrapped.items()
+        }
