@@ -338,14 +338,14 @@
               "registry_id": "PooledType",
               "registry_key": "haybale-core:type:PooledType",
               "label": "Subscribers",
-              "description": "Connect to a Frame Event node. Beware: this camera type can only deliver rgb frames",
+              "description": "Connect to an Image Event node. The webcam delivers single colour images.",
               "class_name": "PooledType",
               "module": "haybale_core.types.pooled_type",
               "default": {
                 "value": {}
               },
               "store_strategy": 2,
-              "color": "#ff3c00",
+              "color": "#3f8fd2",
               "id": "callbacks",
               "port_type": "inlet",
               "order": 7
@@ -353,7 +353,7 @@
             "recipe": {
               "registry_key": "haybale-core:type:PooledType",
               "element_type": {
-                "registry_key": "haybale-visiongraph:type:CALLBACK_MULTIFRAME"
+                "registry_key": "haybale-image:type:CALLBACK_IMAGE"
               }
             }
           },
