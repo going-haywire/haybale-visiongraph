@@ -7,7 +7,7 @@ dependencies = [
     "depthai~=2.30", 
     "fastapi", 
     "haybale-core>=0.3.3",
-    "haybale-image>=0.3.3",
+    "haybale-image>=0.3.4",
     "haybale-models>=0.3.3",
     "haywire-core>=0.3.3",
     "nicegui>=3.12.1", 
