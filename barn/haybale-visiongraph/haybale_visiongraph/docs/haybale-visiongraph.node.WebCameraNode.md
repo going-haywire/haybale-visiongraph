@@ -43,7 +43,7 @@ Emits callbacks on each frame for downstream event nodes to process.
 Inputs:
     start: Begin capturing from webcam
     stop: Stop the capture stream
-    callbacks: Pooled MULTIFRAME_CALLBACK subscriptions from event nodes
+    callbacks: Pooled CALLBACK_MULTIFRAME subscriptions from event nodes
 
 Settings:
     capture: camera_index / width / height / fps / capture_backend /

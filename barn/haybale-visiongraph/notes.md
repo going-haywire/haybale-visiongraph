@@ -190,7 +190,7 @@ The generic Annotate node (the `VISION_RESULT` consumer) takes:
   `LANDMARK_RESULT` / `POSE_RESULT` outlets *simultaneously*: each is a subtype of
   `VISION_RESULT`, and a pooled inlet checks compatibility against its ELEMENT
   type (verified: `PooledField.get_stored_type()` returns `element_type_cls`, and
-  the live `PooledType[MULTIFRAME_CALLBACK]` ← scalar callback outlets proves
+  the live `PooledType[CALLBACK_MULTIFRAME]` ← scalar callback outlets proves
   scalar-source→pooled-sink works via the Q2 `issubclass` passthrough). So one
   Annotate node overlays detections + pose + masks from several estimators onto
   one frame — the user's key insight.
@@ -367,17 +367,17 @@ Goal: a webcam should be usable as the **RGB-only member** of the camera family,
 feeding the *same* shared `NumpyFrameEventNode`. One shared event node, per-device
 emit nodes (OAK-D, webcam, later Azure/RealSense).
 
-- **Reuse `MULTIFRAME_CALLBACK`** (not a new `RGBFRAME_CALLBACK`): goal requires
+- **Reuse `CALLBACK_MULTIFRAME`** (not a new `RGBFRAME_CALLBACK`): goal requires
   one subscription type flowing out of the single shared event node, so a second
   callback type would split it. The webcam emit node's pooled inlet is
-  `PooledType[MULTIFRAME_CALLBACK]`, same as OAK.
+  `PooledType[CALLBACK_MULTIFRAME]`, same as OAK.
 - **Webcam honours only `rgb`**, silently ignores depth/ir requirements (mirrors
   an OAK with a stream off → unfired outlet). Reads the requirement union; if no
   subscriber wants rgb, it does not capture (`hb_any_rgb_requested` guard).
 - **Payload key changed** `"frame"` → `"rgb"` to match the OAK open-keyed payload.
 - **`WebcamFrameEventNode`: deprecated, not deleted.** Marked with
   `deprecation_warning=` on `@node` (steers users to `NumpyFrameEventNode`), but
-  **migrated to the new contract** — subscribes via `MULTIFRAME_CALLBACK`
+  **migrated to the new contract** — subscribes via `CALLBACK_MULTIFRAME`
   (`rgb=True`) and reads `payload["rgb"]` — so it stays *functional* against the
   updated webcam emit node, not just a dead badge.
 - **"multiframe" = capability, not mandate** — documented on the type docstring +
@@ -392,7 +392,7 @@ emit nodes (OAK-D, webcam, later Azure/RealSense).
 - [ ] Rename `FRAME → RGB_FRAME` across the 3 existing nodes + `NumpyViewerWidget`
       `compatible_types` + `types/__init__.py` + docs; then `/check-rename`.
 - [ ] `GRAY_FRAME ↔ RGB_FRAME` adapters. No `DEPTH_FRAME` adapter.
-- [ ] `MULTIFRAME_CALLBACK` (`BaseType` dataclass, `wire_type=CallbackWire`,
+- [ ] `CALLBACK_MULTIFRAME` (`BaseType` dataclass, `wire_type=CallbackWire`,
       `name` + stream-requirement fields).
 - [ ] `OakDCameraNode` (device-specific; wraps `OakDInput`; EXEC start/stop;
       `on_startup` reads union; capture thread; open-keyed payload).
@@ -500,7 +500,7 @@ rename changes the persisted key `visiongraph:FRAME` → `visiongraph:RGB_FRAME`
 needed: `@type(registry_id="...")` pins the key independent of class name — we
 deliberately do NOT use it.
 
-### MULTIFRAME_CALLBACK type (Q14–Q15) — the subscription carrier
+### CALLBACK_MULTIFRAME type (Q14–Q15) — the subscription carrier
 
 A **visiongraph-local `BaseType` dataclass** (NOT a subclass of core `CALLBACK`),
 declared with `wire_type=CallbackWire` (from `haywire.barn.builtin.wires`). Fields: `name: str` +
@@ -519,12 +519,12 @@ Why a dataclass works (verified against the framework):
 
 Two payoffs over a bare CALLBACK + sidecar:
 1. **Requirements ride the one subscription edge** (event outlet → emit's
-   `PooledType[MULTIFRAME_CALLBACK]` inlet). No second parallel edge.
+   `PooledType[CALLBACK_MULTIFRAME]` inlet). No second parallel edge.
 2. **Type-gating**: only OAK-compatible event nodes can wire into the OAK emit
    node — a plain webcam `CALLBACK` event node can't connect.
 
 Two channels, opposite directions (do not conflate):
-- **Subscription edge** (event → emit): carries `MULTIFRAME_CALLBACK`
+- **Subscription edge** (event → emit): carries `CALLBACK_MULTIFRAME`
   (name + requirements). The emit node unions `.streams` across the pooled
   entries in `on_startup`.
 - **Runtime dispatch** (emit → event): `context.emit_callback(name, payload)` —
@@ -539,7 +539,7 @@ Infrared}` model, so the *streams* are a shared abstraction and only the *device
 setup* differs.
 
 - **`NumpyFrameEventNode`** (shared, one class): subscribes via
-  `MULTIFRAME_CALLBACK` to ANY 3D-camera emit node. Exposes `rgb`/`depth`/`ir`
+  `CALLBACK_MULTIFRAME` to ANY 3D-camera emit node. Exposes `rgb`/`depth`/`ir`
   outlets. Reused across all current and future 3D cameras.
 - **Per-device emit nodes**: `OakDCameraNode` now; `AzureKinectEmitNode`,
   `RealSenseEmitNode`, … later. Each wraps its own visiongraph input class.
@@ -547,7 +547,7 @@ setup* differs.
 **Stream flags (Q19) — explicit config, user is source of truth.** Three bool
 config flags (`rgb`/`depth`/`ir`) on the event node. Each `on_change` → `rejig`
 that BOTH builds/removes the outlet AND sets the matching field in the
-`MULTIFRAME_CALLBACK` requirement sent upstream. NOT derived from downstream
+`CALLBACK_MULTIFRAME` requirement sent upstream. NOT derived from downstream
 wiring (chicken-and-egg: can't wire to an outlet that doesn't exist yet).
 
 **Shared contract (Q20) — fixed three, open-keyed payload.** The shared node's
@@ -555,10 +555,10 @@ contract is exactly `rgb`/`depth`/`ir` (the `BaseDepthCamera` common
 denominator). If a device lacks a stream, its payload slot is `None`. The
 runtime payload dict (Q6) is **open-keyed by stream name**, so a future
 device-specific node can carry extra streams (e.g. RealSense second IR) by
-adding a key — WITHOUT changing `MULTIFRAME_CALLBACK` or `NumpyFrameEventNode`.
+adding a key — WITHOUT changing `CALLBACK_MULTIFRAME` or `NumpyFrameEventNode`.
 The shared event node still only ever shows `rgb`/`depth`/`ir`.
 
-**MULTIFRAME_CALLBACK meaning widens:** the type-gate is now "any 3D-camera emit
+**CALLBACK_MULTIFRAME meaning widens:** the type-gate is now "any 3D-camera emit
 node ↔ the shared 3D event node" (not OAK-specific). The single type still
 expresses it — all 3D emit nodes use it; the one event node consumes it.
 
@@ -617,7 +617,7 @@ macOS). Our pyproject pins `depthai~=2.30` to match.
   (driven by the requirement union, not standalone toggles), color resolution.
 - Depth uses `OakDInput`'s defaults: HIGH_DENSITY preset, 7x7 median filter,
   left-right-check on. Produces working depth out of the box, no tuning ports.
-- The three frame datatypes + GRAY↔RGB adapters + MULTIFRAME_CALLBACK + the
+- The three frame datatypes + GRAY↔RGB adapters + CALLBACK_MULTIFRAME + the
   emit/event pair with the full lifecycle.
 
 ### v1 — explicit non-goals (fast-follow or later)
@@ -796,7 +796,7 @@ Closed by wiring `on_change="hb_on_callbacks_changed"` onto the `callbacks`
 pooled inlet, calling `hb_gather_requirements()`. This required no new
 propagation mechanism — the pooled inlet already fires its deferred
 `on_change` whenever any one connected `NumpyFrameEventNode` republishes its
-`MULTIFRAME_CALLBACK` subscription (e.g. via `hb_reconfigure` on an
+`CALLBACK_MULTIFRAME` subscription (e.g. via `hb_reconfigure` on an
 `enable_*` flag toggle), because `PooledField.set_value` treats every
 per-source write as a pool-dict change and `resolve_dirty_data()` fires the
 handler once per VM tick with the whole current pool — exactly the same

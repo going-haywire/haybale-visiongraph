@@ -7,7 +7,7 @@ agnostic subscriber is ``NumpyFrameEventNode``.
 
 Lifecycle (see notes.md Q9-Q11):
 - ``on_startup``  : read the *requirement union* from the pooled
-  ``MULTIFRAME_CALLBACK`` inlet — which streams any subscriber wants. Config
+  ``CALLBACK_MULTIFRAME`` inlet — which streams any subscriber wants. Config
   only; does NOT open the device.
 - ``start`` pulse : open the OAK device + capture thread using that union.
 - ``stop`` pulse  : close the device.
@@ -144,7 +144,7 @@ class OakDCameraNode(BaseNode):
     Inputs:
         start: Open the device and begin capturing.
         stop: Stop capturing and close the device.
-        callbacks: Pooled MULTIFRAME_CALLBACK subscriptions from event nodes.
+        callbacks: Pooled CALLBACK_MULTIFRAME subscriptions from event nodes.
 
     Outputs:
         started: Triggered when the device opens successfully.
@@ -420,16 +420,16 @@ class OakDCameraNode(BaseNode):
         from haywire.barn.builtin.types import EXEC
         from haybale_core.types import PooledType
         from haywire.barn.builtin.widgets import SimpleLabelWidget
-        from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
+        from ..types.callback_multiframe_type import CALLBACK_MULTIFRAME
 
         # Control inputs
         self.add(EXEC.as_inlet("start", label="Start"))
         self.add(EXEC.as_inlet("stop", label="Stop"))
 
         # Pooled subscriptions: each connected event node contributes its
-        # MULTIFRAME_CALLBACK (name + stream requirements).
+        # CALLBACK_MULTIFRAME (name + stream requirements).
         self.add(
-            PooledType[MULTIFRAME_CALLBACK].as_inlet(
+            PooledType[CALLBACK_MULTIFRAME].as_inlet(
                 "callbacks",
                 label="Subscribers",
                 description="Connect to a Frame Event node",

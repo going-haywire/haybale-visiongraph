@@ -172,7 +172,7 @@ class WebCameraNode(BaseNode):
     Inputs:
         start: Begin capturing from webcam
         stop: Stop the capture stream
-        callbacks: Pooled MULTIFRAME_CALLBACK subscriptions from event nodes
+        callbacks: Pooled CALLBACK_MULTIFRAME subscriptions from event nodes
 
     Settings:
         capture: camera_index / width / height / fps / capture_backend /
@@ -193,7 +193,7 @@ class WebCameraNode(BaseNode):
         from haywire.barn.builtin.types import EXEC
         from haybale_core.types import PooledType
         from haywire.barn.builtin.widgets import SimpleLabelWidget
-        from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
+        from ..types.callback_multiframe_type import CALLBACK_MULTIFRAME
 
         # Control inputs
         self.add(EXEC.as_inlet("start", label="Start"))
@@ -201,7 +201,7 @@ class WebCameraNode(BaseNode):
 
         # Subscriptions from Frame Event nodes.
         self.add(
-            PooledType[MULTIFRAME_CALLBACK].as_inlet(
+            PooledType[CALLBACK_MULTIFRAME].as_inlet(
                 "callbacks",
                 label="Subscribers",
                 description=(

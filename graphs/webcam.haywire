@@ -203,7 +203,7 @@
             "recipe": {
               "registry_key": "haybale-core:type:PooledType",
               "element_type": {
-                "registry_key": "haybale-visiongraph:type:MULTIFRAME_CALLBACK"
+                "registry_key": "haybale-visiongraph:type:CALLBACK_MULTIFRAME"
               }
             }
           },
@@ -367,12 +367,12 @@
         "ports": {
           "subscription": {
             "kwargs": {
-              "registry_id": "MULTIFRAME_CALLBACK",
-              "registry_key": "haybale-visiongraph:type:MULTIFRAME_CALLBACK",
+              "registry_id": "CALLBACK_MULTIFRAME",
+              "registry_key": "haybale-visiongraph:type:CALLBACK_MULTIFRAME",
               "label": "Subscribe",
               "description": "Subscribe for camera frames",
-              "class_name": "MULTIFRAME_CALLBACK",
-              "module": "haybale_visiongraph.types.multiframe_callback_type",
+              "class_name": "CALLBACK_MULTIFRAME",
+              "module": "haybale_visiongraph.types.callback_multiframe_type",
               "flow_type": "callback",
               "default": {
                 "name": "NumpyFrameEventNode_ccce7f",
@@ -387,7 +387,7 @@
               "show_widget": "never"
             },
             "recipe": {
-              "registry_key": "haybale-visiongraph:type:MULTIFRAME_CALLBACK"
+              "registry_key": "haybale-visiongraph:type:CALLBACK_MULTIFRAME"
             },
             "field_data": {
               "name": "NumpyFrameEventNode_ccce7f",

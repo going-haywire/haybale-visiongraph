@@ -198,7 +198,7 @@ _OLD_KEY = "haybale-visiongraph:type:RGB_FRAME"
 @pytest.mark.parametrize("path", _MIGRATED, ids=lambda p: f"{p.parent.parent.name}-{p.stem}")
 def test_a_migrated_graph_loads_with_working_frame_edges(library_system: Any, path: Path) -> None:
     text = path.read_text()
-    assert "_FRAME" not in text.replace("MULTIFRAME_CALLBACK", "")
+    assert "_FRAME" not in text.replace("CALLBACK_MULTIFRAME", "")
     graph = BaseGraph(filestem="migrated")
     try:
         assert graph.load_from_dict(json.loads(text)) is True

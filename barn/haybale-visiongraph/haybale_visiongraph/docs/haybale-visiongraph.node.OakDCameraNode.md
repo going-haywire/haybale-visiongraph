@@ -58,7 +58,7 @@ per frame carrying every active stream.
 Inputs:
     start: Open the device and begin capturing.
     stop: Stop capturing and close the device.
-    callbacks: Pooled MULTIFRAME_CALLBACK subscriptions from event nodes.
+    callbacks: Pooled CALLBACK_MULTIFRAME subscriptions from event nodes.
 
 Outputs:
     started: Triggered when the device opens successfully.
