@@ -8,9 +8,8 @@ read-back. Going through visiongraph also brings the ``BaseInput`` post-processi
 chain — ``rotate`` / ``flip`` / ``crop`` / ``raw_input``, applied per frame —
 and backend selection, none of which were reachable before.
 
-The webcam is the RGB-only member of the camera family: it honours only the
-``rgb`` requirement from its pooled subscribers and ignores depth/ir (see
-notes.md "webcam joins the 3D-camera family").
+The webcam is a single-image emitter: it delivers each frame as an ``ImageValue``
+to the Image Event nodes (haybale-image) subscribed on its ``CALLBACK_IMAGE`` inlet.
 
 Not in scope here: ``VideoCaptureInput.channel`` also accepts a *path*, which
 with ``loop`` / ``fps_lock`` / ``input_skip`` would make this a video-file
@@ -172,7 +171,7 @@ class WebCameraNode(BaseNode):
     Inputs:
         start: Begin capturing from webcam
         stop: Stop the capture stream
-        callbacks: Pooled CALLBACK_MULTIFRAME subscriptions from event nodes
+        callbacks: Pooled CALLBACK_IMAGE subscriptions from Image Event nodes
 
     Settings:
         capture: camera_index / width / height / fps / capture_backend /
@@ -193,20 +192,18 @@ class WebCameraNode(BaseNode):
         from haywire.barn.builtin.types import EXEC
         from haybale_core.types import PooledType
         from haywire.barn.builtin.widgets import SimpleLabelWidget
-        from ..types.callback_multiframe_type import CALLBACK_MULTIFRAME
+        from haybale_image.types.callback import CALLBACK_IMAGE
 
         # Control inputs
         self.add(EXEC.as_inlet("start", label="Start"))
         self.add(EXEC.as_inlet("stop", label="Stop"))
 
-        # Subscriptions from Frame Event nodes.
+        # Subscriptions from Image Event nodes.
         self.add(
-            PooledType[CALLBACK_MULTIFRAME].as_inlet(
+            PooledType[CALLBACK_IMAGE].as_inlet(
                 "callbacks",
                 label="Subscribers",
-                description=(
-                    "Connect to a Frame Event node. Beware: this camera type can only deliver rgb frames"
-                ),
+                description="Connect to an Image Event node. The webcam delivers single colour images.",
             )
         )
 
@@ -310,10 +307,9 @@ class WebCameraNode(BaseNode):
             self.hb_update_status("Already running")
             return "started"
 
-        # Requirement union: the webcam only provides rgb, so it captures only
-        # if some subscriber wants it. depth/ir requirements are silently ignored.
-        if not self.hb_any_rgb_requested():
-            self.hb_update_status("No RGB subscriber")
+        # Capture only if some Image Event node is subscribed.
+        if not (self.value("callbacks") or {}):
+            self.hb_update_status("No subscriber")
             return None
 
         self.hb_update_status("Opening camera...")
@@ -352,11 +348,6 @@ class WebCameraNode(BaseNode):
         self.hb_update_status("Stopped")
         return "stopped"
 
-    def hb_any_rgb_requested(self) -> bool:
-        """True if any subscribed Frame Event node requests the rgb stream."""
-        subs: dict = self.value("callbacks") or {}
-        return any(getattr(sub, "rgb", False) for sub in subs.values())
-
     def hb_capture_loop(self, context: ExecutionContext):
         """Main capture loop running in separate thread"""
         while self.hb_is_running and self.hb_input is not None:
@@ -377,21 +368,20 @@ class WebCameraNode(BaseNode):
                 if (self.hb_frame_count - 1) % max(1, int(self.capture.frame_skip)) != 0:
                     continue
 
-                # Open-keyed payload, same shape as the OAK emit node: the webcam
-                # provides only `rgb`. Subscribers' depth/ir requirements yield no
-                # payload key, so those event-node outlets stay unfired.
-                timestamp = time.time() - self.hb_start_time
+                # Single-image payload for Image Event nodes. OpenCV frames are BGR.
+                from haybale_image.value import ChannelOrder, ImageValue
+
                 payload = {
-                    "rgb": frame,
+                    "image": ImageValue.from_array(frame, order=ChannelOrder.BGR),
+                    "timestamp": time.time() - self.hb_start_time,
                     "frame_number": self.hb_frame_count,
-                    "timestamp": timestamp,
                 }
 
-                # Dispatch to every subscriber that wants rgb, keyed by its name.
+                # Dispatch to every subscriber, keyed by its name.
                 subs: dict = self.value("callbacks") or {}
                 for sub in subs.values():
                     name = getattr(sub, "name", None)
-                    if name and getattr(sub, "rgb", False):
+                    if name:
                         context.emit_callback(event_name=name, payload=payload)
 
             except Exception as e:

@@ -187,15 +187,11 @@ def test_the_frame_types_are_gone() -> None:
 
 
 _REPO = Path(__file__).parent.parent
-_MIGRATED = [
-    _REPO / "graphs/webcam.haywire",
-    _REPO.parent / "haywire-repo/graphs/webcam.haywire",
-    _REPO.parent / "haywire-repo/graphs/oakNwebCam.haywire",
-]
+_MIGRATED = sorted((_REPO / "tests/fixtures/graphs").glob("*.haywire"))
 _OLD_KEY = "haybale-visiongraph:type:RGB_FRAME"
 
 
-@pytest.mark.parametrize("path", _MIGRATED, ids=lambda p: f"{p.parent.parent.name}-{p.stem}")
+@pytest.mark.parametrize("path", _MIGRATED, ids=lambda p: p.stem)
 def test_a_migrated_graph_loads_with_working_frame_edges(library_system: Any, path: Path) -> None:
     text = path.read_text()
     assert "_FRAME" not in text.replace("CALLBACK_MULTIFRAME", "")
@@ -208,6 +204,9 @@ def test_a_migrated_graph_loads_with_working_frame_edges(library_system: Any, pa
             if isinstance(edge._outlet_port.type_cls, type) and issubclass(
                 edge._outlet_port.type_cls, CARRIER
             ):
+                assert edge.is_functional(), edge.edge_id
+        for edge in graph.edge_wrappers.values():
+            if edge.sink_node_id.startswith("WebCameraNode") and edge.inlet_port_id == "callbacks":
                 assert edge.is_functional(), edge.edge_id
     finally:
         graph.cleanup()
