@@ -51,13 +51,18 @@ These apply when editing this library; the long-form versions live in the monore
 ## Releases
 
 Never edit version numbers, `install_spec` or `marketstall.toml` by hand, and never
-tag or push a release manually. Release only with `uv run haywire share --bump patch|minor|major`
-(or an explicit `X.Y.Z`), run from **this repo's root** — `share` publishes the project
-it is run in, using this repo's `origin`, so running it from `../haywire-repo` would
-publish the wrong repo. It bumps every `barn/*` library in lockstep, regenerates docs and
-`marketstall.toml`, then commits, tags `v<version>` and pushes. It needs a clean working
-tree and the default branch (`master`), and refuses `path` sources that point outside this
-repo. Try `--dry-run` first (writes nothing). Before releasing, read
-`../haywire-repo/docs/guides/sharing-libraries.md` (and
-`../haywire-repo/docs/architecture/sharing/share-pipeline-arch.md` if needed). If a pin needs
-a version of a dependency that is not released yet, stop and ask.
+tag or push a release manually. Release only with
+`uv run --frozen haywire share --bump patch|minor|major` (or an explicit `X.Y.Z`), run from
+**this repo's root** — `share` publishes the project it is run in, using this repo's
+`origin`, so running it from `../haywire-repo` would publish the wrong repo. It bumps every
+`barn/*` library in lockstep, regenerates docs and `marketstall.toml`, then commits, tags
+`v<version>` and pushes. It needs a clean working tree and the default branch (`master`).
+(The refusal of `path` sources outside the repo only applies under `distribute = "git"`;
+this repo uses `distribute = "pypi"`, so the `../haywire-repo` path sources are fine.)
+
+- **`uv.lock` gotcha:** a plain `uv run haywire share` re-locks and dirties `uv.lock`, which
+  fails the clean-tree check. Run `git checkout uv.lock` first and use `uv run --frozen`.
+- Always do a `--dry-run` first (writes nothing).
+- Before releasing, read `../haywire-repo/docs/guides/sharing-libraries.md` (and
+  `../haywire-repo/docs/architecture/sharing/share-pipeline-arch.md` if needed). If a pin
+  needs a version of a dependency that is not released yet, stop and ask.
