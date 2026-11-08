@@ -30,7 +30,8 @@ uv run haywire
 ## Share the library
 
 ```shell
-uv run haywire share --bump patch|minor|major --save
+# from this repo's root; add --dry-run first to preview (writes nothing)
+uv run haywire share --bump patch|minor|major
 ```
 
 ## Credits
