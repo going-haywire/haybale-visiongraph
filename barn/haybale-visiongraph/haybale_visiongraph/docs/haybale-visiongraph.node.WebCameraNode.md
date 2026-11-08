@@ -10,7 +10,7 @@ Starts a webcam stream and emits frame callbacks
 |---|---|---|---|
 | `start` | inlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
 | `stop` | inlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
-| `callbacks` | inlet | `haybale-core:type:PooledType` | Connect to a Frame Event node. Beware: this camera type can only deliver rgb frames |
+| `callbacks` | inlet | `haybale-core:type:PooledType` | Connect to an Image Event node. The webcam delivers single colour images. |
 | `status` | config | `haywire-core:type:STRING` | Text data |
 | `capture.camera_index` | config | `haywire-core:type:INT` | Which camera to open. The stored value is the positional index OpenCV uses — names are labels only, and may not match under a different capture backend. |
 | `capture.frame_skip` | config | `haywire-core:type:INT` | Emit a callback every Nth frame. 1 emits every frame. |
@@ -43,7 +43,7 @@ Emits callbacks on each frame for downstream event nodes to process.
 Inputs:
     start: Begin capturing from webcam
     stop: Stop the capture stream
-    callbacks: Pooled CALLBACK_MULTIFRAME subscriptions from event nodes
+    callbacks: Pooled CALLBACK_IMAGE subscriptions from Image Event nodes
 
 Settings:
     capture: camera_index / width / height / fps / capture_backend /

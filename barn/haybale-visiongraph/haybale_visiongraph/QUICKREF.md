@@ -1,4 +1,4 @@
-# haybale-visiongraph — component index (v0.0.42)
+# haybale-visiongraph — component index (v0.0.43)
 
 ## node
 - `haybale-visiongraph:node:AnnotateNode` — Annotate Results — Draw estimator results (boxes / masks / poses) onto a frame  _tags: annotate, draw, overlay, render, result, visualize_
@@ -12,9 +12,9 @@
 - `haybale-visiongraph:node:WebCameraNode` — Web Camera — Starts a webcam stream and emits frame callbacks  _tags: webcam, camera, video, capture, stream_
 
 ## type
+- `haybale-visiongraph:type:CALLBACK_MULTIFRAME` — Callback Multiframe — Subscription for multi-frame streams
 - `haybale-visiongraph:type:DETECTION_RESULT` — Detection Result — Object detections: bounding box, class, score (and tracking id)
 - `haybale-visiongraph:type:LANDMARK_RESULT` — Landmark Result — Landmark detections: a detection plus a set of landmark points
-- `haybale-visiongraph:type:CALLBACK_MULTIFRAME` — Callback Multiframe — Subscription for multi-frame streams
 - `haybale-visiongraph:type:POSE_RESULT` — Pose Result — Human pose: landmarks with named joints and skeleton connections
 - `haybale-visiongraph:type:SEGMENTATION_RESULT` — Segmentation Result — Instance segmentation: detection plus a per-instance mask
 - `haybale-visiongraph:type:VISION_RESULT` — Vision Result — A list of estimator results (base type for all result kinds)

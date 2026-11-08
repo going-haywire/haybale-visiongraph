@@ -15,9 +15,9 @@ Visiongraph is a computer-vision pipeline library designed to simplify the proto
 - **Web Camera** — Starts a webcam stream and emits frame callbacks
 
 ## Types
+- **Callback Multiframe** — Subscription for multi-frame streams
 - **Detection Result** — Object detections: bounding box, class, score (and tracking id)
 - **Landmark Result** — Landmark detections: a detection plus a set of landmark points
-- **Callback Multiframe** — Subscription for multi-frame streams
 - **Pose Result** — Human pose: landmarks with named joints and skeleton connections
 - **Segmentation Result** — Instance segmentation: detection plus a per-instance mask
 - **Vision Result** — A list of estimator results (base type for all result kinds)
