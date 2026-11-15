@@ -29,9 +29,18 @@ reads the attribute, verified against 1.2.0:
   the field name goes in the owning ``ModelSpec.rebuild_fields``
 """
 
-from haywire.core.settings import NodeSettings, Promotable, setting
-from haywire.core.types.enums import PortType
-from haywire.barn.builtin.types import BOOL, CHOICES, COLOR, FLOAT, INT, OPTIONAL
+from haywire.api import (
+    BOOL,
+    CHOICES,
+    COLOR,
+    FLOAT,
+    INT,
+    OPTIONAL,
+    NodeSettings,
+    PortType,
+    Promotable,
+    setting,
+)
 
 _NMS_BATCH_MODES = ["Auto", "Batched", "Sequential"]
 

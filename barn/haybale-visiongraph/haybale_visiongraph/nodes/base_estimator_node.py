@@ -44,10 +44,18 @@ from typing import Any, Optional
 
 import numpy as np
 
-from haywire.core.execution.execution_context import ExecutionContext
-from haywire.core.node import BaseNode
-from haywire.core.node.node_warning import NodeWarning
-from haywire.core.settings import UiState, bag, settings_fields
+from haywire.api import (
+    EXEC,
+    INT,
+    STRING,
+    BaseNode,
+    ExecutionContext,
+    NodeWarning,
+    SimpleLabelWidget,
+    UiState,
+    bag,
+    settings_fields,
+)
 
 from haybale_models.consumer import KIND, resolve_port
 from haybale_models.resolver import ModelMissing
@@ -193,9 +201,6 @@ class BaseEstimatorNode(BaseNode):
             self.hb_add_model_port()
 
     def init(self):
-        from haywire.barn.builtin.types import STRING, INT
-        from haywire.barn.builtin.types import EXEC
-        from haywire.barn.builtin.widgets import SimpleLabelWidget
         from haybale_image.types.image import IMAGE_RGB
 
         # Control in.

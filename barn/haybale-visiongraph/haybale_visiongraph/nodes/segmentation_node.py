@@ -5,8 +5,7 @@ outlets a list of ``SEGMENTATION_RESULT`` (a detection plus a per-instance mask)
 Thin subclass of ``BaseEstimatorNode`` (see that module + notes.md Q6/Q13).
 """
 
-from haywire.core.settings import bag
-from haywire.core.node import node, NodeType
+from haywire.api import NodeType, bag, node
 
 from .base_estimator_node import BaseEstimatorNode, ModelSpec
 from .estimator_settings import (

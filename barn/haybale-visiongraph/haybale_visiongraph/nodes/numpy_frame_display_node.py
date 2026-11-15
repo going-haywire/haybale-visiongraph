@@ -4,9 +4,18 @@ Webcam Frame Info Display Node - Displays frame information and preview
 
 from typing import Optional
 
-from haywire.core.execution.execution_context import ExecutionContext
-from haywire.core.node import node, BaseNode, NodeType
-from haywire.core.types.enums import ShowWidgetStrategy
+from haywire.api import (
+    EXEC,
+    FLOAT,
+    INT,
+    STRING,
+    BaseNode,
+    ExecutionContext,
+    NodeType,
+    ShowWidgetStrategy,
+    SimpleLabelWidget,
+    node,
+)
 
 from haybale_image.types.image import IMAGE_RGB
 from haybale_image.value import ImageValue
@@ -38,9 +47,6 @@ class FrameDisplayNode(BaseNode):
     """
 
     def init(self):
-        from haywire.barn.builtin.types import STRING, INT, FLOAT
-        from haywire.barn.builtin.types import EXEC
-        from haywire.barn.builtin.widgets import SimpleLabelWidget
         from haybale_visiongraph.widgets.numpy_viewer_widget import NumpyViewerWidget
 
         # Control input

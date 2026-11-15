@@ -26,8 +26,7 @@ An absent value (``None``) means no subscription; the emitter's pool drops it.
 
 from dataclasses import dataclass
 
-from haywire.core.types import type, BaseType
-from haywire.barn.builtin.wires import CallbackWire
+from haywire.api import BaseType, CallbackWire, type
 
 
 @type(

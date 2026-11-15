@@ -18,13 +18,24 @@ changing this node or the callback type.
 
 from typing import Optional
 
-from haywire.core.execution.event_source import CallbackEvent
-from haywire.core.execution.execution_context import ExecutionContext
-from haywire.core.execution import QueueMode
-from haywire.core.node import node, BaseNode, NodeType
-from haywire.core.settings import NodeSettings, Promotable, bag, setting
-from haywire.core.types.enums import PortType
-from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT
+from haywire.api import (
+    BOOL,
+    CHOICES,
+    EXEC,
+    FLOAT,
+    INT,
+    BaseNode,
+    CallbackEvent,
+    ExecutionContext,
+    NodeSettings,
+    NodeType,
+    PortType,
+    Promotable,
+    QueueMode,
+    bag,
+    node,
+    setting,
+)
 
 _QUEUE_MODES = {"Drop (realtime)": QueueMode.DROP, "Block (every frame)": QueueMode.BLOCK}
 
@@ -141,8 +152,6 @@ class NumpyFrameEventNode(BaseNode):
     dispatch = bag(DispatchSettings)
 
     def init(self):
-        from haywire.barn.builtin.types import INT, FLOAT
-        from haywire.barn.builtin.types import EXEC
         from ..types.callback_multiframe_type import CALLBACK_MULTIFRAME
 
         # Subscription outlet: carries this node's name + stream requirements.
