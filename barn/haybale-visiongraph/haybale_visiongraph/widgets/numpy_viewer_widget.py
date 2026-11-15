@@ -7,8 +7,7 @@ from typing import Any
 import numpy as np
 from haybale_image.value import ChannelOrder, ImageValue
 
-from haywire.ui.widget.base import BaseWidget
-from haywire.ui.widget.decorator import widget
+from haywire.api import BaseWidget, widget
 
 from haybale_visiongraph.widgets.components.streaming_viewer import StreamingBackend, StreamingViewer
 

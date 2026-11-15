@@ -21,12 +21,25 @@ import time
 import threading
 from typing import Optional
 
-from haywire.core.execution.execution_context import ExecutionContext
-from haywire.core.node import node, BaseNode, NodeType
-from haywire.core.settings import NodeSettings, Promotable, bag, setting
-from haywire.core.types.enums import PortType
-from haywire.barn.builtin.types import BOOL, CHOICES, FLOAT, INT
-from haywire.barn.builtin.widgets import SelectWidget
+from haywire.api import (
+    BOOL,
+    CHOICES,
+    EXEC,
+    FLOAT,
+    INT,
+    STRING,
+    BaseNode,
+    ExecutionContext,
+    NodeSettings,
+    NodeType,
+    PortType,
+    Promotable,
+    SelectWidget,
+    SimpleLabelWidget,
+    bag,
+    node,
+    setting,
+)
 
 from .webcam_devices import list_camera_options
 
@@ -188,10 +201,7 @@ class WebCameraNode(BaseNode):
     image = bag(ImageSettings)
 
     def init(self):
-        from haywire.barn.builtin.types import STRING
-        from haywire.barn.builtin.types import EXEC
         from haybale_core.types import PooledType
-        from haywire.barn.builtin.widgets import SimpleLabelWidget
         from haybale_image.types.callback import CALLBACK_IMAGE
 
         # Control inputs

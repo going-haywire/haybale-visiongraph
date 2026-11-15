@@ -32,9 +32,7 @@ from dataclasses import dataclass, field
 
 from visiongraph.result.ResultList import ResultList
 
-from haywire.core.types import type, BaseType
-from haywire.core.types.enums import StoreStrategy
-from haywire.barn.builtin.wires import DataWire
+from haywire.api import BaseType, DataWire, StoreStrategy, type
 
 
 @dataclass

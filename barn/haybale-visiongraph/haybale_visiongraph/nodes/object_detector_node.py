@@ -9,8 +9,7 @@ Models are declared as lazily-resolved ``ModelSpec``s so no detector backend is
 imported until the first frame flows (notes.md Q13).
 """
 
-from haywire.core.settings import bag
-from haywire.core.node import node, NodeType
+from haywire.api import NodeType, bag, node
 
 from .base_estimator_node import BaseEstimatorNode, ModelSpec
 from .estimator_settings import NmsSettings, OpenVinoSettings

@@ -55,6 +55,14 @@ editable = true
 # barn/ symlink — a narrower limit here would fight it on every save.
 line-length = 109
 
+[tool.ruff.lint]
+extend-select = ["TID251"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"haywire.core".msg = "Import from haywire.api (Author API); haywire.core is internal."
+"haywire.ui".msg = "Import from haywire.api or haywire.api.workbench; haywire.ui is internal."
+"haywire.barn".msg = "Import from haywire.api; haywire.barn is internal."
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
