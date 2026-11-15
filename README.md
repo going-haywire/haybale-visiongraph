@@ -16,7 +16,7 @@ https://github.com/going-haywire/haybale-visiongraph/blob/master/marketstall.tom
 Frozen to this version:
 
 ```sh
-https://github.com/going-haywire/haybale-visiongraph/blob/v0.0.43/marketstall.toml
+https://github.com/going-haywire/haybale-visiongraph/blob/v0.0.44/marketstall.toml
 ```
 <!-- marketstall:share-url:end -->
 

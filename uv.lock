@@ -812,22 +812,24 @@ wheels = [
 
 [[package]]
 name = "haybale-core"
-version = "0.3.4"
+version = "0.5.0"
 source = { editable = "../haywire-repo/barn/haybale-core" }
 dependencies = [
     { name = "haywire-core" },
+    { name = "nicegui" },
     { name = "typing-extensions" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "haywire-core", editable = "../haywire-repo/packages/haywire-core" },
+    { name = "nicegui", specifier = ">=3.18.0" },
     { name = "typing-extensions" },
 ]
 
 [[package]]
 name = "haybale-graph-editor"
-version = "0.3.4"
+version = "0.5.0"
 source = { editable = "../haywire-repo/barn/haybale-graph-editor" }
 dependencies = [
     { name = "haywire-core" },
@@ -842,7 +844,7 @@ requires-dist = [
 
 [[package]]
 name = "haybale-haystack"
-version = "0.3.4"
+version = "0.5.0"
 source = { editable = "../haywire-repo/barn/haybale-haystack" }
 dependencies = [
     { name = "haybale-graph-editor" },
@@ -863,7 +865,7 @@ requires-dist = [
 
 [[package]]
 name = "haybale-image"
-version = "0.3.4"
+version = "0.5.0"
 source = { editable = "../haywire-repo/barn/haybale-image" }
 dependencies = [
     { name = "fastapi" },
@@ -890,7 +892,7 @@ provides-extras = ["torch"]
 
 [[package]]
 name = "haybale-marketplace"
-version = "0.3.4"
+version = "0.5.0"
 source = { editable = "../haywire-repo/barn/haybale-marketplace" }
 dependencies = [
     { name = "haybale-studio" },
@@ -909,7 +911,7 @@ requires-dist = [
 
 [[package]]
 name = "haybale-models"
-version = "0.3.4"
+version = "0.5.0"
 source = { editable = "../haywire-repo/barn/haybale-models" }
 dependencies = [
     { name = "fastapi" },
@@ -934,7 +936,7 @@ requires-dist = [
 
 [[package]]
 name = "haybale-share"
-version = "0.3.4"
+version = "0.5.0"
 source = { editable = "../haywire-repo/barn/haybale-share" }
 dependencies = [
     { name = "haywire-core" },
@@ -949,7 +951,7 @@ requires-dist = [
 
 [[package]]
 name = "haybale-studio"
-version = "0.3.4"
+version = "0.5.0"
 source = { editable = "../haywire-repo/barn/haybale-studio" }
 dependencies = [
     { name = "haywire-core" },
@@ -966,7 +968,7 @@ requires-dist = [
 
 [[package]]
 name = "haybale-visiongraph"
-version = "0.0.43"
+version = "0.0.44"
 source = { editable = "barn/haybale-visiongraph" }
 dependencies = [
     { name = "depthai" },
@@ -1026,7 +1028,7 @@ requires-dist = [
 
 [[package]]
 name = "haywire-core"
-version = "0.3.4"
+version = "0.5.0"
 source = { editable = "../haywire-repo/packages/haywire-core" }
 dependencies = [
     { name = "attrs" },
@@ -1061,7 +1063,7 @@ requires-dist = [
 
 [[package]]
 name = "haywire-studio"
-version = "0.3.4"
+version = "0.5.0"
 source = { editable = "../haywire-repo/packages/haywire-studio" }
 dependencies = [
     { name = "cryptography" },
