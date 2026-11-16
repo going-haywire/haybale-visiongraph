@@ -21,6 +21,3 @@ Visiongraph is a computer-vision pipeline library designed to simplify the proto
 - **Pose Result** — Human pose: landmarks with named joints and skeleton connections
 - **Segmentation Result** — Instance segmentation: detection plus a per-instance mask
 - **Vision Result** — A list of estimator results (base type for all result kinds)
-
-## Widgets
-- **NumpyViewerWidget** — Streaming video viewer for numpy arrays using custom StreamingViewer

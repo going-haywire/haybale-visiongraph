@@ -1,4 +1,4 @@
-# haybale-visiongraph — component index (v0.0.44)
+# haybale-visiongraph — component index (v0.0.45)
 
 ## node
 - `haybale-visiongraph:node:AnnotateNode` — Annotate Results — Draw estimator results (boxes / masks / poses) onto a frame  _tags: annotate, draw, overlay, render, result, visualize_
@@ -18,6 +18,3 @@
 - `haybale-visiongraph:type:POSE_RESULT` — Pose Result — Human pose: landmarks with named joints and skeleton connections
 - `haybale-visiongraph:type:SEGMENTATION_RESULT` — Segmentation Result — Instance segmentation: detection plus a per-instance mask
 - `haybale-visiongraph:type:VISION_RESULT` — Vision Result — A list of estimator results (base type for all result kinds)
-
-## widget
-- `haybale-visiongraph:widget:NumpyViewerWidget` — NumpyViewerWidget — Streaming video viewer for numpy arrays using custom StreamingViewer
