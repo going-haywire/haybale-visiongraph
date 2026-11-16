@@ -159,28 +159,6 @@ def test_display_without_fields_shows_zero_and_does_not_raise(library_system: An
     assert emitted["timestamp"] == 0.0
 
 
-def _viewer() -> Any:
-    from haybale_visiongraph.widgets.numpy_viewer_widget import NumpyViewerWidget
-
-    widget = NumpyViewerWidget.__new__(NumpyViewerWidget)
-    widget._backend = MagicMock(_is_running=True)
-    return widget
-
-
-def test_viewer_streams_bgr_from_an_image_value() -> None:
-    widget = _viewer()
-    buf = np.zeros((2, 2, 3), np.uint8)
-    widget.on_model_changed(ImageValue.from_array(buf, order=BGR))
-    assert np.shares_memory(widget._backend.stream.call_args.args[0], buf)
-
-
-@pytest.mark.parametrize("frame", [ImageValue.empty(Layout.RGB), None])
-def test_viewer_ignores_a_frame_with_no_pixels(frame: Any) -> None:
-    widget = _viewer()
-    widget.on_model_changed(frame)
-    widget._backend.stream.assert_not_called()
-
-
 def test_the_frame_types_are_gone() -> None:
     with pytest.raises(ImportError):
         import haybale_visiongraph.types.frame_type  # noqa: F401

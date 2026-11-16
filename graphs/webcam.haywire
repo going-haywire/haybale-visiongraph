@@ -385,12 +385,11 @@
               },
               "store_strategy": 1,
               "color": "#3f8fd2",
-              "widget_key": "haybale-visiongraph:widget:NumpyViewerWidget",
+              "widget_key": "haybale-image:widget:ImageViewerWidget",
               "widget_config": {
                 "properties": {
-                  "quality": 85,
-                  "frame_queue_size": 1,
-                  "block_on_full": false
+                  "mode": "stream",
+                  "quality": 85
                 }
               },
               "id": "frame",

@@ -564,6 +564,8 @@ expresses it — all 3D emit nodes use it; the one event node consumes it.
 
 ### NumpyViewerWidget display path (Q17)
 
+> **Outdated:** `NumpyViewerWidget` was removed; the display inlet now uses haybale-image's `ImageViewerWidget`.
+
 `compatible_types=[RGB_FRAME]` only — NOT all three.
 
 - `GRAY_FRAME` displays via the `GRAY_FRAME → RGB_FRAME` adapter (Q5): wiring a

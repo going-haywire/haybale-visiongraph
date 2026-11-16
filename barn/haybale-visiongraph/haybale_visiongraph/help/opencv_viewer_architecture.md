@@ -1,5 +1,9 @@
 # Streaming Widget Architecture - Complete Explanation
 
+> **Outdated:** `NumpyViewerWidget` and its `StreamingViewer` were removed; the frame preview now uses
+> `haybale_image.widgets.image_viewer_widget.ImageViewerWidget` (`haybale-image:widget:ImageViewerWidget`).
+> References to the old widget below are historical.
+
 ## Overview
 
 The streaming video widget uses a **producer-consumer pattern** with **MJPEG HTTP streaming** to display numpy arrays as live video in the browser.

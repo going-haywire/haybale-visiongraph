@@ -47,7 +47,7 @@ class FrameDisplayNode(BaseNode):
     """
 
     def init(self):
-        from haybale_visiongraph.widgets.numpy_viewer_widget import NumpyViewerWidget
+        from haybale_image.widgets.image_viewer_widget import ImageViewerWidget
 
         # Control input
         self.add(EXEC.as_inlet("execute", label="Analyze Frame"))
@@ -58,13 +58,7 @@ class FrameDisplayNode(BaseNode):
                 "frame",
                 label="Frame",
                 show_widget=ShowWidgetStrategy.WHEN_LINKED,
-                widget=NumpyViewerWidget.config(
-                    properties={
-                        "quality": 85,
-                        "frame_queue_size": 1,
-                        "block_on_full": False,
-                    }
-                ),
+                widget=ImageViewerWidget.config(properties={"mode": "stream", "quality": 85}),
             )
         )
 
