@@ -50,9 +50,11 @@ editable = true
 path = "../haywire-repo/barn/haybale-haystack"
 editable = true
 
+[dependency-groups]
+dev = ["pytest>=8", "pytest-timeout", "ruff==0.12.12"]
+
 [tool.ruff]
-# Matches the framework monorepo, which lints these same files through its
-# barn/ symlink — a narrower limit here would fight it on every save.
+# The framework monorepo's limit.
 line-length = 109
 
 [tool.ruff.lint]
@@ -62,6 +64,10 @@ extend-select = ["TID251"]
 "haywire.core".msg = "Import from haywire.api (Author API); haywire.core is internal."
 "haywire.ui".msg = "Import from haywire.api or haywire.api.workbench; haywire.ui is internal."
 "haywire.barn".msg = "Import from haywire.api; haywire.barn is internal."
+
+[tool.ruff.lint.per-file-ignores]
+# Tests reach into the framework to set it up; the ban is for the libraries.
+"tests/**" = ["TID251"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
