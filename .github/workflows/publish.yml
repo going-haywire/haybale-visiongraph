@@ -1,100 +1,156 @@
-name: Publish Release
+name: Publish
+
+# Publishes every barn/* library to PyPI on a version tag, when the root
+# pyproject.toml declares  [tool.haywire.marketstall] distribute = "pypi".
+# With any other value the run ends green without publishing.
+# A push to the default branch that changes the versions (the merge of a release PR)
+# tests, builds, tags the merge commit and publishes in this one run.
+# To retry a failed run: gh workflow run publish.yml --ref vX.Y.Z
+# Every action is pinned to a commit, its version in the comment.
 
 on:
   push:
     tags:
       - 'v*.*.*'
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
-# ─────────────────────────────────────────────────────────────────────
-# ADAPT THIS BLOCK — everything below it is generic and can stay as-is.
-# ─────────────────────────────────────────────────────────────────────
 env:
   PYTHON_VERSION: '3.12'
 
-  # Your PyPI distribution name — must match [project].name in pyproject.toml.
-  DIST_NAME: haybale-visiongraph
-  # The publishable package. The repo root is a dev-only uv workspace whose
-  # [tool.uv.sources] point at a sibling monorepo that does not exist in CI —
-  # every step below works from this directory so that shell is never loaded.
-  PKG_DIR: barn/haybale-visiongraph
-
 jobs:
-  build:
-    name: Build wheel
+  guard:
+    name: Plan
     runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.plan.outputs.enabled }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+      standalone: ${{ steps.plan.outputs.standalone }}
+      tag: ${{ steps.plan.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Decide what to publish
+        id: plan
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: python3 .github/publish_plan.py
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
+  build:
+    name: Build ${{ matrix.lib.dist }}
+    needs: guard
+    if: needs.guard.outputs.enabled == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lib: ${{ fromJSON(needs.guard.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           enable-cache: true
-
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        run: uv python install ${{ env.PYTHON_VERSION }}
-
-      # The tag is the source of truth for the release. The wheel version comes
-      # from the package's pyproject.toml, so a tag that disagrees with it would
-      # publish one version while the feed below advertises another.
-      - name: Check tag matches package version
-        if: startsWith(github.ref, 'refs/tags/v')
+      - run: uv python install ${{ env.PYTHON_VERSION }}
+      # The tests need a root that resolves its own dependencies. A --dev project's root
+      # links to a haywire checkout by path, which a runner does not have: run them locally.
+      - name: Run tests
+        if: needs.guard.outputs.standalone == 'true' && hashFiles('tests/**') != ''
         run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          PKG_VERSION=$(grep -m1 '^version' "${PKG_DIR}/pyproject.toml" | cut -d'"' -f2)
-          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
-            echo "::error::Tag v${TAG_VERSION} does not match ${PKG_DIR}/pyproject.toml version ${PKG_VERSION}"
-            exit 1
-          fi
-          echo "Version ${PKG_VERSION} matches tag."
-
-      - name: Build wheel + sdist
-        working-directory: ${{ env.PKG_DIR }}
+          uv sync --frozen
+          uv run --frozen pytest -q
+      - name: Build wheel and sdist
+        working-directory: ${{ matrix.lib.path }}
         run: uv build --out-dir "${GITHUB_WORKSPACE}/dist"
-
-      # Your gate. Keep it cheap and keep it here: a broken release is far more
-      # expensive to withdraw from PyPI than to catch before upload. Installing
-      # the built wheel into a clean venv resolves its dependencies against real
-      # PyPI — the one thing a local editable checkout can never verify.
-      # Resolution is checked before install: the dependency set includes heavy,
-      # platform-specific wheels (depthai, onnxruntime, openvino, mediapipe) whose
-      # availability differs by OS and Python version, so a resolver failure here
-      # is a dependency-range bug to fix in pyproject.toml — not a flaky job.
-      - name: Smoke-test the wheel
-        run: |
-          uv venv --python ${{ env.PYTHON_VERSION }} /tmp/smoke
-          export VIRTUAL_ENV=/tmp/smoke
-          if ! uv pip install --dry-run dist/*.whl; then
-            echo "::error::Dependencies of ${DIST_NAME} do not resolve on linux/py${PYTHON_VERSION} from PyPI. Fix the ranges in ${PKG_DIR}/pyproject.toml before releasing."
-            exit 1
-          fi
-          uv pip install dist/*.whl
-          # Must be the venv's interpreter, not the runner's: VIRTUAL_ENV steers
-          # uv, but a bare `python` still resolves via PATH to the system one.
-          /tmp/smoke/bin/python -c "import haybale_visiongraph; print('imported', haybale_visiongraph.Library)"
-
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: dist
+          name: dist-${{ matrix.lib.dist }}
           path: dist/
           if-no-files-found: error
 
-  publish:
-    name: Publish to PyPI
+  # A clean environment resolves every dependency from PyPI, as a consumer's install does;
+  # the project's path sources and lock play no part. The wheels go in together, so
+  # libraries released side by side find each other.
+  smoke:
+    name: Install and load the wheels
+    needs: [guard, build]
+    if: needs.guard.outputs.enabled == 'true'
     runs-on: ubuntu-latest
-    needs: build
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: dist-*
+          path: dist/
+          merge-multiple: true
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - name: Install the wheels
+        run: |
+          uv venv --python "$PYTHON_VERSION" "$RUNNER_TEMP/smoke"
+          VIRTUAL_ENV="$RUNNER_TEMP/smoke" uv pip install dist/*.whl
+      - name: Load every library as the studio does
+        env:
+          MATRIX: ${{ needs.guard.outputs.matrix }}
+        run: |
+          "$RUNNER_TEMP/smoke/bin/python" - <<'PY'
+          import importlib.metadata
+          import json
+          import os
+
+          for lib in json.loads(os.environ["MATRIX"]):
+              dist = importlib.metadata.distribution(lib["dist"])
+              points = [ep for ep in dist.entry_points if ep.group == "haywire.libraries"]
+              if not points:
+                  raise SystemExit(f"{lib['dist']} declares no haywire.libraries entry point")
+              for point in points:
+                  point.load()
+                  print(f"{lib['dist']}: loaded {point.name} = {point.value}")
+          PY
+
+  tag:
+    name: Tag ${{ needs.guard.outputs.tag }}
+    needs: [guard, build, smoke]
+    if: needs.guard.outputs.enabled == 'true' && needs.guard.outputs.tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Tag the merge commit
+        env:
+          TAG: ${{ needs.guard.outputs.tag }}
+        run: |
+          git tag "$TAG" "$GITHUB_SHA"
+          git push origin "refs/tags/$TAG"
+
+  publish:
+    name: Publish ${{ matrix.lib.dist }}
+    needs: [guard, build, smoke, tag]
+    if: >-
+      ${{ !cancelled()
+      && needs.guard.outputs.enabled == 'true'
+      && needs.build.result == 'success'
+      && needs.smoke.result == 'success'
+      && needs.tag.result != 'failure' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lib: ${{ fromJSON(needs.guard.outputs.matrix) }}
     environment:
-      name: pypi                       # must match the Trusted Publisher config
-      url: https://pypi.org/project/${{ env.DIST_NAME }}/
+      name: pypi
+      url: https://pypi.org/project/${{ matrix.lib.dist }}/
     permissions:
       contents: read
-      id-token: write                  # required for Trusted Publishing (OIDC)
+      id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: dist
+          name: dist-${{ matrix.lib.dist }}
           path: dist/
-
-      - name: Publish
-        uses: pypa/gh-action-pypi-publish@release/v1
-        # No `password:` — the OIDC identity above is the credential.
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          skip-existing: true
