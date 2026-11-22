@@ -1,13 +1,13 @@
 """
 OAK-D Emit Node - Opens a Luxonis OAK-D depth camera and emits multi-stream
-frame callbacks (colour / depth / infrared) to subscribed NumpyFrameEventNodes.
+frame callbacks (colour / depth / infrared) to subscribed FrameEventNodes.
 
 Device-specific node (wraps visiongraph ``OakDInput``). The shared, camera-
-agnostic subscriber is ``NumpyFrameEventNode``.
+agnostic subscriber is ``FrameEventNode``.
 
 Lifecycle (see notes.md Q9-Q11):
 - ``on_startup``  : read the *requirement union* from the pooled
-  ``CALLBACK_MULTIFRAME`` inlet — which streams any subscriber wants. Config
+  ``MULTIFRAME_CALLBACK`` inlet — which streams any subscriber wants. Config
   only; does NOT open the device.
 - ``start`` pulse : open the OAK device + capture thread using that union.
 - ``stop`` pulse  : close the device.
@@ -47,8 +47,8 @@ from haywire.api import (
     NodeType,
     PortType,
     Promotable,
-    SelectWidget,
-    SimpleLabelWidget,
+    MenuWidget,
+    LabelWidget,
     UiState,
     node,
     setting,
@@ -120,7 +120,7 @@ def _list_available_mxids() -> dict:
     """Enumerate connected OAK devices for the mxid dropdown (static query, no device opened).
 
     Module-level (not a method): a setting()'s widget_config callable is
-    invoked with zero args by SelectWidget.build(), and the descriptor is
+    invoked with zero args by MenuWidget.build(), and the descriptor is
     shared across all node instances — it cannot close over a particular
     node's `self`. This query never needed one.
     """
@@ -157,7 +157,7 @@ class OakDCameraNode(BaseNode):
     Inputs:
         start: Open the device and begin capturing.
         stop: Stop capturing and close the device.
-        callbacks: Pooled CALLBACK_MULTIFRAME subscriptions from event nodes.
+        callbacks: Pooled MULTIFRAME_CALLBACK subscriptions from event nodes.
 
     Outputs:
         started: Triggered when the device opens successfully.
@@ -191,7 +191,7 @@ class OakDCameraNode(BaseNode):
             label="Device MXID",
             category="Device",
             description="Leave empty to auto-select the first available OAK device.",
-            widget=SelectWidget.config(properties={"options": _list_available_mxids}),
+            widget=MenuWidget.config(properties={"options": _list_available_mxids}),
             promote_default=PortType.CONFIG,
         )
 
@@ -430,17 +430,17 @@ class OakDCameraNode(BaseNode):
         )
 
     def init(self):
-        from haybale_core.types import PooledType
-        from ..types.callback_multiframe_type import CALLBACK_MULTIFRAME
+        from haybale_core.types import POOLED
+        from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
 
         # Control inputs
         self.add(EXEC.as_inlet("start", label="Start"))
         self.add(EXEC.as_inlet("stop", label="Stop"))
 
         # Pooled subscriptions: each connected event node contributes its
-        # CALLBACK_MULTIFRAME (name + stream requirements).
+        # MULTIFRAME_CALLBACK (name + stream requirements).
         self.add(
-            PooledType[CALLBACK_MULTIFRAME].as_inlet(
+            POOLED[MULTIFRAME_CALLBACK].as_inlet(
                 "callbacks",
                 label="Subscribers",
                 description="Connect to a Frame Event node",
@@ -454,7 +454,7 @@ class OakDCameraNode(BaseNode):
                 "status",
                 default="Idle",
                 label="Status",
-                widget=SimpleLabelWidget.config(),
+                widget=LabelWidget.config(),
             )
         )
 

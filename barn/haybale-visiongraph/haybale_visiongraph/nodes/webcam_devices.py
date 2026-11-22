@@ -70,7 +70,7 @@ def _linux_camera_names() -> list[str]:
 
 
 def list_camera_options() -> dict:
-    """`{index: label}` for a SelectWidget, newest reading on every dropdown open.
+    """`{index: label}` for a MenuWidget, newest reading on every dropdown open.
 
     Always returns something usable: on any failure, or on a platform with no
     dependency-free enumeration, it falls back to bare indices.

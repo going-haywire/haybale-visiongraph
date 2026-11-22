@@ -1,5 +1,5 @@
 """
-Webcam Frame Info Display Node - Displays frame information and preview
+View Frame node - Displays frame information and preview
 """
 
 from typing import Optional
@@ -13,22 +13,22 @@ from haywire.api import (
     ExecutionContext,
     NodeType,
     ShowWidgetStrategy,
-    SimpleLabelWidget,
+    LabelWidget,
     node,
 )
 
-from haybale_image.types.image import IMAGE_RGB
+from haybale_image.types.image import RGB_IMAGE
 from haybale_image.value import ImageValue
 
 
 @node(
-    label="Frame Info Display",
+    label="View Frame",
     description="Displays information about frames with live preview",
     menu="vision/info",
     search_tags=["rgb", "ir", "frame", "camera", "display", "preview", "video", "stream"],
     node_type=NodeType.CONTROL,
 )
-class FrameDisplayNode(BaseNode):
+class ViewFrameNode(BaseNode):
     """
     Displays frame information and live preview.
 
@@ -54,7 +54,7 @@ class FrameDisplayNode(BaseNode):
 
         # Frame input with preview widget
         self.add(
-            IMAGE_RGB.as_inlet(
+            RGB_IMAGE.as_inlet(
                 "frame",
                 label="Frame",
                 show_widget=ShowWidgetStrategy.WHEN_LINKED,
@@ -65,7 +65,7 @@ class FrameDisplayNode(BaseNode):
         # Status displays
         self.add(
             STRING.as_config(
-                "info_display", default="No frame yet", label="Frame Info", widget=SimpleLabelWidget.config()
+                "info_display", default="No frame yet", label="Frame Info", widget=LabelWidget.config()
             )
         )
 
@@ -73,7 +73,7 @@ class FrameDisplayNode(BaseNode):
         self.add(EXEC.as_outlet("frame_ready", label="Frame Ready"))
 
         # Convenience data outputs
-        self.add(IMAGE_RGB.as_outlet("frame_pass", label="Frame Pass"))
+        self.add(RGB_IMAGE.as_outlet("frame_pass", label="Frame Pass"))
 
         # Convenience data outputs
         self.add(FLOAT.as_outlet("timestamp", label="Timestamp (s)"))

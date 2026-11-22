@@ -1,7 +1,7 @@
 """
 Annotate node — draws one or more result lists onto a frame.
 
-The result inlet is a ``PooledType[VISION_RESULT]`` (notes.md Q10): it accepts a
+The result inlet is a ``POOLED[VISION_RESULT]`` (notes.md Q10): it accepts a
 *mix* of detection / segmentation / landmark / pose result outlets at once (each is
 a subtype of ``VISION_RESULT``, and a pooled inlet checks compatibility against its
 element type). So a single Annotate node can overlay detections + pose + masks from
@@ -74,7 +74,7 @@ class AnnotateStyle(NodeSettings):
     """Set-once styling knobs for the overlay.
 
     Declared at module level rather than inline so the node can carry a
-    `TYPE_CHECKING` annotation for it (see `AnnotateNode.style`) — a bag
+    `TYPE_CHECKING` annotation for it (see `AnnotateResultsNode.style`) — a bag
     touched from an *annotated* method needs one, or mypy sees the class
     rather than the bound instance. `@node` collects it exactly the same way.
     """
@@ -142,7 +142,7 @@ class AnnotateStyle(NodeSettings):
     search_tags=["annotate", "draw", "overlay", "render", "result", "visualize"],
     node_type=NodeType.CONTROL,
 )
-class AnnotateNode(BaseNode):
+class AnnotateResultsNode(BaseNode):
     """
     Overlay pooled vision results onto a frame.
 
@@ -164,8 +164,8 @@ class AnnotateNode(BaseNode):
     style = bag(AnnotateStyle)
 
     def init(self):
-        from haybale_core.types import PooledType
-        from haybale_image.types.image import IMAGE_RGB
+        from haybale_core.types import POOLED
+        from haybale_image.types.image import RGB_IMAGE
         from haybale_visiongraph.types.result_type import VISION_RESULT
 
         # Control in.
@@ -173,7 +173,7 @@ class AnnotateNode(BaseNode):
 
         # Pooled result inlet — accepts any mix of VISION_RESULT subtypes (Q10).
         self.add(
-            PooledType[VISION_RESULT].as_inlet(
+            POOLED[VISION_RESULT].as_inlet(
                 "result",
                 label="Results",
                 description="Connect one or more estimator result outlets",
@@ -181,14 +181,14 @@ class AnnotateNode(BaseNode):
         )
 
         # Frame to draw on.
-        self.add(IMAGE_RGB.as_inlet("frame", label="Frame"))
+        self.add(RGB_IMAGE.as_inlet("frame", label="Frame"))
 
         # Control out.
         self.add(EXEC.as_outlet("frame_ready", label="Frame Ready"))
 
         # Annotated frame out. (Distinct id from the "frame" inlet — port ids are
-        # unique per node; cf. FrameDisplayNode's "frame_pass".)
-        self.add(IMAGE_RGB.as_outlet("annotated", label="Annotated"))
+        # unique per node; cf. ViewFrameNode's "frame_pass".)
+        self.add(RGB_IMAGE.as_outlet("annotated", label="Annotated"))
 
     def worker(self, context: ExecutionContext, result=None, frame=None) -> Optional[str]:
         """Copy the frame, draw every pooled result onto it, output the copy."""

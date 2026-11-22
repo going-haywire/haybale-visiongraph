@@ -9,7 +9,7 @@ chain — ``rotate`` / ``flip`` / ``crop`` / ``raw_input``, applied per frame �
 and backend selection, none of which were reachable before.
 
 The webcam is a single-image emitter: it delivers each frame as an ``ImageValue``
-to the Image Event nodes (haybale-image) subscribed on its ``CALLBACK_IMAGE`` inlet.
+to the Image Event nodes (haybale-image) subscribed on its ``IMAGE_CALLBACK`` inlet.
 
 Not in scope here: ``VideoCaptureInput.channel`` also accepts a *path*, which
 with ``loop`` / ``fps_lock`` / ``input_skip`` would make this a video-file
@@ -34,8 +34,8 @@ from haywire.api import (
     NodeType,
     PortType,
     Promotable,
-    SelectWidget,
-    SimpleLabelWidget,
+    MenuWidget,
+    LabelWidget,
     bag,
     node,
     setting,
@@ -78,7 +78,7 @@ class CaptureSettings(NodeSettings):
         # A live callable is safe on a setting() field (and on the port it is
         # promoted to): neither serializes widget_config, so the callable never
         # has to survive a save/load. It re-runs on every dropdown open.
-        widget=SelectWidget.config(properties={"options": list_camera_options}),
+        widget=MenuWidget.config(properties={"options": list_camera_options}),
         promotable=Promotable.CONFIG,
         promote_default=PortType.CONFIG,
     )
@@ -184,7 +184,7 @@ class WebCameraNode(BaseNode):
     Inputs:
         start: Begin capturing from webcam
         stop: Stop the capture stream
-        callbacks: Pooled CALLBACK_IMAGE subscriptions from Image Event nodes
+        callbacks: Pooled IMAGE_CALLBACK subscriptions from Image Event nodes
 
     Settings:
         capture: camera_index / width / height / fps / capture_backend /
@@ -201,8 +201,8 @@ class WebCameraNode(BaseNode):
     image = bag(ImageSettings)
 
     def init(self):
-        from haybale_core.types import PooledType
-        from haybale_image.types.callback import CALLBACK_IMAGE
+        from haybale_core.types import POOLED
+        from haybale_image.types.callback import IMAGE_CALLBACK
 
         # Control inputs
         self.add(EXEC.as_inlet("start", label="Start"))
@@ -210,7 +210,7 @@ class WebCameraNode(BaseNode):
 
         # Subscriptions from Image Event nodes.
         self.add(
-            PooledType[CALLBACK_IMAGE].as_inlet(
+            POOLED[IMAGE_CALLBACK].as_inlet(
                 "callbacks",
                 label="Subscribers",
                 description="Connect to an Image Event node. The webcam delivers single colour images.",
@@ -218,9 +218,7 @@ class WebCameraNode(BaseNode):
         )
 
         # Status display — a read-only label, never a setting.
-        self.add(
-            STRING.as_config("status", default="Idle", label="Status", widget=SimpleLabelWidget.config())
-        )
+        self.add(STRING.as_config("status", default="Idle", label="Status", widget=LabelWidget.config()))
 
         # Control outputs
         self.add(EXEC.as_outlet("started", label="Started"))

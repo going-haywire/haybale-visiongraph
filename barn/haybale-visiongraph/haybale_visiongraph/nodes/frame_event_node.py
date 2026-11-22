@@ -7,7 +7,7 @@ Camera-AGNOSTIC and shared across all 3D cameras (see notes.md Q19-Q20). Only th
 emit node is device-specific. Three bool flags (rgb / depth / ir) drive BOTH:
 
 1. Which outlets exist (dynamic ports via ``rejig``), and
-2. The per-stream requirements published on the ``CALLBACK_MULTIFRAME``
+2. The per-stream requirements published on the ``MULTIFRAME_CALLBACK``
    subscription outlet, which the emit node unions to decide which device
    streams to open.
 
@@ -131,7 +131,7 @@ class DispatchSettings(NodeSettings):
     ],
     node_type=NodeType.EVENT,
 )
-class NumpyFrameEventNode(BaseNode):
+class FrameEventNode(BaseNode):
     """
     Event node that receives 3D-camera frame callbacks.
 
@@ -142,7 +142,7 @@ class NumpyFrameEventNode(BaseNode):
             (ADR 0010). Applies on next start.
 
     Outputs:
-        subscription: CALLBACK_MULTIFRAME carrying the event name + requirements.
+        subscription: MULTIFRAME_CALLBACK carrying the event name + requirements.
         frame_ready: Control flow when a frame arrives.
         rgb / depth / ir: The requested frame streams (dynamic outlets).
         frame_number / timestamp: Frame metadata.
@@ -152,11 +152,11 @@ class NumpyFrameEventNode(BaseNode):
     dispatch = bag(DispatchSettings)
 
     def init(self):
-        from ..types.callback_multiframe_type import CALLBACK_MULTIFRAME
+        from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
 
         # Subscription outlet: carries this node's name + stream requirements.
         self.add(
-            CALLBACK_MULTIFRAME.as_outlet(
+            MULTIFRAME_CALLBACK.as_outlet(
                 "subscription",
                 label="Subscribe",
                 description="Subscribe for camera frames",
@@ -176,15 +176,15 @@ class NumpyFrameEventNode(BaseNode):
 
     def _build_stream_outlets(self):
         """Add the frame outlets for whichever streams are currently enabled."""
-        from haybale_image.types.depth import DEPTH
-        from haybale_image.types.image import IMAGE_GRAY, IMAGE_RGB
+        from haybale_image.types.depth import DEPTH_BUFFER
+        from haybale_image.types.image import GRAY_IMAGE, RGB_IMAGE
 
         if self.streams.enable_rgb:
-            self.add(IMAGE_RGB.as_outlet("rgb", label="Color"))
+            self.add(RGB_IMAGE.as_outlet("rgb", label="Color"))
         if self.streams.enable_depth:
-            self.add(DEPTH.as_outlet("depth", label="Depth"))
+            self.add(DEPTH_BUFFER.as_outlet("depth", label="Depth"))
         if self.streams.enable_ir:
-            self.add(IMAGE_GRAY.as_outlet("ir", label="Infrared"))
+            self.add(GRAY_IMAGE.as_outlet("ir", label="Infrared"))
 
     def hb_reconfigure(self, value=None, old=None):
         """On a flag change: rebuild stream outlets and refresh the subscription.
@@ -213,9 +213,9 @@ class NumpyFrameEventNode(BaseNode):
 
     def hb_publish_subscription(self):
         """Write the current name + requirements to the subscription outlet."""
-        from ..types.callback_multiframe_type import CALLBACK_MULTIFRAME
+        from ..types.multiframe_callback_type import MULTIFRAME_CALLBACK
 
-        sub = CALLBACK_MULTIFRAME(
+        sub = MULTIFRAME_CALLBACK(
             name=self.node_id,
             rgb=bool(self.streams.enable_rgb),
             depth=bool(self.streams.enable_depth),

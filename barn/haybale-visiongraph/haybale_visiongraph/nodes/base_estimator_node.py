@@ -16,7 +16,7 @@ a thin subclass that sets just two class attributes::
 
 Design decisions realised here:
 
-- **Image inlet ``IMAGE_RGB``** (Q4) — gray auto-adapts; depth is refused.
+- **Image inlet ``RGB_IMAGE``** (Q4) — gray auto-adapts; depth is refused.
 - **Lazy ``setup()`` on first frame** (Q7) — the estimator is a transform, not a
   device. The built estimator is cached; changing ``model`` — or any field a
   spec lists in ``rebuild_fields`` — releases it so the next frame rebuilds.
@@ -51,7 +51,7 @@ from haywire.api import (
     BaseNode,
     ExecutionContext,
     NodeWarning,
-    SimpleLabelWidget,
+    LabelWidget,
     UiState,
     bag,
     settings_fields,
@@ -201,20 +201,18 @@ class BaseEstimatorNode(BaseNode):
             self.hb_add_model_port()
 
     def init(self):
-        from haybale_image.types.image import IMAGE_RGB
+        from haybale_image.types.image import RGB_IMAGE
 
         # Control in.
         self.add(EXEC.as_inlet("execute", label="Run"))
 
         # Image in.
-        self.add(IMAGE_RGB.as_inlet("frame", label="Frame"))
+        self.add(RGB_IMAGE.as_inlet("frame", label="Frame"))
 
         self.hb_add_model_port()
 
         # Status display — a read-only label, never a setting.
-        self.add(
-            STRING.as_config("status", default="Idle", label="Status", widget=SimpleLabelWidget.config())
-        )
+        self.add(STRING.as_config("status", default="Idle", label="Status", widget=LabelWidget.config()))
 
         # Control out.
         self.add(EXEC.as_outlet("result_ready", label="Result Ready"))

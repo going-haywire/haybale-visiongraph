@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
-from haybale_image.types.image import IMAGE_RGB
+from haybale_image.types.image import RGB_IMAGE
 from haybale_image.value import ChannelOrder, DepthValue, ImageMetadata, ImageValue, Layout
 from test_estimator_models import _build, _families
 
@@ -19,9 +19,9 @@ BGR = ChannelOrder.BGR
 
 
 def _event_node() -> Any:
-    from haybale_visiongraph.nodes.numpy_frame_event_node import NumpyFrameEventNode
+    from haybale_visiongraph.nodes.frame_event_node import FrameEventNode
 
-    return _build(NumpyFrameEventNode)
+    return _build(FrameEventNode)
 
 
 def _capture(node: Any) -> dict[str, Any]:
@@ -108,13 +108,13 @@ def test_an_estimator_writing_into_its_input_reports_and_does_not_corrupt(librar
 
 def test_estimator_inlet_is_rgb(library_system: Any) -> None:
     node, _ = _estimator()
-    assert node.ports["frame"].type_cls is IMAGE_RGB
+    assert node.ports["frame"].type_cls is RGB_IMAGE
 
 
 def test_annotate_keeps_fields_and_metadata_and_leaves_the_input_alone(library_system: Any) -> None:
-    from haybale_visiongraph.nodes.annotate_node import AnnotateNode
+    from haybale_visiongraph.nodes.annotate_results_node import AnnotateResultsNode
 
-    node = _build(AnnotateNode)
+    node = _build(AnnotateResultsNode)
     emitted = _capture(node)
     drawn = MagicMock()
     drawn.annotate.side_effect = lambda image, **_: image.__setitem__((0, 0, 0), 9)
@@ -134,9 +134,9 @@ def test_annotate_keeps_fields_and_metadata_and_leaves_the_input_alone(library_s
 
 
 def _display() -> tuple[Any, dict[str, Any]]:
-    from haybale_visiongraph.nodes.numpy_frame_display_node import FrameDisplayNode
+    from haybale_visiongraph.nodes.view_frame_node import ViewFrameNode
 
-    node = _build(FrameDisplayNode)
+    node = _build(ViewFrameNode)
     return node, _capture(node)
 
 
@@ -172,7 +172,7 @@ _OLD_KEY = "haybale-visiongraph:type:RGB_FRAME"
 @pytest.mark.parametrize("path", _MIGRATED, ids=lambda p: p.stem)
 def test_a_migrated_graph_loads_with_working_frame_edges(library_system: Any, path: Path) -> None:
     text = path.read_text()
-    assert "_FRAME" not in text.replace("CALLBACK_MULTIFRAME", "")
+    assert "_FRAME" not in text.replace("MULTIFRAME_CALLBACK", "")
     graph = BaseGraph(filestem="migrated")
     try:
         assert graph.load_from_dict(json.loads(text)) is True

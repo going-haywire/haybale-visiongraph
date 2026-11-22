@@ -1,5 +1,5 @@
 """
-Segmentation node — runs an instance-segmentation estimator on a frame and
+Segmenter node — runs an instance-segmentation estimator on a frame and
 outlets a list of ``SEGMENTATION_RESULT`` (a detection plus a per-instance mask).
 
 Thin subclass of ``BaseEstimatorNode`` (see that module + notes.md Q6/Q13).
@@ -22,13 +22,13 @@ _OPENVINO_REBUILD = frozenset({"device"})
 
 
 @node(
-    label="Segmentation",
+    label="Segmenter",
     description="Instance segmentation: detect objects and their pixel masks",
     menu="vision/estimate",
     search_tags=["segmentation", "instance", "mask", "yolo", "maskrcnn", "yolact"],
     node_type=NodeType.CONTROL,
 )
-class SegmentationNode(BaseEstimatorNode):
+class SegmenterNode(BaseEstimatorNode):
     """Instance-segmentation family node — outlets ``SEGMENTATION_RESULT``."""
 
     def hb_result_type(self):
