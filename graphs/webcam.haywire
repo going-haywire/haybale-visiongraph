@@ -604,12 +604,12 @@
         "identity": {
           "registry_id": "ViewFrameNode",
           "registry_key": "haybale-visiongraph:node:ViewFrameNode",
-          "label": "Frame Info Display",
+          "label": "View Frame",
           "description": "Displays information about frames with live preview",
           "deprecation_warning": "",
           "hidden": false,
           "class_name": "ViewFrameNode",
-          "module": "haybale_visiongraph.nodes.numpy_frame_display_node",
+          "module": "haybale_visiongraph.nodes.view_frame_node",
           "tags": [],
           "search_tags": [
             "rgb",

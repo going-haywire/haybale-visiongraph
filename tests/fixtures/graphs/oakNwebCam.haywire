@@ -882,12 +882,12 @@
         "identity": {
           "registry_id": "ViewFrameNode",
           "registry_key": "haybale-visiongraph:node:ViewFrameNode",
-          "label": "Frame Info Display",
+          "label": "View Frame",
           "description": "Displays information about frames with live preview",
           "deprecation_warning": "",
           "hidden": false,
           "class_name": "ViewFrameNode",
-          "module": "haybale_visiongraph.nodes.numpy_frame_display_node",
+          "module": "haybale_visiongraph.nodes.view_frame_node",
           "tags": [],
           "search_tags": [
             "rgb",
@@ -938,7 +938,7 @@
               "label": "Subscribe",
               "description": "Subscribe for camera frames",
               "class_name": "MULTIFRAME_CALLBACK",
-              "module": "haybale_visiongraph.types.callback_multiframe_type",
+              "module": "haybale_visiongraph.types.multiframe_callback_type",
               "default": {
                 "name": "NumpyFrameEventNode_bcbab615",
                 "rgb": true,
@@ -1216,7 +1216,7 @@
           "deprecation_warning": "",
           "hidden": false,
           "class_name": "FrameEventNode",
-          "module": "haybale_visiongraph.nodes.numpy_frame_event_node",
+          "module": "haybale_visiongraph.nodes.frame_event_node",
           "tags": [],
           "search_tags": [
             "3d",
@@ -1519,12 +1519,12 @@
         "identity": {
           "registry_id": "ViewFrameNode",
           "registry_key": "haybale-visiongraph:node:ViewFrameNode",
-          "label": "Frame Info Display",
+          "label": "View Frame",
           "description": "Displays information about frames with live preview",
           "deprecation_warning": "",
           "hidden": false,
           "class_name": "ViewFrameNode",
-          "module": "haybale_visiongraph.nodes.numpy_frame_display_node",
+          "module": "haybale_visiongraph.nodes.view_frame_node",
           "tags": [],
           "search_tags": [
             "rgb",
