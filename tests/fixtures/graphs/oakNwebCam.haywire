@@ -622,7 +622,7 @@
     },
     "FrameDisplayNode_e397b53f": {
       "node_id": "FrameDisplayNode_e397b53f",
-      "registry_key": "haybale-visiongraph:node:FrameDisplayNode",
+      "registry_key": "haybale-visiongraph:node:ViewFrameNode",
       "node_data": {
         "node_id": "FrameDisplayNode_e397b53f",
         "ports": {
@@ -880,13 +880,13 @@
         },
         "store": {},
         "identity": {
-          "registry_id": "FrameDisplayNode",
-          "registry_key": "haybale-visiongraph:node:FrameDisplayNode",
+          "registry_id": "ViewFrameNode",
+          "registry_key": "haybale-visiongraph:node:ViewFrameNode",
           "label": "Frame Info Display",
           "description": "Displays information about frames with live preview",
           "deprecation_warning": "",
           "hidden": false,
-          "class_name": "FrameDisplayNode",
+          "class_name": "ViewFrameNode",
           "module": "haybale_visiongraph.nodes.numpy_frame_display_node",
           "tags": [],
           "search_tags": [
@@ -927,17 +927,17 @@
     },
     "NumpyFrameEventNode_bcbab615": {
       "node_id": "NumpyFrameEventNode_bcbab615",
-      "registry_key": "haybale-visiongraph:node:NumpyFrameEventNode",
+      "registry_key": "haybale-visiongraph:node:FrameEventNode",
       "node_data": {
         "node_id": "NumpyFrameEventNode_bcbab615",
         "ports": {
           "subscription": {
             "kwargs": {
-              "registry_id": "CALLBACK_MULTIFRAME",
-              "registry_key": "haybale-visiongraph:type:CALLBACK_MULTIFRAME",
+              "registry_id": "MULTIFRAME_CALLBACK",
+              "registry_key": "haybale-visiongraph:type:MULTIFRAME_CALLBACK",
               "label": "Subscribe",
               "description": "Subscribe for camera frames",
-              "class_name": "CALLBACK_MULTIFRAME",
+              "class_name": "MULTIFRAME_CALLBACK",
               "module": "haybale_visiongraph.types.callback_multiframe_type",
               "default": {
                 "name": "NumpyFrameEventNode_bcbab615",
@@ -952,7 +952,7 @@
               "show_widget": "never"
             },
             "recipe": {
-              "registry_key": "haybale-visiongraph:type:CALLBACK_MULTIFRAME"
+              "registry_key": "haybale-visiongraph:type:MULTIFRAME_CALLBACK"
             },
             "field_data": {
               "name": "NumpyFrameEventNode_bcbab615",
@@ -1209,13 +1209,13 @@
         },
         "store": {},
         "identity": {
-          "registry_id": "NumpyFrameEventNode",
-          "registry_key": "haybale-visiongraph:node:NumpyFrameEventNode",
+          "registry_id": "FrameEventNode",
+          "registry_key": "haybale-visiongraph:node:FrameEventNode",
           "label": "Frame Event",
           "description": "Triggered when a camera frame is ready; exposes colour/depth/infrared streams",
           "deprecation_warning": "",
           "hidden": false,
-          "class_name": "NumpyFrameEventNode",
+          "class_name": "FrameEventNode",
           "module": "haybale_visiongraph.nodes.numpy_frame_event_node",
           "tags": [],
           "search_tags": [
@@ -1259,7 +1259,7 @@
     },
     "node_44069909": {
       "node_id": "node_44069909",
-      "registry_key": "haybale-visiongraph:node:FrameDisplayNode",
+      "registry_key": "haybale-visiongraph:node:ViewFrameNode",
       "node_data": {
         "node_id": "node_44069909",
         "ports": {
@@ -1517,13 +1517,13 @@
         },
         "store": {},
         "identity": {
-          "registry_id": "FrameDisplayNode",
-          "registry_key": "haybale-visiongraph:node:FrameDisplayNode",
+          "registry_id": "ViewFrameNode",
+          "registry_key": "haybale-visiongraph:node:ViewFrameNode",
           "label": "Frame Info Display",
           "description": "Displays information about frames with live preview",
           "deprecation_warning": "",
           "hidden": false,
-          "class_name": "FrameDisplayNode",
+          "class_name": "ViewFrameNode",
           "module": "haybale_visiongraph.nodes.numpy_frame_display_node",
           "tags": [],
           "search_tags": [
@@ -1630,7 +1630,7 @@
             "recipe": {
               "registry_key": "haybale-core:type:POOLED",
               "element_type": {
-                "registry_key": "haybale-visiongraph:type:CALLBACK_MULTIFRAME"
+                "registry_key": "haybale-visiongraph:type:MULTIFRAME_CALLBACK"
               }
             }
           },

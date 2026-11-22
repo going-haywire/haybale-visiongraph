@@ -344,7 +344,7 @@
     },
     "FrameDisplayNode_4207c9": {
       "node_id": "FrameDisplayNode_4207c9",
-      "registry_key": "haybale-visiongraph:node:FrameDisplayNode",
+      "registry_key": "haybale-visiongraph:node:ViewFrameNode",
       "node_data": {
         "node_id": "FrameDisplayNode_4207c9",
         "ports": {
@@ -602,13 +602,13 @@
         },
         "store": {},
         "identity": {
-          "registry_id": "FrameDisplayNode",
-          "registry_key": "haybale-visiongraph:node:FrameDisplayNode",
+          "registry_id": "ViewFrameNode",
+          "registry_key": "haybale-visiongraph:node:ViewFrameNode",
           "label": "Frame Info Display",
           "description": "Displays information about frames with live preview",
           "deprecation_warning": "",
           "hidden": false,
-          "class_name": "FrameDisplayNode",
+          "class_name": "ViewFrameNode",
           "module": "haybale_visiongraph.nodes.numpy_frame_display_node",
           "tags": [],
           "search_tags": [
