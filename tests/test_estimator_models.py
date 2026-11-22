@@ -45,9 +45,9 @@ class _Wrapper:
 def _families() -> list[type]:
     from haybale_visiongraph.nodes.object_detector_node import ObjectDetectorNode
     from haybale_visiongraph.nodes.pose_estimator_node import PoseEstimatorNode
-    from haybale_visiongraph.nodes.segmentation_node import SegmentationNode
+    from haybale_visiongraph.nodes.segmenter_node import SegmenterNode
 
-    return [ObjectDetectorNode, SegmentationNode, PoseEstimatorNode]
+    return [ObjectDetectorNode, SegmenterNode, PoseEstimatorNode]
 
 
 def _all_specs() -> list[tuple[str, Any]]:
@@ -360,7 +360,7 @@ OLD_MODEL_PORT = {
         "registry_key": "haywire-core:type:STRING",
         "label": "Model",
         "default": {"value": "YOLOv8-N (COCO)"},
-        "widget_key": "haywire-core:widget:SelectWidget",
+        "widget_key": "haywire-core:widget:MenuWidget",
         "widget_config": {"properties": {"options": ["YOLOv8-N (COCO)", "YOLOv8-S (COCO)"]}},
         "id": "model",
         "port_type": "config",

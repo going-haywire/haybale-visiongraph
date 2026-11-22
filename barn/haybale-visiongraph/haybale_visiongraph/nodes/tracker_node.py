@@ -46,7 +46,7 @@ from haywire.api import (
     NodeType,
     PortType,
     Promotable,
-    SimpleLabelWidget,
+    LabelWidget,
     UiState,
     bag,
     node,
@@ -286,9 +286,7 @@ class TrackerNode(BaseNode):
         self.add(EXEC.as_inlet("execute", label="Run"))
 
         # Status display — a read-only label, never a setting.
-        self.add(
-            STRING.as_config("status", default="Idle", label="Status", widget=SimpleLabelWidget.config())
-        )
+        self.add(STRING.as_config("status", default="Idle", label="Status", widget=LabelWidget.config()))
 
         # Control out.
         self.add(EXEC.as_outlet("tracked_ready", label="Tracked Ready"))

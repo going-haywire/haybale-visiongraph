@@ -10,7 +10,7 @@
   "nodes": {
     "BeginPlayNode_eeb0fa": {
       "node_id": "BeginPlayNode_eeb0fa",
-      "registry_key": "haybale-core:node:BeginPlayNode",
+      "registry_key": "haybale-core:node:BeginPlayEventNode",
       "node_data": {
         "node_id": "BeginPlayNode_eeb0fa",
         "ports": {
@@ -84,14 +84,14 @@
         },
         "store": {},
         "identity": {
-          "registry_id": "BeginPlayNode",
-          "registry_key": "haybale-core:node:BeginPlayNode",
+          "registry_id": "BeginPlayEventNode",
+          "registry_key": "haybale-core:node:BeginPlayEventNode",
           "label": "Begin Player",
           "description": "Triggered once when execution starts",
           "deprecation_warning": "",
           "hidden": false,
-          "class_name": "BeginPlayNode",
-          "module": "haybale_core.nodes.events.begin_play",
+          "class_name": "BeginPlayEventNode",
+          "module": "haybale_core.nodes.events.begin_play_event",
           "tags": [],
           "search_tags": [
             "start",
@@ -170,11 +170,11 @@
           },
           "callbacks": {
             "kwargs": {
-              "registry_id": "PooledType",
-              "registry_key": "haybale-core:type:PooledType",
+              "registry_id": "POOLED",
+              "registry_key": "haybale-core:type:POOLED",
               "label": "Subscribers",
               "description": "Connect to an Image Event node. The webcam delivers single colour images.",
-              "class_name": "PooledType",
+              "class_name": "POOLED",
               "module": "haybale_core.types.pooled_type",
               "default": {
                 "value": {}
@@ -186,9 +186,9 @@
               "order": 2
             },
             "recipe": {
-              "registry_key": "haybale-core:type:PooledType",
+              "registry_key": "haybale-core:type:POOLED",
               "element_type": {
-                "registry_key": "haybale-image:type:CALLBACK_IMAGE"
+                "registry_key": "haybale-image:type:IMAGE_CALLBACK"
               }
             }
           },
@@ -205,7 +205,7 @@
               },
               "store_strategy": 14,
               "color": "#ffc107",
-              "widget_key": "haywire-core:widget:SimpleLabelWidget",
+              "widget_key": "haywire-core:widget:LabelWidget",
               "id": "status",
               "port_type": "config",
               "order": 3,
@@ -344,7 +344,7 @@
     },
     "FrameDisplayNode_4207c9": {
       "node_id": "FrameDisplayNode_4207c9",
-      "registry_key": "haybale-visiongraph:node:FrameDisplayNode",
+      "registry_key": "haybale-visiongraph:node:ViewFrameNode",
       "node_data": {
         "node_id": "FrameDisplayNode_4207c9",
         "ports": {
@@ -370,11 +370,11 @@
           },
           "frame": {
             "kwargs": {
-              "registry_id": "IMAGE_RGB",
-              "registry_key": "haybale-image:type:IMAGE_RGB",
+              "registry_id": "RGB_IMAGE",
+              "registry_key": "haybale-image:type:RGB_IMAGE",
               "label": "Frame",
               "description": "A three-channel picture.",
-              "class_name": "IMAGE_RGB",
+              "class_name": "RGB_IMAGE",
               "module": "haybale_image.types.image",
               "default": {
                 "value": {
@@ -398,7 +398,7 @@
               "show_widget": "when_linked"
             },
             "recipe": {
-              "registry_key": "haybale-image:type:IMAGE_RGB"
+              "registry_key": "haybale-image:type:RGB_IMAGE"
             }
           },
           "info_display": {
@@ -414,7 +414,7 @@
               },
               "store_strategy": 14,
               "color": "#ffc107",
-              "widget_key": "haywire-core:widget:SimpleLabelWidget",
+              "widget_key": "haywire-core:widget:LabelWidget",
               "id": "info_display",
               "port_type": "config",
               "order": 2,
@@ -451,11 +451,11 @@
           },
           "frame_pass": {
             "kwargs": {
-              "registry_id": "IMAGE_RGB",
-              "registry_key": "haybale-image:type:IMAGE_RGB",
+              "registry_id": "RGB_IMAGE",
+              "registry_key": "haybale-image:type:RGB_IMAGE",
               "label": "Frame Pass",
               "description": "A three-channel picture.",
-              "class_name": "IMAGE_RGB",
+              "class_name": "RGB_IMAGE",
               "module": "haybale_image.types.image",
               "default": {
                 "value": {
@@ -472,7 +472,7 @@
               "show_widget": "never"
             },
             "recipe": {
-              "registry_key": "haybale-image:type:IMAGE_RGB"
+              "registry_key": "haybale-image:type:RGB_IMAGE"
             }
           },
           "timestamp": {
@@ -602,14 +602,14 @@
         },
         "store": {},
         "identity": {
-          "registry_id": "FrameDisplayNode",
-          "registry_key": "haybale-visiongraph:node:FrameDisplayNode",
-          "label": "Frame Info Display",
+          "registry_id": "ViewFrameNode",
+          "registry_key": "haybale-visiongraph:node:ViewFrameNode",
+          "label": "View Frame",
           "description": "Displays information about frames with live preview",
           "deprecation_warning": "",
           "hidden": false,
-          "class_name": "FrameDisplayNode",
-          "module": "haybale_visiongraph.nodes.numpy_frame_display_node",
+          "class_name": "ViewFrameNode",
+          "module": "haybale_visiongraph.nodes.view_frame_node",
           "tags": [],
           "search_tags": [
             "rgb",
@@ -655,11 +655,11 @@
         "ports": {
           "listen_callback": {
             "kwargs": {
-              "registry_id": "CALLBACK_IMAGE",
-              "registry_key": "haybale-image:type:CALLBACK_IMAGE",
+              "registry_id": "IMAGE_CALLBACK",
+              "registry_key": "haybale-image:type:IMAGE_CALLBACK",
               "label": "Listen",
               "description": "Subscription for emitters that deliver single images",
-              "class_name": "CALLBACK_IMAGE",
+              "class_name": "IMAGE_CALLBACK",
               "module": "haybale_image.types.callback",
               "default": {
                 "name": "ImageEventNode_677db461"
@@ -671,7 +671,7 @@
               "show_widget": "never"
             },
             "recipe": {
-              "registry_key": "haybale-image:type:CALLBACK_IMAGE"
+              "registry_key": "haybale-image:type:IMAGE_CALLBACK"
             },
             "field_data": {
               "name": "ImageEventNode_677db461"

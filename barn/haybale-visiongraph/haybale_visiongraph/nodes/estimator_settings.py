@@ -10,7 +10,7 @@ bag and the node hides the ones the current model doesn't use — the same
 driven by a condition local to the node.
 
 Bags live here at module level rather than inline on a node so that several
-family nodes can share one (``ObjectDetectorNode`` and ``SegmentationNode``
+family nodes can share one (``ObjectDetectorNode`` and ``SegmenterNode``
 both offer Ultralytics models) and so each node can carry a ``TYPE_CHECKING``
 annotation for them.
 
@@ -49,7 +49,7 @@ class OverlaySettings(NodeSettings):
     """How this estimator's results should be drawn downstream.
 
     Not a visiongraph concept: the value is stamped onto the emitted
-    ``BaseVisionResult.color`` and read back by ``AnnotateNode``, so that a
+    ``BaseVisionResult.color`` and read back by ``AnnotateResultsNode``, so that a
     pooled overlay of several estimators can tell them apart. See
     ``BaseVisionResult`` for why it cannot live on the visiongraph result.
     """

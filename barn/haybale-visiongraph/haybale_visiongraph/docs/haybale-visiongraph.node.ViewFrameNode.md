@@ -1,6 +1,6 @@
-# Frame Info Display
+# View Frame
 
-`haybale-visiongraph:node:FrameDisplayNode` · kind: node
+`haybale-visiongraph:node:ViewFrameNode` · kind: node
 
 Displays information about frames with live preview
 
@@ -9,10 +9,10 @@ Displays information about frames with live preview
 | id | direction | type | description |
 |---|---|---|---|
 | `execute` | inlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
-| `frame` | inlet | `haybale-image:type:IMAGE_RGB` | A three-channel picture. |
+| `frame` | inlet | `haybale-image:type:RGB_IMAGE` | A three-channel picture. |
 | `info_display` | config | `haywire-core:type:STRING` | Text data |
 | `frame_ready` | outlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
-| `frame_pass` | outlet | `haybale-image:type:IMAGE_RGB` | A three-channel picture. |
+| `frame_pass` | outlet | `haybale-image:type:RGB_IMAGE` | A three-channel picture. |
 | `timestamp` | outlet | `haywire-core:type:FLOAT` | Decimal number |
 | `frame_number` | outlet | `haywire-core:type:INT` | Whole number |
 | `width` | outlet | `haywire-core:type:INT` | Whole number |

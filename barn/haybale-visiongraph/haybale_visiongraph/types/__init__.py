@@ -1,4 +1,4 @@
-from .callback_multiframe_type import CALLBACK_MULTIFRAME
+from .multiframe_callback_type import MULTIFRAME_CALLBACK
 from .result_type import (
     BaseVisionResult,
     VISION_RESULT,
@@ -10,7 +10,7 @@ from .result_type import (
 
 
 __all__ = [
-    "CALLBACK_MULTIFRAME",
+    "MULTIFRAME_CALLBACK",
     "BaseVisionResult",
     "VISION_RESULT",
     "DETECTION_RESULT",

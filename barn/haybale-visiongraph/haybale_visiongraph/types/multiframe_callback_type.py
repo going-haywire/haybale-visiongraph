@@ -1,6 +1,6 @@
 """
-CALLBACK_MULTIFRAME — the subscription carrier between a 3D-camera emit node and
-the shared ``NumpyFrameEventNode``.
+MULTIFRAME_CALLBACK — the subscription carrier between a 3D-camera emit node and
+the shared ``FrameEventNode``.
 
 A ``BaseType`` dataclass (NOT a subclass of core ``CALLBACK``) declared on
 `CallbackWire`, so the framework recognises a callback edge by its wire type's
@@ -12,9 +12,9 @@ It serves two purposes on the single subscription edge:
 1. Carries the event ``name`` (for callback dispatch routing) **and** the
    downstream node's per-stream requirements (``rgb`` / ``depth`` / ``ir``).
 2. Type-gates the connection: only a camera emit node whose pooled inlet is
-   ``PooledType[CALLBACK_MULTIFRAME]`` can be wired to a 3D event node — this is
+   ``POOLED[MULTIFRAME_CALLBACK]`` can be wired to a 3D event node — this is
    what binds the camera family (OAK-D emit, webcam emit, …) to the shared
-   ``NumpyFrameEventNode``.
+   ``FrameEventNode``.
 
 Note on the name: "multiframe" describes the type's *capability* (it can carry
 up to several stream requirements), not a mandate that all be present. A
@@ -30,14 +30,14 @@ from haywire.api import BaseType, CallbackWire, type
 
 
 @type(
-    label="Callback Multiframe",
+    label="Multiframe Callback",
     description="Subscription for multi-frame streams",
     wire_type=CallbackWire,
     default=None,
     color="#ff3c00",
 )
 @dataclass
-class CALLBACK_MULTIFRAME(BaseType):
+class MULTIFRAME_CALLBACK(BaseType):
     """
     Subscription value: callback name + which streams the subscriber requires.
 

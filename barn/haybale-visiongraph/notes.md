@@ -103,7 +103,7 @@ with thin subclasses:
 ```
 BaseEstimatorNode(BaseNode)        # all lifecycle in ONE place
   ├─ ObjectDetectorNode  → DETECTION_RESULT     (YOLOv5/8/8-OBB, DEIMv2, SSD, DETR, CenterNet, CrowdHuman)
-  ├─ SegmentationNode    → SEGMENTATION_RESULT  (MaskRCNN, MODNet, Yolact, YOLOv8-Seg)
+  ├─ SegmenterNode    → SEGMENTATION_RESULT  (MaskRCNN, MODNet, Yolact, YOLOv8-Seg)
   └─ PoseEstimatorNode   → POSE_RESULT          (MediaPipe, MoveNet, LitePose, EfficientPose, Ultralytics, LiteHRNet, OpenPose, AE, KAPAO, MobileNetV2)
 ```
 
@@ -134,7 +134,7 @@ stays minimal: just wire frame → estimator → consumer.
 ### Q8 — threading: SYNCHRONOUS inference in `worker()` (not off-thread)
 
 The node is a per-frame CONTROL transform (`execute` EXEC inlet pulsed by upstream
-`frame_ready`, a `frame` data inlet) — same shape as `FrameDisplayNode`. `process()`
+`frame_ready`, a `frame` data inlet) — same shape as `ViewFrameNode`. `process()`
 (50–500ms) runs **synchronously** in `worker()`; returns `result_ready`. The
 camera's capture thread is what blocks, so the pipeline self-throttles to
 inference speed for free, and frame→result ordering is trivially correct. The
@@ -153,7 +153,7 @@ bar *during* `process()`. You *can* push a status value before/after via
 `packages/haywire-core/src/haywire/core/types/port.py:272`; this is how the camera
 status label updates from its thread). So:
 
-- `SimpleLabelWidget` status, same idiom as the camera nodes.
+- `LabelWidget` status, same idiom as the camera nodes.
 - `"Loading model…"` before first-frame `setup()` (the slow, separable step).
 - Rolling `"N results · Xms"` after each inference (last-frame timing). No
   per-frame "Inferring…" mid-call — the synchronous design can't deliver it.
@@ -178,19 +178,19 @@ synchronous `process()`. See the setting canon §3d and the example node
 `haybale_example.nodes.progress_demo`. Adopting it in the estimator nodes is
 optional and not part of this design.
 
-### Q10 — Annotate node: `PooledType[VISION_RESULT]` result inlet + `RGB_FRAME` frame inlet
+### Q10 — Annotate node: `POOLED[VISION_RESULT]` result inlet + `RGB_FRAME` frame inlet
 
 Contract found: visiongraph results carry **normalized** coords (annotate does
 `x * w`), and `.annotate(image)` **mutates the image in place** (returns None).
 Canonical pipeline annotates onto the same frame fed to `process()`.
 
 The generic Annotate node (the `VISION_RESULT` consumer) takes:
-- **`result`: `PooledType[VISION_RESULT]`** — inlet-only, multi-connection.
+- **`result`: `POOLED[VISION_RESULT]`** — inlet-only, multi-connection.
   Accepts any MIX of `DETECTION_RESULT` / `SEGMENTATION_RESULT` /
   `LANDMARK_RESULT` / `POSE_RESULT` outlets *simultaneously*: each is a subtype of
   `VISION_RESULT`, and a pooled inlet checks compatibility against its ELEMENT
   type (verified: `PooledField.get_stored_type()` returns `element_type_cls`, and
-  the live `PooledType[CALLBACK_MULTIFRAME]` ← scalar callback outlets proves
+  the live `POOLED[MULTIFRAME_CALLBACK]` ← scalar callback outlets proves
   scalar-source→pooled-sink works via the Q2 `issubclass` passthrough). So one
   Annotate node overlays detections + pose + masks from several estimators onto
   one frame — the user's key insight.
@@ -315,13 +315,13 @@ the `_FRAME` convention):
 
 Nodes (`menu="vision/<area>"`, extending existing `input`/`event`/`info`):
 
-| Class                | label              | menu              |
-|----------------------|--------------------|-------------------|
-| `ObjectDetectorNode` | "Object Detector"  | `vision/estimate` |
-| `SegmentationNode`   | "Segmentation"     | `vision/estimate` |
-| `PoseEstimatorNode`  | "Pose Estimator"   | `vision/estimate` |
-| `TrackerNode`        | "Tracker"          | `vision/process`  |
-| `AnnotateNode`       | "Annotate Results" | `vision/draw`     |
+| Class                 | label              | menu              |
+|-----------------------|--------------------|-------------------|
+| `ObjectDetectorNode`  | "Object Detector"  | `vision/estimate` |
+| `SegmenterNode`       | "Segmenter"        | `vision/estimate` |
+| `PoseEstimatorNode`   | "Pose Estimator"   | `vision/estimate` |
+| `TrackerNode`         | "Tracker"          | `vision/process`  |
+| `AnnotateResultsNode` | "Annotate Results" | `vision/draw`     |
 
 Three small menu groups read as a left-to-right pipeline: estimate → process → draw.
 
@@ -340,12 +340,12 @@ Three small menu groups read as a left-to-right pipeline: estimate → process �
       wrap `ResultList` into subclass `RESULT_TYPE`, status label (Q9),
       `release()` on shutdown/teardown/model-change. Subclasses declare only
       `RESULT_TYPE` + `MODELS` dict. Lazy-import backends inside setup (Q13).
-- [ ] `nodes/object_detector_node.py`, `segmentation_node.py`,
+- [ ] `nodes/object_detector_node.py`, `segmenter_node.py`,
       `pose_estimator_node.py` — thin subclasses (Q6 model lists).
 - [ ] `nodes/tracker_node.py`: `result_type` enum config rejigs inlet+outlet
       (Q12); curated backend enum (Centroid/Flate/Motpy); `DETECTION_RESULT`
       default.
-- [ ] `nodes/annotate_node.py`: `PooledType[VISION_RESULT]` result inlet +
+- [ ] `nodes/annotate_results_node.py`: `POOLED[VISION_RESULT]` result inlet +
       `RGB_FRAME` frame inlet; COPY frame, iterate pooled dict, `.annotate(**kwargs)`
       each, outlet `RGB_FRAME` (Q10). `min_score`+`show_info` config; `class
       style(NodeSettings)` for the styling long-tail (Q14).
@@ -364,20 +364,20 @@ Three small menu groups read as a left-to-right pipeline: estimate → process �
 ## Webcam joins the 3D-camera family (second inquisition)
 
 Goal: a webcam should be usable as the **RGB-only member** of the camera family,
-feeding the *same* shared `NumpyFrameEventNode`. One shared event node, per-device
+feeding the *same* shared `FrameEventNode`. One shared event node, per-device
 emit nodes (OAK-D, webcam, later Azure/RealSense).
 
-- **Reuse `CALLBACK_MULTIFRAME`** (not a new `RGBFRAME_CALLBACK`): goal requires
+- **Reuse `MULTIFRAME_CALLBACK`** (not a new `RGBFRAME_CALLBACK`): goal requires
   one subscription type flowing out of the single shared event node, so a second
   callback type would split it. The webcam emit node's pooled inlet is
-  `PooledType[CALLBACK_MULTIFRAME]`, same as OAK.
+  `POOLED[MULTIFRAME_CALLBACK]`, same as OAK.
 - **Webcam honours only `rgb`**, silently ignores depth/ir requirements (mirrors
   an OAK with a stream off → unfired outlet). Reads the requirement union; if no
   subscriber wants rgb, it does not capture (`hb_any_rgb_requested` guard).
 - **Payload key changed** `"frame"` → `"rgb"` to match the OAK open-keyed payload.
 - **`WebcamFrameEventNode`: deprecated, not deleted.** Marked with
-  `deprecation_warning=` on `@node` (steers users to `NumpyFrameEventNode`), but
-  **migrated to the new contract** — subscribes via `CALLBACK_MULTIFRAME`
+  `deprecation_warning=` on `@node` (steers users to `FrameEventNode`), but
+  **migrated to the new contract** — subscribes via `MULTIFRAME_CALLBACK`
   (`rgb=True`) and reads `payload["rgb"]` — so it stays *functional* against the
   updated webcam emit node, not just a dead badge.
 - **"multiframe" = capability, not mandate** — documented on the type docstring +
@@ -392,11 +392,11 @@ emit nodes (OAK-D, webcam, later Azure/RealSense).
 - [ ] Rename `FRAME → RGB_FRAME` across the 3 existing nodes + `NumpyViewerWidget`
       `compatible_types` + `types/__init__.py` + docs; then `/check-rename`.
 - [ ] `GRAY_FRAME ↔ RGB_FRAME` adapters. No `DEPTH_FRAME` adapter.
-- [ ] `CALLBACK_MULTIFRAME` (`BaseType` dataclass, `wire_type=CallbackWire`,
+- [ ] `MULTIFRAME_CALLBACK` (`BaseType` dataclass, `wire_type=CallbackWire`,
       `name` + stream-requirement fields).
 - [ ] `OakDCameraNode` (device-specific; wraps `OakDInput`; EXEC start/stop;
       `on_startup` reads union; capture thread; open-keyed payload).
-- [ ] `NumpyFrameEventNode` (shared/agnostic; 3 bool flags → `rejig` + requirement).
+- [ ] `FrameEventNode` (shared/agnostic; 3 bool flags → `rejig` + requirement).
 - [ ] `depthai` explicit in `pyproject.toml`; then `/haywire-dep-check`.
 - [ ] `NumpyViewerWidget` → `compatible_types=[RGB_FRAME]`.
 
@@ -500,7 +500,7 @@ rename changes the persisted key `visiongraph:FRAME` → `visiongraph:RGB_FRAME`
 needed: `@type(registry_id="...")` pins the key independent of class name — we
 deliberately do NOT use it.
 
-### CALLBACK_MULTIFRAME type (Q14–Q15) — the subscription carrier
+### MULTIFRAME_CALLBACK type (Q14–Q15) — the subscription carrier
 
 A **visiongraph-local `BaseType` dataclass** (NOT a subclass of core `CALLBACK`),
 declared with `wire_type=CallbackWire` (from `haywire.barn.builtin.wires`). Fields: `name: str` +
@@ -519,12 +519,12 @@ Why a dataclass works (verified against the framework):
 
 Two payoffs over a bare CALLBACK + sidecar:
 1. **Requirements ride the one subscription edge** (event outlet → emit's
-   `PooledType[CALLBACK_MULTIFRAME]` inlet). No second parallel edge.
+   `POOLED[MULTIFRAME_CALLBACK]` inlet). No second parallel edge.
 2. **Type-gating**: only OAK-compatible event nodes can wire into the OAK emit
    node — a plain webcam `CALLBACK` event node can't connect.
 
 Two channels, opposite directions (do not conflate):
-- **Subscription edge** (event → emit): carries `CALLBACK_MULTIFRAME`
+- **Subscription edge** (event → emit): carries `MULTIFRAME_CALLBACK`
   (name + requirements). The emit node unions `.streams` across the pooled
   entries in `on_startup`.
 - **Runtime dispatch** (emit → event): `context.emit_callback(name, payload)` —
@@ -538,8 +538,8 @@ visiongraph's `BaseDepthCamera` with the same `CameraStreamType.{Color,Depth,
 Infrared}` model, so the *streams* are a shared abstraction and only the *device
 setup* differs.
 
-- **`NumpyFrameEventNode`** (shared, one class): subscribes via
-  `CALLBACK_MULTIFRAME` to ANY 3D-camera emit node. Exposes `rgb`/`depth`/`ir`
+- **`FrameEventNode`** (shared, one class): subscribes via
+  `MULTIFRAME_CALLBACK` to ANY 3D-camera emit node. Exposes `rgb`/`depth`/`ir`
   outlets. Reused across all current and future 3D cameras.
 - **Per-device emit nodes**: `OakDCameraNode` now; `AzureKinectEmitNode`,
   `RealSenseEmitNode`, … later. Each wraps its own visiongraph input class.
@@ -547,7 +547,7 @@ setup* differs.
 **Stream flags (Q19) — explicit config, user is source of truth.** Three bool
 config flags (`rgb`/`depth`/`ir`) on the event node. Each `on_change` → `rejig`
 that BOTH builds/removes the outlet AND sets the matching field in the
-`CALLBACK_MULTIFRAME` requirement sent upstream. NOT derived from downstream
+`MULTIFRAME_CALLBACK` requirement sent upstream. NOT derived from downstream
 wiring (chicken-and-egg: can't wire to an outlet that doesn't exist yet).
 
 **Shared contract (Q20) — fixed three, open-keyed payload.** The shared node's
@@ -555,10 +555,10 @@ contract is exactly `rgb`/`depth`/`ir` (the `BaseDepthCamera` common
 denominator). If a device lacks a stream, its payload slot is `None`. The
 runtime payload dict (Q6) is **open-keyed by stream name**, so a future
 device-specific node can carry extra streams (e.g. RealSense second IR) by
-adding a key — WITHOUT changing `CALLBACK_MULTIFRAME` or `NumpyFrameEventNode`.
+adding a key — WITHOUT changing `MULTIFRAME_CALLBACK` or `FrameEventNode`.
 The shared event node still only ever shows `rgb`/`depth`/`ir`.
 
-**CALLBACK_MULTIFRAME meaning widens:** the type-gate is now "any 3D-camera emit
+**MULTIFRAME_CALLBACK meaning widens:** the type-gate is now "any 3D-camera emit
 node ↔ the shared 3D event node" (not OAK-specific). The single type still
 expresses it — all 3D emit nodes use it; the one event node consumes it.
 
@@ -619,7 +619,7 @@ macOS). Our pyproject pins `depthai~=2.30` to match.
   (driven by the requirement union, not standalone toggles), color resolution.
 - Depth uses `OakDInput`'s defaults: HIGH_DENSITY preset, 7x7 median filter,
   left-right-check on. Produces working depth out of the box, no tuning ports.
-- The three frame datatypes + GRAY↔RGB adapters + CALLBACK_MULTIFRAME + the
+- The three frame datatypes + GRAY↔RGB adapters + MULTIFRAME_CALLBACK + the
   emit/event pair with the full lifecycle.
 
 ### v1 — explicit non-goals (fast-follow or later)
@@ -723,7 +723,7 @@ free-text field left users guessing what to type. `dai.Device.getAllAvailableDev
 is a cheap static enumeration call (no device opened, confirmed
 ~instant with zero hardware attached) returning `dai.DeviceInfo` objects
 with `.mxid`/`.name`. Swapped the widget from `TextWidget` to
-`SelectWidget.config(properties={"options": self.hb_list_available_mxids})` —
+`MenuWidget.config(properties={"options": self.hb_list_available_mxids})` —
 `as_config` accepts arbitrary widget contracts same as settings (it's just
 an inlet with `flow_type=NONE`), so no architecture change was needed. The
 callable resolves fresh on every dropdown open (same mechanism as dynamic
@@ -797,8 +797,8 @@ the panel stale until the next start pulse.
 Closed by wiring `on_change="hb_on_callbacks_changed"` onto the `callbacks`
 pooled inlet, calling `hb_gather_requirements()`. This required no new
 propagation mechanism — the pooled inlet already fires its deferred
-`on_change` whenever any one connected `NumpyFrameEventNode` republishes its
-`CALLBACK_MULTIFRAME` subscription (e.g. via `hb_reconfigure` on an
+`on_change` whenever any one connected `FrameEventNode` republishes its
+`MULTIFRAME_CALLBACK` subscription (e.g. via `hb_reconfigure` on an
 `enable_*` flag toggle), because `PooledField.set_value` treats every
 per-source write as a pool-dict change and `resolve_dirty_data()` fires the
 handler once per VM tick with the whole current pool — exactly the same
@@ -893,12 +893,12 @@ by where the wrapped attribute is *read* — a fact, not a judgement:
 | Node | Seeded to CONFIG in `init()` | New bags | Notes |
 |---|---|---|---|
 | `OakDCameraNode` | `device.mxid` (already) | — | already settings-first; move `promote` to `init()`, `depth` → `CONFIG` |
-| `AnnotateNode` | `min_score`, `show_info` | `style` gains `color`, `use_class_color` | |
+| `AnnotateResultsNode` | `min_score`, `show_info` | `style` gains `color`, `use_class_color` | |
 | `BaseEstimatorNode` + 3 families | `model`, `min_score` | `nms`, `openvino`, `mediapipe`, `movenet` — hidden by `model` | |
 | `TrackerNode` | `backend`, `result_type` (`Promotable.CONFIG`) | `flate`, `motpy`, `centroid` — hidden by `backend` | |
 | `WebCameraNode` | `camera_index`, `frame_skip` | `capture`, `image` | rerouted onto `VideoCaptureInput` |
-| `NumpyFrameEventNode` | `enable_rgb/depth/ir` (`Promotable.CONFIG`) | `dispatch` (`queue_mode`, `max_queue_size`) | |
-| `FrameDisplayNode` | — | — | nothing convertible; viewer knobs are widget config, stamped once (ADR 0017) |
+| `FrameEventNode` | `enable_rgb/depth/ir` (`Promotable.CONFIG`) | `dispatch` (`queue_mode`, `max_queue_size`) | |
+| `ViewFrameNode` | — | — | nothing convertible; viewer knobs are widget config, stamped once (ADR 0017) |
 
 `result_type` and `enable_*` are `Promotable.CONFIG` because they drive
 `rejig`: an edge-driven inlet that destroys and rebuilds ports mid-run could
@@ -920,7 +920,7 @@ drop the very edges feeding it.
   `setup()`), so `ModelSpec` gains `rebuild_fields: frozenset[str]` and the
   change handler releases the cached estimator only for fields in that set.
 - **Per-estimator overlay colour goes upstream.** `BaseVisionResult` gains a
-  `color` field that the estimator node sets and `AnnotateNode` reads back
+  `color` field that the estimator node sets and `AnnotateResultsNode` reads back
   out as the `color=` kwarg. visiongraph's own `annotation_color` is a
   read-only property derived from `tracking_id`, so there is no way to stamp
   it on the result objects themselves. Note segmentation ignores `color`
@@ -960,7 +960,7 @@ drop the very edges feeding it.
   __init__` consumes the enum immediately into an engine object, and
   `create()` takes only the config variant. Exposing it means abandoning the
   `ModelSpec`/`create()` design.
-- **`FrameDisplayNode`'s viewer knobs** (`quality`, `frame_queue_size`,
+- **`ViewFrameNode`'s viewer knobs** (`quality`, `frame_queue_size`,
   `block_on_full`) stay hardcoded. They are widget config, stamped once at
   class-definition time per ADR 0017 — making them runtime-editable is a
   widget task, not a settings one.
@@ -978,7 +978,7 @@ Silent, and it looks correct.
 
 Handled with one `CompatibilityWarning` per converted node at the release
 version, remedy "Reset the node" — the same mechanism and the same remedy
-already used for `FrameDisplayNode` at 0.0.13. Reset re-runs `init()`, so the
+already used for `ViewFrameNode` at 0.0.13. Reset re-runs `init()`, so the
 stale port disappears, the seed promotions fire, and `build()` clears the
 warning itself. The cost is that Reset returns the *whole* node to defaults;
 `OakDCameraNode` is exempt because it converts nothing.
@@ -1027,9 +1027,9 @@ node that reads it, so dropping it would silently un-colour any tracked branch.
 3. **Prove `rejig` works from a `subscribe_field` callback.** `on_change=`
    string dispatch was retired for settings (ADR 0013), so
    `hb_on_result_type_change` and `hb_reconfigure` change shape. Everything
-   in `TrackerNode` and `NumpyFrameEventNode` rests on this. Do it first.
+   in `TrackerNode` and `FrameEventNode` rests on this. Do it first.
 4. Remove the stray `print("was here")` in `hb_on_callbacks_changed`.
-5. `AnnotateNode` passes `show_bounding_box` unconditionally at `False`, but
+5. `AnnotateResultsNode` passes `show_bounding_box` unconditionally at `False`, but
    `InstanceSegmentationResult.annotate` defaults it to **`True`** — so
    wiring a segmentation result in silently turns its boxes off. Fixed by
    making the field a **tri-state** `CHOICES` (`Auto (per result type)` /

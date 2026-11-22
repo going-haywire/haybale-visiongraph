@@ -1,22 +1,22 @@
-from .numpy_frame_display_node import FrameDisplayNode
+from .view_frame_node import ViewFrameNode
 from .web_cam_node import WebCameraNode
 from .oak_d_camera_node import OakDCameraNode
-from .numpy_frame_event_node import NumpyFrameEventNode
+from .frame_event_node import FrameEventNode
 from .object_detector_node import ObjectDetectorNode
-from .segmentation_node import SegmentationNode
+from .segmenter_node import SegmenterNode
 from .pose_estimator_node import PoseEstimatorNode
 from .tracker_node import TrackerNode
-from .annotate_node import AnnotateNode
+from .annotate_results_node import AnnotateResultsNode
 
 
 __all__ = [
     "WebCameraNode",
-    "FrameDisplayNode",
+    "ViewFrameNode",
     "OakDCameraNode",
-    "NumpyFrameEventNode",
+    "FrameEventNode",
     "ObjectDetectorNode",
-    "SegmentationNode",
+    "SegmenterNode",
     "PoseEstimatorNode",
     "TrackerNode",
-    "AnnotateNode",
+    "AnnotateResultsNode",
 ]

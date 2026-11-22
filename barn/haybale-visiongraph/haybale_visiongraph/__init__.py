@@ -56,12 +56,12 @@ class Library(BaseLibrary):
     def compatibility_warnings(self) -> list[CompatibilityWarning]:
         """Append-only history of compatibility notices. See ADR 0005."""
         from .nodes import (
-            AnnotateNode,
-            FrameDisplayNode,
-            NumpyFrameEventNode,
+            AnnotateResultsNode,
+            ViewFrameNode,
+            FrameEventNode,
             ObjectDetectorNode,
             PoseEstimatorNode,
-            SegmentationNode,
+            SegmenterNode,
             TrackerNode,
             WebCameraNode,
         )
@@ -94,7 +94,7 @@ class Library(BaseLibrary):
         return [
             CompatibilityWarning(
                 version="0.0.13",
-                component=FrameDisplayNode,
+                component=ViewFrameNode,
                 message=(
                     "The 'frame' inlet's widget visibility (show_widget) is now "
                     "author-declared (WHEN_LINKED). Graphs saved before 0.0.13 may "
@@ -102,12 +102,12 @@ class Library(BaseLibrary):
                     "Reset the node to re-derive it from current code."
                 ),
             ),
-            _converted(AnnotateNode, "'min_score' and 'show_info'"),
+            _converted(AnnotateResultsNode, "'min_score' and 'show_info'"),
             _converted(ObjectDetectorNode, "'model' and 'min_score'"),
-            _converted(SegmentationNode, "'model' and 'min_score'"),
+            _converted(SegmenterNode, "'model' and 'min_score'"),
             _converted(PoseEstimatorNode, "'model' and 'min_score'"),
             _converted(TrackerNode, "'backend' and 'result_type'"),
-            _converted(NumpyFrameEventNode, "'enable_rgb', 'enable_depth' and 'enable_ir'"),
+            _converted(FrameEventNode, "'enable_rgb', 'enable_depth' and 'enable_ir'"),
             _converted(
                 WebCameraNode,
                 "'camera_index', 'width', 'height', 'fps' and 'frame_skip'",

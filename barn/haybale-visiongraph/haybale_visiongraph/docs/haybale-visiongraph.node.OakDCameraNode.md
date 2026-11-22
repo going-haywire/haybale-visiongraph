@@ -10,7 +10,7 @@ Opens an OAK-D depth camera and emits colour/depth/infrared frame callbacks
 |---|---|---|---|
 | `start` | inlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
 | `stop` | inlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
-| `callbacks` | inlet | `haybale-core:type:PooledType` | Connect to a Frame Event node |
+| `callbacks` | inlet | `haybale-core:type:POOLED` | Connect to a Frame Event node |
 | `status` | config | `haywire-core:type:STRING` | Text data |
 | `device.mxid` | config | `haywire-core:type:STRING` | Leave empty to auto-select the first available OAK device. |
 | `started` | outlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
@@ -58,7 +58,7 @@ per frame carrying every active stream.
 Inputs:
     start: Open the device and begin capturing.
     stop: Stop capturing and close the device.
-    callbacks: Pooled CALLBACK_MULTIFRAME subscriptions from event nodes.
+    callbacks: Pooled MULTIFRAME_CALLBACK subscriptions from event nodes.
 
 Outputs:
     started: Triggered when the device opens successfully.

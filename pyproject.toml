@@ -2,7 +2,7 @@
 name = "haybale-visiongraph-dev"
 version = "0.0.17"
 requires-python = ">=3.11"
-dependencies = ["haywire-studio>=0.0.39", "haybale-marketplace>=0.0.39", "haybale-visiongraph", "haybale-core", "haybale-studio", "haybale-share>=0.0.39", "haybale-graph-editor>=0.0.39", "haybale-haystack>=0.0.39"]
+dependencies = ["haywire-studio>=0.6.0", "haybale-marketplace>=0.6.0", "haybale-visiongraph", "haybale-core>=0.6.0", "haybale-studio>=0.6.0", "haybale-share>=0.6.0", "haybale-graph-editor>=0.6.0", "haybale-haystack>=0.6.0"]
 
 [tool.uv.workspace]
 members = [ "barn/*",]

@@ -39,9 +39,9 @@ class _StubWrapper:
 def _families():
     from haybale_visiongraph.nodes.object_detector_node import ObjectDetectorNode
     from haybale_visiongraph.nodes.pose_estimator_node import PoseEstimatorNode
-    from haybale_visiongraph.nodes.segmentation_node import SegmentationNode
+    from haybale_visiongraph.nodes.segmenter_node import SegmenterNode
 
-    return [ObjectDetectorNode, SegmentationNode, PoseEstimatorNode]
+    return [ObjectDetectorNode, SegmenterNode, PoseEstimatorNode]
 
 
 def _build(cls):
@@ -155,7 +155,7 @@ def test_changing_model_drops_the_cached_estimator(library_system, cls):
 
 @pytest.mark.parametrize("cls", _families(), ids=lambda c: c.__name__)
 def test_overlay_colour_is_carried_on_the_emitted_result(library_system, cls):
-    """Q6B: the estimator stamps its colour, AnnotateNode reads it back."""
+    """Q6B: the estimator stamps its colour, AnnotateResultsNode reads it back."""
     node = _build(cls)
     node.overlay.color = "#ff8800"
 
@@ -212,9 +212,9 @@ def test_tracker_result_type_retypes_both_ports(library_system):
 
 
 def test_frame_event_seeds_the_three_stream_toggles(library_system):
-    from haybale_visiongraph.nodes.numpy_frame_event_node import NumpyFrameEventNode
+    from haybale_visiongraph.nodes.frame_event_node import FrameEventNode
 
-    node = _build(NumpyFrameEventNode)
+    node = _build(FrameEventNode)
 
     for name in ("enable_rgb", "enable_depth", "enable_ir"):
         assert f"streams.{name}" in node.ports
@@ -223,9 +223,9 @@ def test_frame_event_seeds_the_three_stream_toggles(library_system):
 
 def test_frame_event_toggle_rebuilds_stream_outlets(library_system):
     """The other rejig-from-subscribe_field site."""
-    from haybale_visiongraph.nodes.numpy_frame_event_node import NumpyFrameEventNode
+    from haybale_visiongraph.nodes.frame_event_node import FrameEventNode
 
-    node = _build(NumpyFrameEventNode)
+    node = _build(FrameEventNode)
     assert "rgb" in node.ports
     assert "depth" not in node.ports
 
@@ -240,9 +240,9 @@ def test_frame_event_toggle_rebuilds_stream_outlets(library_system):
 def test_frame_event_queue_mode_reaches_the_callback_event(library_system):
     """ADR 0010's knob was hardcoded to DROP/1; it is the user's choice now."""
     from haywire.core.execution import QueueMode
-    from haybale_visiongraph.nodes.numpy_frame_event_node import NumpyFrameEventNode
+    from haybale_visiongraph.nodes.frame_event_node import FrameEventNode
 
-    node = _build(NumpyFrameEventNode)
+    node = _build(FrameEventNode)
     assert node.event_subscription.queue_mode is QueueMode.DROP
     assert node.event_subscription.max_queue_size == 1
 
@@ -301,16 +301,16 @@ def test_webcam_image_settings_reach_the_input(library_system):
 
 # --- the two nodes nothing else instantiates ---------------------------------
 #
-# AnnotateNode and OakDCameraNode had no test that built them, which is how a
+# AnnotateResultsNode and OakDCameraNode had no test that built them, which is how a
 # batch of broken `bag.promote(...)` / `bag.subscribe(...)` calls survived the
 # namespace-separation refactor: mypy could not see them (untyped bodies) and
 # no test executed them. These two tests close that hole.
 
 
 def test_annotate_node_builds_and_seeds_its_face(library_system):
-    from haybale_visiongraph.nodes.annotate_node import AnnotateNode
+    from haybale_visiongraph.nodes.annotate_results_node import AnnotateResultsNode
 
-    node = _build(AnnotateNode)
+    node = _build(AnnotateResultsNode)
 
     assert "style.min_score" in node.ports
     assert "style.show_info" in node.ports

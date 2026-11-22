@@ -1,6 +1,6 @@
 # Frame Event
 
-`haybale-visiongraph:node:NumpyFrameEventNode` · kind: node
+`haybale-visiongraph:node:FrameEventNode` · kind: node
 
 Triggered when a camera frame is ready; exposes colour/depth/infrared streams
 
@@ -11,11 +11,11 @@ Triggered when a camera frame is ready; exposes colour/depth/infrared streams
 | `streams.enable_rgb` | config | `haywire-core:type:BOOL` | Request and expose the colour stream. |
 | `streams.enable_depth` | config | `haywire-core:type:BOOL` | Request and expose the depth stream. |
 | `streams.enable_ir` | config | `haywire-core:type:BOOL` | Request and expose the infrared stream. |
-| `subscription` | outlet | `haybale-visiongraph:type:CALLBACK_MULTIFRAME` | Subscribe for camera frames |
+| `subscription` | outlet | `haybale-visiongraph:type:MULTIFRAME_CALLBACK` | Subscribe for camera frames |
 | `frame_ready` | outlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
 | `timestamp` | outlet | `haywire-core:type:FLOAT` | Decimal number |
 | `frame_number` | outlet | `haywire-core:type:INT` | Whole number |
-| `rgb` | outlet | `haybale-image:type:IMAGE_RGB` | A three-channel picture. |
+| `rgb` | outlet | `haybale-image:type:RGB_IMAGE` | A three-channel picture. |
 
 ## Settings
 
@@ -38,7 +38,7 @@ Settings:
         (ADR 0010). Applies on next start.
 
 Outputs:
-    subscription: CALLBACK_MULTIFRAME carrying the event name + requirements.
+    subscription: MULTIFRAME_CALLBACK carrying the event name + requirements.
     frame_ready: Control flow when a frame arrives.
     rgb / depth / ir: The requested frame streams (dynamic outlets).
     frame_number / timestamp: Frame metadata.
