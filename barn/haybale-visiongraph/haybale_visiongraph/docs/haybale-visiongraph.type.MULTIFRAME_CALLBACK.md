@@ -1,6 +1,6 @@
-# Callback Multiframe
+# Multiframe Callback
 
-`haybale-visiongraph:type:CALLBACK_MULTIFRAME` · kind: type
+`haybale-visiongraph:type:MULTIFRAME_CALLBACK` · kind: type
 
 Subscription for multi-frame streams
 

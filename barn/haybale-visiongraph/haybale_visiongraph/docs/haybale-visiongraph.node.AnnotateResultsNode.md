@@ -1,6 +1,6 @@
 # Annotate Results
 
-`haybale-visiongraph:node:AnnotateNode` · kind: node
+`haybale-visiongraph:node:AnnotateResultsNode` · kind: node
 
 Draw estimator results (boxes / masks / poses) onto a frame
 
@@ -9,12 +9,12 @@ Draw estimator results (boxes / masks / poses) onto a frame
 | id | direction | type | description |
 |---|---|---|---|
 | `execute` | inlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
-| `result` | inlet | `haybale-core:type:PooledType` | Connect one or more estimator result outlets |
-| `frame` | inlet | `haybale-image:type:IMAGE_RGB` | A three-channel picture. |
+| `result` | inlet | `haybale-core:type:POOLED` | Connect one or more estimator result outlets |
+| `frame` | inlet | `haybale-image:type:RGB_IMAGE` | A three-channel picture. |
 | `style.min_score` | config | `haywire-core:type:FLOAT` | Hide results and landmarks below this confidence. |
 | `style.show_info` | config | `haywire-core:type:BOOL` | Draw the label / info text next to each result. |
 | `frame_ready` | outlet | `haywire-core:type:EXEC` | Signal for controlling execution flow between nodes |
-| `annotated` | outlet | `haybale-image:type:IMAGE_RGB` | A three-channel picture. |
+| `annotated` | outlet | `haybale-image:type:RGB_IMAGE` | A three-channel picture. |
 
 ## Settings
 
