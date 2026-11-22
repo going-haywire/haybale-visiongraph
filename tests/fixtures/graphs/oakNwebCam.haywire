@@ -353,7 +353,7 @@
             "recipe": {
               "registry_key": "haybale-core:type:POOLED",
               "element_type": {
-                "registry_key": "haybale-image:type:CALLBACK_IMAGE"
+                "registry_key": "haybale-image:type:IMAGE_CALLBACK"
               }
             }
           },
@@ -648,11 +648,11 @@
           },
           "frame": {
             "kwargs": {
-              "registry_id": "IMAGE_RGB",
-              "registry_key": "haybale-image:type:IMAGE_RGB",
+              "registry_id": "RGB_IMAGE",
+              "registry_key": "haybale-image:type:RGB_IMAGE",
               "label": "Frame",
               "description": "A three-channel picture.",
-              "class_name": "IMAGE_RGB",
+              "class_name": "RGB_IMAGE",
               "module": "haybale_image.types.image",
               "default": {
                 "value": {
@@ -676,7 +676,7 @@
               "show_widget": "when_linked"
             },
             "recipe": {
-              "registry_key": "haybale-image:type:IMAGE_RGB"
+              "registry_key": "haybale-image:type:RGB_IMAGE"
             }
           },
           "info_display": {
@@ -729,11 +729,11 @@
           },
           "frame_pass": {
             "kwargs": {
-              "registry_id": "IMAGE_RGB",
-              "registry_key": "haybale-image:type:IMAGE_RGB",
+              "registry_id": "RGB_IMAGE",
+              "registry_key": "haybale-image:type:RGB_IMAGE",
               "label": "Frame Pass",
               "description": "A three-channel picture.",
-              "class_name": "IMAGE_RGB",
+              "class_name": "RGB_IMAGE",
               "module": "haybale_image.types.image",
               "default": {
                 "value": {
@@ -750,7 +750,7 @@
               "show_widget": "never"
             },
             "recipe": {
-              "registry_key": "haybale-image:type:IMAGE_RGB"
+              "registry_key": "haybale-image:type:RGB_IMAGE"
             }
           },
           "timestamp": {
@@ -1118,11 +1118,11 @@
           },
           "rgb": {
             "kwargs": {
-              "registry_id": "IMAGE_RGB",
-              "registry_key": "haybale-image:type:IMAGE_RGB",
+              "registry_id": "RGB_IMAGE",
+              "registry_key": "haybale-image:type:RGB_IMAGE",
               "label": "Color",
               "description": "A three-channel picture.",
-              "class_name": "IMAGE_RGB",
+              "class_name": "RGB_IMAGE",
               "module": "haybale_image.types.image",
               "default": {
                 "value": {
@@ -1139,16 +1139,16 @@
               "show_widget": "never"
             },
             "recipe": {
-              "registry_key": "haybale-image:type:IMAGE_RGB"
+              "registry_key": "haybale-image:type:RGB_IMAGE"
             }
           },
           "ir": {
             "kwargs": {
-              "registry_id": "IMAGE_GRAY",
-              "registry_key": "haybale-image:type:IMAGE_GRAY",
+              "registry_id": "GRAY_IMAGE",
+              "registry_key": "haybale-image:type:GRAY_IMAGE",
               "label": "Infrared",
               "description": "A one-channel picture.",
-              "class_name": "IMAGE_GRAY",
+              "class_name": "GRAY_IMAGE",
               "module": "haybale_image.types.image",
               "default": {
                 "value": {
@@ -1165,7 +1165,7 @@
               "show_widget": "never"
             },
             "recipe": {
-              "registry_key": "haybale-image:type:IMAGE_GRAY"
+              "registry_key": "haybale-image:type:GRAY_IMAGE"
             }
           }
         },
@@ -1285,11 +1285,11 @@
           },
           "frame": {
             "kwargs": {
-              "registry_id": "IMAGE_RGB",
-              "registry_key": "haybale-image:type:IMAGE_RGB",
+              "registry_id": "RGB_IMAGE",
+              "registry_key": "haybale-image:type:RGB_IMAGE",
               "label": "Frame",
               "description": "A three-channel picture.",
-              "class_name": "IMAGE_RGB",
+              "class_name": "RGB_IMAGE",
               "module": "haybale_image.types.image",
               "default": {
                 "value": {
@@ -1313,7 +1313,7 @@
               "show_widget": "when_linked"
             },
             "recipe": {
-              "registry_key": "haybale-image:type:IMAGE_RGB"
+              "registry_key": "haybale-image:type:RGB_IMAGE"
             }
           },
           "info_display": {
@@ -1366,11 +1366,11 @@
           },
           "frame_pass": {
             "kwargs": {
-              "registry_id": "IMAGE_RGB",
-              "registry_key": "haybale-image:type:IMAGE_RGB",
+              "registry_id": "RGB_IMAGE",
+              "registry_key": "haybale-image:type:RGB_IMAGE",
               "label": "Frame Pass",
               "description": "A three-channel picture.",
-              "class_name": "IMAGE_RGB",
+              "class_name": "RGB_IMAGE",
               "module": "haybale_image.types.image",
               "default": {
                 "value": {
@@ -1387,7 +1387,7 @@
               "show_widget": "never"
             },
             "recipe": {
-              "registry_key": "haybale-image:type:IMAGE_RGB"
+              "registry_key": "haybale-image:type:RGB_IMAGE"
             }
           },
           "timestamp": {
@@ -1802,11 +1802,11 @@
         "ports": {
           "listen_callback": {
             "kwargs": {
-              "registry_id": "CALLBACK_IMAGE",
-              "registry_key": "haybale-image:type:CALLBACK_IMAGE",
+              "registry_id": "IMAGE_CALLBACK",
+              "registry_key": "haybale-image:type:IMAGE_CALLBACK",
               "label": "Listen",
               "description": "Subscription for emitters that deliver single images",
-              "class_name": "CALLBACK_IMAGE",
+              "class_name": "IMAGE_CALLBACK",
               "module": "haybale_image.types.callback",
               "default": {
                 "name": "ImageEventNode_418cfdf9"
@@ -1818,7 +1818,7 @@
               "show_widget": "never"
             },
             "recipe": {
-              "registry_key": "haybale-image:type:CALLBACK_IMAGE"
+              "registry_key": "haybale-image:type:IMAGE_CALLBACK"
             },
             "field_data": {
               "name": "ImageEventNode_418cfdf9"
