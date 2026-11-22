@@ -10,7 +10,7 @@
   "nodes": {
     "BeginPlayNode_eeb0fa": {
       "node_id": "BeginPlayNode_eeb0fa",
-      "registry_key": "haybale-core:node:BeginPlayNode",
+      "registry_key": "haybale-core:node:BeginPlayEventNode",
       "node_data": {
         "node_id": "BeginPlayNode_eeb0fa",
         "ports": {
@@ -84,14 +84,14 @@
         },
         "store": {},
         "identity": {
-          "registry_id": "BeginPlayNode",
-          "registry_key": "haybale-core:node:BeginPlayNode",
+          "registry_id": "BeginPlayEventNode",
+          "registry_key": "haybale-core:node:BeginPlayEventNode",
           "label": "Begin Player",
           "description": "Triggered once when execution starts",
           "deprecation_warning": "",
           "hidden": false,
-          "class_name": "BeginPlayNode",
-          "module": "haybale_core.nodes.events.begin_play",
+          "class_name": "BeginPlayEventNode",
+          "module": "haybale_core.nodes.events.begin_play_event",
           "tags": [],
           "search_tags": [
             "start",
@@ -170,11 +170,11 @@
           },
           "callbacks": {
             "kwargs": {
-              "registry_id": "PooledType",
-              "registry_key": "haybale-core:type:PooledType",
+              "registry_id": "POOLED",
+              "registry_key": "haybale-core:type:POOLED",
               "label": "Subscribers",
               "description": "Connect to an Image Event node. The webcam delivers single colour images.",
-              "class_name": "PooledType",
+              "class_name": "POOLED",
               "module": "haybale_core.types.pooled_type",
               "default": {
                 "value": {}
@@ -186,7 +186,7 @@
               "order": 2
             },
             "recipe": {
-              "registry_key": "haybale-core:type:PooledType",
+              "registry_key": "haybale-core:type:POOLED",
               "element_type": {
                 "registry_key": "haybale-image:type:CALLBACK_IMAGE"
               }

@@ -10,7 +10,7 @@
   "nodes": {
     "BeginPlayNode_87f32274": {
       "node_id": "BeginPlayNode_87f32274",
-      "registry_key": "haybale-core:node:BeginPlayNode",
+      "registry_key": "haybale-core:node:BeginPlayEventNode",
       "node_data": {
         "node_id": "BeginPlayNode_87f32274",
         "ports": {
@@ -84,14 +84,14 @@
         },
         "store": {},
         "identity": {
-          "registry_id": "BeginPlayNode",
-          "registry_key": "haybale-core:node:BeginPlayNode",
+          "registry_id": "BeginPlayEventNode",
+          "registry_key": "haybale-core:node:BeginPlayEventNode",
           "label": "Begin Player",
           "description": "Triggered once when execution starts",
           "deprecation_warning": "",
           "hidden": false,
-          "class_name": "BeginPlayNode",
-          "module": "haybale_core.nodes.events.begin_play",
+          "class_name": "BeginPlayEventNode",
+          "module": "haybale_core.nodes.events.begin_play_event",
           "tags": [],
           "search_tags": [
             "start",
@@ -335,11 +335,11 @@
           },
           "callbacks": {
             "kwargs": {
-              "registry_id": "PooledType",
-              "registry_key": "haybale-core:type:PooledType",
+              "registry_id": "POOLED",
+              "registry_key": "haybale-core:type:POOLED",
               "label": "Subscribers",
               "description": "Connect to an Image Event node. The webcam delivers single colour images.",
-              "class_name": "PooledType",
+              "class_name": "POOLED",
               "module": "haybale_core.types.pooled_type",
               "default": {
                 "value": {}
@@ -351,7 +351,7 @@
               "order": 7
             },
             "recipe": {
-              "registry_key": "haybale-core:type:PooledType",
+              "registry_key": "haybale-core:type:POOLED",
               "element_type": {
                 "registry_key": "haybale-image:type:CALLBACK_IMAGE"
               }
@@ -509,7 +509,7 @@
     },
     "ShutdownNode_f1b20b45": {
       "node_id": "ShutdownNode_f1b20b45",
-      "registry_key": "haybale-core:node:ShutdownNode",
+      "registry_key": "haybale-core:node:ShutdownEventNode",
       "node_data": {
         "node_id": "ShutdownNode_f1b20b45",
         "ports": {
@@ -583,14 +583,14 @@
         },
         "store": {},
         "identity": {
-          "registry_id": "ShutdownNode",
-          "registry_key": "haybale-core:node:ShutdownNode",
+          "registry_id": "ShutdownEventNode",
+          "registry_key": "haybale-core:node:ShutdownEventNode",
           "label": "Shutdown",
           "description": "Triggered when execution is shutting down",
           "deprecation_warning": "",
           "hidden": false,
-          "class_name": "ShutdownNode",
-          "module": "haybale_core.nodes.events.shutdown",
+          "class_name": "ShutdownEventNode",
+          "module": "haybale_core.nodes.events.shutdown_event",
           "tags": [],
           "search_tags": [
             "stop",
@@ -1611,11 +1611,11 @@
           },
           "callbacks": {
             "kwargs": {
-              "registry_id": "PooledType",
-              "registry_key": "haybale-core:type:PooledType",
+              "registry_id": "POOLED",
+              "registry_key": "haybale-core:type:POOLED",
               "label": "Subscribers",
               "description": "Connect to a Frame Event node",
-              "class_name": "PooledType",
+              "class_name": "POOLED",
               "module": "haybale_core.types.pooled_type",
               "default": {
                 "value": {}
@@ -1628,7 +1628,7 @@
               "on_change": "hb_on_callbacks_changed"
             },
             "recipe": {
-              "registry_key": "haybale-core:type:PooledType",
+              "registry_key": "haybale-core:type:POOLED",
               "element_type": {
                 "registry_key": "haybale-visiongraph:type:CALLBACK_MULTIFRAME"
               }
