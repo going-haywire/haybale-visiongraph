@@ -84,3 +84,8 @@ timeout = 120
 # One coordinate per version: a PyPI row and a git row of the same name read
 # as two different libraries to a subscriber.
 distribute = "pypi"
+
+[tool.haywire.agents]
+# The docs folder whose `serve: developer` pages the Farmhand bridge serves to agent
+# sessions here: core's, through the core clone beside this repository.
+developer-docs = "../haywire-repo/docs"
