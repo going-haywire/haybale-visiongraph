@@ -4,17 +4,17 @@ version = "0.0.47"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "depthai~=2.30", 
-    "fastapi", 
+    # <3: the OAK-D node runs on visiongraph's DepthAI input, built on the depthai 2 API
+    # (dai.node.XLinkOut), which depthai 3 removed.
+    "depthai~=2.30",
     "haybale-core>=0.6.3",
     "haybale-image>=0.6.3",
     "haybale-models>=0.6.3",
     "haywire-core>=0.6.3",
-    "nicegui>=3.12.1", 
     "numpy>=1.26",
     "opencv-contrib-python>=4.13.0.90",
-    "typing_extensions>=4.15.0", 
-    "visiongraph[onnx,openvino,mediapipe,mot]>=1.3.0,<2"]
+    "visiongraph[onnx,openvino,mediapipe,mot]>=1.3.0,<2",
+]
 description = "Visiongraph is a computer-vision pipeline library designed to simplify the prototyping of image-based algorithms"
 keywords = ["computer vision", "machine learning", "camera", "image capture"]
 

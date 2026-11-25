@@ -51,7 +51,12 @@ path = "../haywire-repo/barn/haybale-haystack"
 editable = true
 
 [dependency-groups]
-dev = ["pytest>=8", "pytest-timeout", "ruff==0.12.12"]
+dev = [
+    # Floors at the version in use: the floors CI job lowers the dev group too (core's ADR 0095).
+    "pytest>=9.2",
+    "pytest-timeout>=2.4",
+    "ruff==0.12.12",
+]
 
 [tool.ruff]
 # The framework monorepo's limit.
