@@ -494,3 +494,71 @@ def test_the_library_subscribes_to_haybale_models() -> None:
         if "linked_libraries" in value
     )
     assert "haybale_models" in linked
+
+
+def _mediapipe_specs() -> list[tuple[str, Any]]:
+    return [(key, spec) for key, spec in _all_specs() if "mediapipe" in spec.bags]
+
+
+@pytest.mark.parametrize(("key", "spec"), _mediapipe_specs(), ids=lambda v: v if isinstance(v, str) else "")
+def test_mediapipe_settings_reach_the_task_options(library_system: Any, key: str, spec: Any) -> None:
+    """Every MediaPipe setting the node writes before ``setup()`` becomes a task option.
+
+    visiongraph 1.3.0 builds the MediaPipe Tasks options from the estimator's attributes at
+    ``setup()`` (and on every frame). An attribute it no longer reads would be written and then
+    ignored, without an error, so the test sets each to a non-default value and reads the
+    options back. Building does not load the model, so no file is needed.
+    """
+    from haybale_visiongraph.nodes.estimator_settings import MediaPipeSettings
+    from haywire.api import settings_fields
+
+    estimator = spec.build(_entry_files(key))
+    values = {
+        "min_score": 0.21,
+        "max_num_poses": 3,
+        "min_pose_presence_confidence": 0.31,
+        "min_tracking_confidence": 0.41,
+        "output_segmentation_masks": False,
+    }
+    assert set(values) | {"static_image_mode"} == set(settings_fields(MediaPipeSettings)) | {"min_score"}
+    assert set(values) | {"static_image_mode"} == set(spec.rebuild_fields)
+    for name, value in values.items():
+        setattr(estimator, name, value)
+    options = estimator._options()
+    assert options["min_pose_detection_confidence"] == 0.21
+    assert options["num_poses"] == 3
+    assert options["min_pose_presence_confidence"] == 0.31
+    assert options["min_tracking_confidence"] == 0.41
+    assert options["output_segmentation_masks"] is False
+
+    from mediapipe.tasks.python import vision
+
+    assert options["running_mode"] == vision.RunningMode.VIDEO
+    estimator.static_image_mode = True
+    assert estimator._options()["running_mode"] == vision.RunningMode.IMAGE
+
+
+def test_building_a_mediapipe_model_turns_its_profiler_off(library_system: Any, monkeypatch: Any) -> None:
+    """mediapipe's per-thread CPU profiler gets the process SIGKILLed under a hard RTTIME of 0."""
+    key, spec = _mediapipe_specs()[0]
+    monkeypatch.delenv("CPUPROFILE_FREQUENCY", raising=False)
+    spec.build(_entry_files(key))
+    assert os.environ["CPUPROFILE_FREQUENCY"] == "0"
+
+
+def test_a_profiler_frequency_the_user_set_is_kept(library_system: Any, monkeypatch: Any) -> None:
+    key, spec = _mediapipe_specs()[0]
+    monkeypatch.setenv("CPUPROFILE_FREQUENCY", "100")
+    spec.build(_entry_files(key))
+    assert os.environ["CPUPROFILE_FREQUENCY"] == "100"
+
+
+def test_other_backends_leave_the_profiler_setting_alone(library_system: Any, monkeypatch: Any) -> None:
+    monkeypatch.delenv("CPUPROFILE_FREQUENCY", raising=False)
+    for key, spec in _all_specs():
+        if "mediapipe" in spec.bags:
+            continue
+        module = __import__(spec.module, fromlist=[spec.cls_name])
+        with patch.object(getattr(module, spec.cls_name), "__init__", lambda self, *a, **k: None):
+            spec.build(_entry_files(key))
+    assert "CPUPROFILE_FREQUENCY" not in os.environ

@@ -37,6 +37,7 @@ Design decisions realised here:
 """
 
 import importlib
+import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -106,6 +107,8 @@ class ModelSpec:
         """
         from visiongraph.data.Asset import Asset
 
+        if ".MediaPipe" in self.module:
+            hb_disable_mediapipe_profiler()
         mod = importlib.import_module(self.module)
         estimator_cls = getattr(mod, self.cls_name)
         value = getattr(getattr(mod, self.config_cls_name), self.variant).value
@@ -119,6 +122,19 @@ class ModelSpec:
         if len(assets) == 1:
             return estimator_cls(assets[0], labels=rest[0])
         return estimator_cls(*assets, rest[0])
+
+
+def hb_disable_mediapipe_profiler() -> None:
+    """Turn off the CPU profiler that mediapipe 1.2.x arms on each of its threads, unless the user set it.
+
+    ``libmediapipe.so`` arms a per-thread CPU-time timer on every thread it starts. On Linux the
+    kernel kills a thread with such a timer when the process's hard ``RLIMIT_RTTIME`` is 0, which
+    pipewire sets in-process when the realtime portal reports no realtime budget (no rtkit), as
+    soon as anything initialises PortAudio. The process then dies while the pose model loads.
+    ``CPUPROFILE_FREQUENCY=0`` is the library's own off switch; it is read when a thread
+    registers, so setting it before the first task is created is enough.
+    """
+    os.environ.setdefault("CPUPROFILE_FREQUENCY", "0")
 
 
 def _local(asset: Any, files: dict[str, Path]) -> Any:
